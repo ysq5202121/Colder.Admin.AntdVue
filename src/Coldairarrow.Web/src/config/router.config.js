@@ -2,7 +2,8 @@
 import { UserLayout, PageView } from '@/layouts'
 
 /**
- * 基础路由
+ * 基础路由,修改基础路由信息
+ * modify by ysq 2020-04-23
  * @type { *[] }
  */
 export const constantRouterMap = [
@@ -18,6 +19,31 @@ export const constantRouterMap = [
         component: () => import('@/views/Home/Login')
       }
     ]
+  },
+  {
+    path: '/ClientFood/FoodCenter',
+    name: 'FoodCenter',
+    component: () => import('@/views/ClientFood/FoodCenter')
+  },
+  {
+    path: '/ClientFood/FoodManger',
+    name: 'FoodManger',
+    component: () => import('@/views/ClientFood/FoodManger')
+  },
+  {
+    path: '/ClientFood/FoodAdd',
+    name: 'FoodAdd',
+    component: () => import('@/views/ClientFood/FoodAdd')
+  },
+  {
+    path: '/ClientFood/Order',
+    name: 'Order',
+    component: () => import('@/views/ClientFood/Order')
+  },
+  {
+    path: '/ClientFood/FoodTabbar',
+    name: 'FoodTabbar',
+    component: () => import('@/views/ClientFood/FoodTabbar')
   },
   {
     path: '/404',
