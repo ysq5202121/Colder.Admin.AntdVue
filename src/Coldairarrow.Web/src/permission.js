@@ -9,7 +9,7 @@ import defaultSettings from '@/config/defaultSettings'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const whiteList = ['Login'] // no redirect whitelist
+const whiteList = ['Login','FoodCenter'] // no redirect whitelist
 
 router.beforeEach((to, from, next) => {
   NProgress.start() // start progress bar

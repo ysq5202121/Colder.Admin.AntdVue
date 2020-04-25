@@ -13,10 +13,14 @@ import VueClipboard from 'vue-clipboard2'
 // import PermissionHelper from '@/utils/helper/permission'
 // import '@/components/use'
 import './directives/action'
+// 导入移动端组件modify by ysq 2020-04-24
+import Vant from 'vant'
+import 'vant/lib/index.css'
 
 VueClipboard.config.autoSetContainer = true
 
 Vue.use(Antd)
+Vue.use(Vant)
 // Vue.use(Viser)
 
 Vue.use(VueStorage, config.storageOptions)
