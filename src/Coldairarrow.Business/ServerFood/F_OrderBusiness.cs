@@ -3,6 +3,7 @@ using Coldairarrow.Util;
 using EFCore.Sharding;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
@@ -34,6 +35,56 @@ namespace Coldairarrow.Business.ServerFood
             }
 
             return await q.Where(where).GetPageResultAsync(input);
+        }
+
+        public async Task PlaceOrderAsync(List<IF_OrderInputDTO> data)
+        {
+            if (data == null || data.Count==0)
+            {
+                throw new BusException("数据不正常请检查!");
+            }
+            //查询发布菜品信息
+            var f_PublishFoodList = Service.GetIQueryable<F_PublishFood>().Where(a => data.Select(b => b.Id).Contains(a.Id)).ToList();
+            f_PublishFoodList.ForEach(a =>
+            {
+                a.FoodQty = a.FoodQty - data.First(b => b.Id == a.Id).Num;
+                Service.Update(a);
+            });
+            //计算总价
+            var TotalPrice = data.Sum(a => a.Price * a.Num);
+            var TotalNum = data.Sum(a => a.Num);
+            //添加主表
+            F_Order order= new F_Order()
+            {
+                Id= IdHelper.GetId(),
+                OrderCode = IdHelper.GetId(),
+                Price = TotalPrice,
+                OrderCount = TotalNum,
+                CreateDate =DateTime.Now,
+                CreatorId="",
+                CreatorName="",
+                UpdateDate= DateTime.Now,
+                UpdateId="",
+                UpdateName=""
+            };
+           await InsertAsync(order);
+            //添加明细
+           var OrderInfoList=data.Select(a => new F_OrderInfo 
+            {
+               OrderCode= order.OrderCode,
+               Id= IdHelper.GetId(),
+               OrderInfoQty=a.Num,
+               PublishFoodId=a.Id,
+               CreateDate = DateTime.Now,
+               CreatorId = "",
+               CreatorName = "",
+               UpdateDate = DateTime.Now,
+               UpdateId = "",
+               UpdateName = ""
+           }).ToList();
+           Service.BulkInsert<F_OrderInfo>(OrderInfoList);
+
+           await Task.CompletedTask;
         }
 
         public async Task AddDataAsync(List<F_Order> data)

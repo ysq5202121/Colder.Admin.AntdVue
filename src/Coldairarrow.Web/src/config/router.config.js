@@ -46,6 +46,16 @@ export const constantRouterMap = [
     component: () => import('@/views/ClientFood/FoodTabbar')
   },
   {
+    path: '/WeChat/index',
+    name: 'index',
+    component: () => import('@/views/WeChat/index')
+  },
+  {
+    path: '/WeChat/Authorize',
+    name: 'Authorize',
+    component: () => import('@/views/WeChat/Authorize')
+  },
+  {
     path: '/404',
     component: () => import('@/views/exception/404')
   }

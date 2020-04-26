@@ -55,6 +55,12 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         }
 
         [HttpPost]
+        public async Task PlaceOrderAsync(List<IF_OrderInputDTO> data) 
+        {
+            await _f_OrderBus.PlaceOrderAsync(data);
+        }
+
+        [HttpPost]
         public async Task DeleteData(List<string> ids)
         {
             await _f_OrderBus.DeleteDataAsync(ids);

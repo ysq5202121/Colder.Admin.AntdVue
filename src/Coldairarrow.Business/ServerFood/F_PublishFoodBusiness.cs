@@ -40,7 +40,7 @@ namespace Coldairarrow.Business.ServerFood
         {
             var q =  GetIQueryable();
             var where = LinqHelper.True<F_PublishFood>();
-            where.And(a => a.Prcie > 0);
+            where.And(a => a.Price > 0);
             //if (!input.keyword.IsNullOrEmpty())
             //{
             //    where = where.And(x => EF.Functions.Like(x.Name, $"%{input.keyword}%"));

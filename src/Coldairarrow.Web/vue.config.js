@@ -51,15 +51,21 @@ const vueConfig = {
     }
   },
   devServer: {
-    port: process.env.VUE_APP_DevPort
+    disableHostCheck: true,
+    port: process.env.VUE_APP_DevPort,
     // If you want to turn on the proxy, please remove the mockjs /src/main.jsL11
-    // proxy: {
-    //   '/api': {
-    //     target: 'https://mock.ihx.me/mock/5baf3052f7da7e07e04a5116/antd-pro',
-    //     ws: false,
-    //     changeOrigin: true
-    //   }
-    // }
+    proxy: {
+      '/api': {
+        target: 'http://qyapi.weixin.qq.com/',
+        ws: true,
+        secure: true,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/api': ''// /api/ / 凡是/api开头的地址都可以跨域
+        }
+
+      }
+    }
   },
 
   // disable source map in production

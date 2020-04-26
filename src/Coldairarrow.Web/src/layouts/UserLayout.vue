@@ -9,8 +9,7 @@
           </a>
         </div>
         <div class="desc">
-          致力于提高开发效率
-          <br />解放生产力
+        
         </div>
       </div>
 

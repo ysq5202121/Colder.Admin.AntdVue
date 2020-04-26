@@ -5,7 +5,7 @@
         </van-notice-bar>  
         <div v-for="item in data">   
           <van-card
-            :price="item.Prcie"
+            :price="item.Price"
             :desc="item.FoodDesc"
             :title="item.FoodName"
             thumb="https://img.yzcdn.cn/vant/ipad.jpeg"
@@ -20,12 +20,12 @@
              <van-rate v-model="item.FoodQty" readonly />
             </template>
             <template #footer>
-            <van-stepper v-model="value" min="0" :max="item.FoodQty" @change="onChange"/>
+            <van-stepper v-model="item.Num" min="0" :max="item.FoodQty" @change="onChange(item)"/>
             </template>
             </van-card>
         </div>
         <div>
-            <van-submit-bar :price="3050" button-text="提交订单" @submit="onSubmit" tip-icon="shop" >
+            <van-submit-bar :price="total" button-text="提交订单" @submit="onSubmit" tip-icon="shop" >
             <template #default>
                您的收货地址是：大餐厅
             </template>
@@ -42,38 +42,98 @@
 
 module.exports = {
   mounted () {
+    console.log(1111)
     this.getDataList()
+    this.getAccesstoken()
   },
   data: function () {
     return {
       data: [],
       greeting: "Hello",
-      value: 2
+      shopCar:[]
     }
   },
-   methods: {
-     getDataList () {
+  methods: {
+
+     getAccesstoken () {
       this.loading = true
       this.$http
-        .post('/ServerFood/F_PublishFood/GetDataListToMobile', {
-        
+        .get('/api/cgi-bin/gettoken?corpid=ww5edb01e84de945a4&corpsecret=gNd9XIo_cLjCbHZX5T-fh7kzkyKZogxFTio1wQmUCAA')
+        .then(resJson => {
+          this.loading = false
+          console.log(resJson.Data)
+        })
+    },
+    getDataList () {
+      this.loading = true
+      this.$http
+        .post('/ServerFood/F_PublishFood/GetDataListToMobile', {     
         })
         .then(resJson => {
           this.loading = false
           // 扩展对象集合
-          //var sss= {...resJson.Data,[{x:0}]}
-          //console.log(sss)
-          console.log(resJson.Data)
-          this.data = resJson.Data.find(a=>{return a.price>3})
+          const newData = []
+          Object.assign(newData, resJson.Data)
+          newData.forEach(a=> {
+            this.$set(a, 'Num', 0)
+          })
+          this.data = newData
+       
         })
     },
     onSubmit () {
-        alert('提交订单了!')
+            
+          if(this.total==0)
+          {
+            this.$message.error('请先选择商品在提交')
+            return;
+          }
+          this.loading = true
+          this.$http.post('/ServerFood/F_Order/PlaceOrder', this.shopCar).then(resJson => {
+          this.loading = false
+
+          if (resJson.Success) {
+            this.$message.success('操作成功!')
+            this.visible = false
+            this.getDataList()
+          } else {
+            this.$message.error(resJson.Msg)
+          }
+        })
     },
-    onChange(value){
-          console.log(value)
-      
+    onChange(item)
+    {
+         var isOn=true
+         this.shopCar=this.shopCar.filter(a=>a.Num>0)
+         this.shopCar.some(a=>{
+           if(a.Id==item.Id)
+           {
+             a.Num=item.Num
+             isOn=false
+             return true
+           }
+         })
+        
+        if(isOn){
+        this.shopCar.push({
+          Id:item.Id,
+          Price:item.Price,
+          Num:item.Num
+        })
+        }
     }
-   }
+   },
+  computed: {
+    total(){//计算总价的方法
+            let sum=0;
+            for(let i=0;i<this.shopCar.length;i++){
+                sum+=parseFloat(this.shopCar[i].Price)*parseFloat(this.shopCar[i].Num)
+           }
+            sum=sum*10*10 //转换成分
+            return sum;
+        }
+
+    }
+
 };
 </script>
