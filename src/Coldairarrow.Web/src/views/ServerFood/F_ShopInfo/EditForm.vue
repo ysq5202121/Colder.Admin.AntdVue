@@ -15,21 +15,6 @@
         <a-form-model-item label="门店描述" prop="ShopDesc">
           <a-input v-model="entity.ShopDesc" autocomplete="off" />
         </a-form-model-item>
-        <a-form-model-item label="创建人姓名" prop="CreatorName">
-          <a-input v-model="entity.CreatorName" autocomplete="off" />
-        </a-form-model-item>
-        <a-form-model-item label="创建时间" prop="CreateDate">
-          <a-input v-model="entity.CreateDate" autocomplete="off" />
-        </a-form-model-item>
-        <a-form-model-item label="修改人编号" prop="UpdateId">
-          <a-input v-model="entity.UpdateId" autocomplete="off" />
-        </a-form-model-item>
-        <a-form-model-item label="修改人时间" prop="UpdateName">
-          <a-input v-model="entity.UpdateName" autocomplete="off" />
-        </a-form-model-item>
-        <a-form-model-item label="修改时间" prop="UpdateDate">
-          <a-input v-model="entity.UpdateDate" autocomplete="off" />
-        </a-form-model-item>
       </a-form-model>
     </a-spin>
   </a-modal>
@@ -49,7 +34,7 @@ export default {
       visible: false,
       loading: false,
       entity: {},
-      rules: {},
+      rules: {  ShopName: [{ required: true, message: '必填' }]},
       title: ''
     }
   },

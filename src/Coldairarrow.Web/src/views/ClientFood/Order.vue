@@ -54,11 +54,10 @@ module.exports = {
     }
   },
   methods: {
-
-     getAccesstoken () {
+    getAccesstoken () {
       this.loading = true
       this.$http
-        .get('/api/cgi-bin/gettoken?corpid=ww5edb01e84de945a4&corpsecret=gNd9XIo_cLjCbHZX5T-fh7kzkyKZogxFTio1wQmUCAA')
+        .get('http://localhost:5001/api?corpid=ww5edb01e84de945a4&corpsecret=gNd9XIo_cLjCbHZX5T-fh7kzkyKZogxFTio1wQmUCAA')
         .then(resJson => {
           this.loading = false
           console.log(resJson.Data)

@@ -1,14 +1,6 @@
 ﻿<template>
   <a-card :bordered="false">
     <div class="table-operator">
-      <a-button type="primary" icon="plus" @click="hanldleAdd()">新建</a-button>
-      <a-button
-        type="primary"
-        icon="minus"
-        @click="handleDelete(selectedRowKeys)"
-        :disabled="!hasSelected()"
-        :loading="loading"
-      >删除</a-button>
       <a-button type="primary" icon="redo" @click="getDataList()">刷新</a-button>
     </div>
 
@@ -18,7 +10,7 @@
           <a-col :md="4" :sm="24">
             <a-form-item label="查询类别">
               <a-select allowClear v-model="queryParam.condition">
-                <a-select-option key="ShopInfoId">门店Id</a-select-option>
+                <a-select-option key="ShopName">门店名称</a-select-option>
                 <a-select-option key="OrderBeginRemind">开始点餐提醒信息</a-select-option>
                 <a-select-option key="OrderEndRemind">结束点餐提醒信息</a-select-option>
                 <a-select-option key="CreatorName">创建人姓名</a-select-option>
@@ -69,17 +61,14 @@
 import EditForm from './EditForm'
 
 const columns = [
-  { title: '门店Id', dataIndex: 'ShopInfoId', width: '10%' },
-  { title: '点餐开始时间', dataIndex: 'OrderBeginDate', width: '10%' },
-  { title: '点餐结束时间', dataIndex: 'OrderBeginEnd', width: '10%' },
-  { title: '开始点餐提醒信息', dataIndex: 'OrderBeginRemind', width: '10%' },
-  { title: '结束点餐提醒信息', dataIndex: 'OrderEndRemind', width: '10%' },
-  { title: '创建人姓名', dataIndex: 'CreatorName', width: '10%' },
-  { title: '创建日期 默认为当前时间', dataIndex: 'CreateDate', width: '10%' },
-  { title: '修改人编号', dataIndex: 'UpdateId', width: '10%' },
-  { title: '修改人时间', dataIndex: 'UpdateName', width: '10%' },
-  { title: '修改时间', dataIndex: 'UpdateDate', width: '10%' },
-  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' } }
+  { title: '门店名称', dataIndex: 'ShopName' },
+  { title: '点餐开始时间', dataIndex: 'OrderBeginDate', width: 150 },
+  { title: '点餐结束时间', dataIndex: 'OrderBeginEnd', width: 150 },
+  { title: '创建人', dataIndex: 'CreatorName', width: 100 },
+  { title: '创建日期', dataIndex: 'CreateTime', width: 150 },
+  { title: '修改人', dataIndex: 'UpdateName', width: 100 },
+  { title: '修改时间', dataIndex: 'UpdateTime', width: 150 },
+  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }  ,fixed: 'right', width: 150}
 ]
 
 export default {

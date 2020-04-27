@@ -4,6 +4,13 @@
       <a-button type="primary" icon="plus" @click="hanldleAdd()">新建</a-button>
       <a-button
         type="primary"
+        icon="notification"
+        @click="handlePublish(selectedRowKeys)"
+        :disabled="!hasSelected()"
+        :loading="loading"
+      >发布菜品</a-button>
+      <a-button
+        type="danger"
         icon="minus"
         @click="handleDelete(selectedRowKeys)"
         :disabled="!hasSelected()"
@@ -18,11 +25,10 @@
           <a-col :md="4" :sm="24">
             <a-form-item label="查询类别">
               <a-select allowClear v-model="queryParam.condition">
-                <a-select-option key="ShopInfoId">门店Id</a-select-option>
+                <a-select-option key="ShopName">门店名称</a-select-option>
                 <a-select-option key="SupplierName">商家名称</a-select-option>
                 <a-select-option key="FoodName">菜品名称</a-select-option>
                 <a-select-option key="FoodDesc">菜品描述信息</a-select-option>
-                <a-select-option key="ImgUrl">图片</a-select-option>
                 <a-select-option key="CreatorName">创建人姓名</a-select-option>
                 <a-select-option key="UpdateId">修改人编号</a-select-option>
                 <a-select-option key="UpdateName">修改人时间</a-select-option>
@@ -61,6 +67,10 @@
           <a @click="handleDelete([record.Id])">删除</a>
         </template>
       </span>
+      <span slot="ImgUrl" slot-scope="image, record">
+      <a-avatar icon="file-image" :src="image" size="large" shape="square" />
+ 
+      </span>
     </a-table>
 
     <edit-form ref="editForm" :parentObj="this"></edit-form>
@@ -71,19 +81,18 @@
 import EditForm from './EditForm'
 
 const columns = [
-  { title: '门店Id', dataIndex: 'ShopInfoId', width: '10%' },
-  { title: '商家名称', dataIndex: 'SupplierName', width: '10%' },
-  { title: '菜品名称', dataIndex: 'FoodName', width: '10%' },
-  { title: '菜品描述信息', dataIndex: 'FoodDesc', width: '10%' },
-  { title: '菜品综合评分', dataIndex: 'Score', width: '10%' },
-  { title: '评价人数', dataIndex: 'EvaluatorsNumber', width: '10%' },
-  { title: '价格', dataIndex: 'Prcie', width: '10%' },
-  { title: '图片', dataIndex: 'ImgUrl', width: '10%' },
-  { title: '创建人姓名', dataIndex: 'CreatorName', width: '10%' },
-  { title: '修改人编号', dataIndex: 'UpdateId', width: '10%' },
-  { title: '修改人时间', dataIndex: 'UpdateName', width: '10%' },
-  { title: '修改时间', dataIndex: 'UpdateTime', width: '10%' },
-  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' } }
+  { title: '门店名称', dataIndex: 'ShopName', width: 150},
+  { title: '商家名称', dataIndex: 'SupplierName', width: 100 },
+  { title: '菜品名称', dataIndex: 'FoodName' },
+  { title: '菜品综合评分', dataIndex: 'Score', width: 110 },
+  { title: '评价人数', dataIndex: 'EvaluatorsNumber', width: 100 },
+  { title: '价格', dataIndex: 'Price', width: 100  },
+  { title: '图片', dataIndex: 'ImgUrl', scopedSlots: { customRender: 'ImgUrl' } },
+  { title: '创建时间', dataIndex: 'CreatorTime', width: 150},
+  { title: '创建人', dataIndex: 'CreatorName', width: 100 },
+  { title: '修改人', dataIndex: 'UpdateName', width: 100 },
+  { title: '修改时间', dataIndex: 'UpdateTime', width: 150 },
+  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, fixed: 'right', width: 150 }
 ]
 
 export default {
@@ -156,6 +165,27 @@ export default {
         onOk() {
           return new Promise((resolve, reject) => {
             thisObj.$http.post('/ServerFood/F_FoodInfo/DeleteData', ids).then(resJson => {
+              resolve()
+
+              if (resJson.Success) {
+                thisObj.$message.success('操作成功!')
+
+                thisObj.getDataList()
+              } else {
+                thisObj.$message.error(resJson.Msg)
+              }
+            })
+          })
+        }
+      })
+    },
+    handlePublish(ids) {
+      var thisObj = this
+      this.$confirm({
+        title: '确定发布吗?',
+        onOk() {
+          return new Promise((resolve, reject) => {
+            thisObj.$http.post('/ServerFood/F_FoodInfo/PublishFoodData', ids).then(resJson => {
               resolve()
 
               if (resJson.Success) {

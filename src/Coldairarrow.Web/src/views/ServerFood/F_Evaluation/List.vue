@@ -76,7 +76,7 @@ const columns = [
   { title: '内容', dataIndex: 'FoodContent', width: '10%' },
   { title: '备注信息', dataIndex: 'Remark', width: '10%' },
   { title: '创建人姓名', dataIndex: 'CreatorName', width: '10%' },
-  { title: '创建日期 默认为当前时间', dataIndex: 'CreateDate', width: '10%' },
+  { title: '创建日期', dataIndex: 'CreateDate', width: '10%' },
   { title: '修改人编号', dataIndex: 'UpdateId', width: '10%' },
   { title: '修改人时间', dataIndex: 'UpdateName', width: '10%' },
   { title: '修改时间', dataIndex: 'UpdateDate', width: '10%' },

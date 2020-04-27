@@ -55,7 +55,7 @@ namespace Coldairarrow.Entity.ServerFood
         /// <summary>
         /// 创建日期 默认为当前时间
         /// </summary>
-        public DateTime? CreateDate { get; set; }
+        public DateTime? CreateTime { get; set; }
 
         /// <summary>
         /// 修改人编号
@@ -70,7 +70,7 @@ namespace Coldairarrow.Entity.ServerFood
         /// <summary>
         /// 修改时间
         /// </summary>
-        public DateTime? UpdateDate { get; set; }
+        public DateTime? UpdateTime { get; set; }
 
     }
 }

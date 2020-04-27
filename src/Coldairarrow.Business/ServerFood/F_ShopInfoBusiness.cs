@@ -1,4 +1,5 @@
-﻿using Coldairarrow.Entity.ServerFood;
+﻿using System;
+using Coldairarrow.Entity.ServerFood;
 using Coldairarrow.Util;
 using EFCore.Sharding;
 using LinqKit;
@@ -12,9 +13,11 @@ namespace Coldairarrow.Business.ServerFood
 {
     public class F_ShopInfoBusiness : BaseBusiness<F_ShopInfo>, IF_ShopInfoBusiness, ITransientDependency
     {
-        public F_ShopInfoBusiness(IRepository repository)
+        public IOperator operate;
+        public F_ShopInfoBusiness(IRepository repository,IOperator op)
             : base(repository)
         {
+            operate = op;
         }
 
         #region 外部接口
@@ -41,8 +44,22 @@ namespace Coldairarrow.Business.ServerFood
             return await GetEntityAsync(id);
         }
 
+        public async Task<List<F_ShopInfo>> GetDataListAllAsync()
+        {
+            return await GetListAsync();
+        }
+
         public async Task AddDataAsync(F_ShopInfo data)
         {
+            F_ShopInfoSet shopInfoSet = new F_ShopInfoSet()
+            {
+                Id = IdHelper.GetId(),
+                CreatorId = operate.UserId,
+                CreatorName = operate.Property.RealName,
+                ShopInfoId = data.Id,
+                CreateTime = DateTime.Now
+            };
+            await Service.InsertAsync(shopInfoSet);
             await InsertAsync(data);
         }
 

@@ -72,21 +72,19 @@
 import EditForm from './EditForm'
 
 const columns = [
-  { title: '门店Id', dataIndex: 'ShopInfoId', width: '10%' },
-  { title: '菜品Id', dataIndex: 'FoodInfoId', width: '10%' },
-  { title: '价格', dataIndex: 'Prcie', width: '10%' },
-  { title: '商家名称', dataIndex: 'SupplierName', width: '10%' },
-  { title: '菜品名称', dataIndex: 'FoodName', width: '10%' },
-  { title: '菜品描述信息', dataIndex: 'FoodDesc', width: '10%' },
-  { title: '菜品数量', dataIndex: 'FoodQty', width: '10%' },
-  { title: '图片', dataIndex: 'ImgUrl', width: '10%' },
-  { title: '发布时间', dataIndex: 'PublishDate', width: '10%' },
-  { title: '创建人姓名', dataIndex: 'CreatorName', width: '10%' },
-  { title: '创建日期 默认为当前时间', dataIndex: 'CreateDate', width: '10%' },
-  { title: '修改人编号', dataIndex: 'UpdateId', width: '10%' },
-  { title: '修改人时间', dataIndex: 'UpdateName', width: '10%' },
-  { title: '修改时间', dataIndex: 'UpdateDate', width: '10%' },
-  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' } }
+  { title: '门店Id', dataIndex: 'ShopInfoId', width: 100 },
+ 
+  { title: '商家名称', dataIndex: 'SupplierName', width: 100 },
+  { title: '菜品名称', dataIndex: 'FoodName' },
+  { title: '菜品数量', dataIndex: 'FoodQty', width: 100 },
+  { title: '价格', dataIndex: 'Prcie', width: 100 },
+  { title: '图片', dataIndex: 'ImgUrl', width: 100 },
+  { title: '发布时间', dataIndex: 'PublishDate', width: 150 },
+  { title: '创建人', dataIndex: 'CreatorName', width: 100 },
+  { title: '创建时间', dataIndex: 'CreateTime', width: 150 },
+  { title: '修改人', dataIndex: 'UpdateName', width: 100 },
+  { title: '修改时间', dataIndex: 'UpdateTime', width: 150 },
+  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, fixed: 'right', width: 150 }
 ]
 
 export default {

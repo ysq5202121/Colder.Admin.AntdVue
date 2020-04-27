@@ -19,7 +19,7 @@ namespace Coldairarrow.Business.ServerFood
     public class IF_OrderInputDTO
     {
         public string Id { get; set; }
-        public double Price { get; set; }
+        public decimal Price { get; set; }
         public int Num { get; set; }
         public string UserID { get; set; }
     }

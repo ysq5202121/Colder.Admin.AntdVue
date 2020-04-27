@@ -9,8 +9,10 @@
   >
     <a-spin :spinning="loading">
       <a-form-model ref="form" :model="entity" :rules="rules" v-bind="layout">
-        <a-form-model-item label="门店Id" prop="ShopInfoId">
-          <a-input v-model="entity.ShopInfoId" autocomplete="off" />
+        <a-form-model-item label="门店名称" prop="ShopInfoId">
+          <a-select v-model="entity.ShopInfoId" style="width: 120px">
+            <a-select-option v-for="shopinfo in ShopInfoList" :key="shopinfo.Id">{{ shopinfo.ShopName }}</a-select-option>
+          </a-select>
         </a-form-model-item>
         <a-form-model-item label="商家名称" prop="SupplierName">
           <a-input v-model="entity.SupplierName" autocomplete="off" />
@@ -18,32 +20,15 @@
         <a-form-model-item label="菜品名称" prop="FoodName">
           <a-input v-model="entity.FoodName" autocomplete="off" />
         </a-form-model-item>
+        <a-form-item label="图片上传" >
+        <!--v-model为图片连接地址(可传单个或数组),maxCount为最大上传数:默认为1-->
+        <c-upload-img v-model="entity.ImgUrl" :maxCount="1"></c-upload-img>
+        </a-form-item>
         <a-form-model-item label="菜品描述信息" prop="FoodDesc">
-          <a-input v-model="entity.FoodDesc" autocomplete="off" />
+          <a-input v-model="entity.FoodDesc" autocomplete="off" type="textarea" />
         </a-form-model-item>
-        <a-form-model-item label="菜品综合评分" prop="Score">
-          <a-input v-model="entity.Score" autocomplete="off" />
-        </a-form-model-item>
-        <a-form-model-item label="评价人数" prop="EvaluatorsNumber">
-          <a-input v-model="entity.EvaluatorsNumber" autocomplete="off" />
-        </a-form-model-item>
-        <a-form-model-item label="价格" prop="Prcie">
-          <a-input v-model="entity.Prcie" autocomplete="off" />
-        </a-form-model-item>
-        <a-form-model-item label="图片" prop="ImgUrl">
-          <a-input v-model="entity.ImgUrl" autocomplete="off" />
-        </a-form-model-item>
-        <a-form-model-item label="创建人姓名" prop="CreatorName">
-          <a-input v-model="entity.CreatorName" autocomplete="off" />
-        </a-form-model-item>
-        <a-form-model-item label="修改人编号" prop="UpdateId">
-          <a-input v-model="entity.UpdateId" autocomplete="off" />
-        </a-form-model-item>
-        <a-form-model-item label="修改人时间" prop="UpdateName">
-          <a-input v-model="entity.UpdateName" autocomplete="off" />
-        </a-form-model-item>
-        <a-form-model-item label="修改时间" prop="UpdateTime">
-          <a-input v-model="entity.UpdateTime" autocomplete="off" />
+        <a-form-model-item label="价格" prop="Price">
+          <a-input v-model="entity.Price" autocomplete="off" />
         </a-form-model-item>
       </a-form-model>
     </a-spin>
@@ -51,9 +36,13 @@
 </template>
 
 <script>
+import CUploadImg from '@/components/CUploadImg/CUploadImg'
 export default {
   props: {
     parentObj: Object
+  },
+  components: {
+    CUploadImg
   },
   data() {
     return {
@@ -64,14 +53,24 @@ export default {
       visible: false,
       loading: false,
       entity: {},
-      rules: {},
-      title: ''
+      rules: {
+        SupplierName: [{ required: true, message: '必填' }],
+        FoodName: [{ required: true, message: '必填' }],
+        Prcie: [{ required: true, message: '必填' }]
+      },
+      title: '',
+      ShopInfoList: []
     }
   },
   methods: {
     init() {
       this.visible = true
       this.entity = {}
+      this.$http.post('/ServerFood/F_ShopInfo/GetDataListAll', {}).then(resJson => {
+        if (resJson.Success) {
+          this.ShopInfoList = resJson.Data
+        }
+      })
       this.$nextTick(() => {
         this.$refs['form'].clearValidate()
       })
@@ -83,7 +82,6 @@ export default {
         this.loading = true
         this.$http.post('/ServerFood/F_FoodInfo/GetTheData', { id: id }).then(resJson => {
           this.loading = false
-
           this.entity = resJson.Data
         })
       }

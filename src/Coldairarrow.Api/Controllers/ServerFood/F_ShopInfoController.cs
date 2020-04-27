@@ -35,6 +35,12 @@ namespace Coldairarrow.Api.Controllers.ServerFood
             return await _f_ShopInfoBus.GetTheDataAsync(input.id);
         }
 
+        [HttpPost]
+        public async Task<List<F_ShopInfo>> GetDataListAll()
+        {
+            return await _f_ShopInfoBus.GetDataListAllAsync();
+        }
+
         #endregion
 
         #region 提交

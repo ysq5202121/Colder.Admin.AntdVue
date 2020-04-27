@@ -50,7 +50,7 @@ namespace Coldairarrow.Entity.ServerFood
         /// <summary>
         /// 价格
         /// </summary>
-        public Double? Price { get; set; }
+        public decimal? Price { get; set; }
 
         /// <summary>
         /// 图片

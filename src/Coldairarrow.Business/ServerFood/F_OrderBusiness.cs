@@ -60,10 +60,10 @@ namespace Coldairarrow.Business.ServerFood
                 OrderCode = IdHelper.GetId(),
                 Price = TotalPrice,
                 OrderCount = TotalNum,
-                CreateDate =DateTime.Now,
+                CreateTime = DateTime.Now,
                 CreatorId="",
                 CreatorName="",
-                UpdateDate= DateTime.Now,
+                UpdateTime = DateTime.Now,
                 UpdateId="",
                 UpdateName=""
             };
@@ -75,10 +75,10 @@ namespace Coldairarrow.Business.ServerFood
                Id= IdHelper.GetId(),
                OrderInfoQty=a.Num,
                PublishFoodId=a.Id,
-               CreateDate = DateTime.Now,
+               CreateTime = DateTime.Now,
                CreatorId = "",
                CreatorName = "",
-               UpdateDate = DateTime.Now,
+               UpdateTime = DateTime.Now,
                UpdateId = "",
                UpdateName = ""
            }).ToList();

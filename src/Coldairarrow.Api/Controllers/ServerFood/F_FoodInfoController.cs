@@ -24,7 +24,7 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         #region 获取
 
         [HttpPost]
-        public async Task<PageResult<F_FoodInfo>> GetDataList(PageInput<ConditionDTO> input)
+        public async Task<PageResult<F_FoodInfoResultDto>> GetDataList(PageInput<ConditionDTO> input)
         {
             return await _f_FoodInfoBus.GetDataListAsync(input);
         }
@@ -58,6 +58,12 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         public async Task DeleteData(List<string> ids)
         {
             await _f_FoodInfoBus.DeleteDataAsync(ids);
+        }
+
+        [HttpPost]
+        public async Task PublishFoodData(List<string> ids)
+        {
+            await _f_FoodInfoBus.PublishFoodDataAsync(ids);
         }
 
         #endregion

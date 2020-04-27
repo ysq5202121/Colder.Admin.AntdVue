@@ -7,10 +7,16 @@ namespace Coldairarrow.Business.ServerFood
 {
     public interface IF_FoodInfoBusiness
     {
-        Task<PageResult<F_FoodInfo>> GetDataListAsync(PageInput<ConditionDTO> input);
+        Task<PageResult<F_FoodInfoResultDto>> GetDataListAsync(PageInput<ConditionDTO> input);
         Task<F_FoodInfo> GetTheDataAsync(string id);
+        Task PublishFoodDataAsync(List<string> ids);
         Task AddDataAsync(F_FoodInfo data);
         Task UpdateDataAsync(F_FoodInfo data);
         Task DeleteDataAsync(List<string> ids);
+    }
+
+    public class F_FoodInfoResultDto : F_FoodInfo
+    {
+        public  string ShopName { get; set; }
     }
 }

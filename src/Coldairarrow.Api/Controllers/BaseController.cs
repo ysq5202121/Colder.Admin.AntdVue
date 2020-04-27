@@ -25,6 +25,8 @@ namespace Coldairarrow.Api
                 obj.SetPropertyValue("CreatorId", op?.UserId);
             if (obj.ContainsProperty("CreatorRealName"))
                 obj.SetPropertyValue("CreatorRealName", op?.Property?.RealName);
+            if (obj.ContainsProperty("CreatorName"))
+                obj.SetPropertyValue("CreatorName", op?.Property?.RealName);
         }
 
         protected string GetAbsolutePath(string virtualPath)

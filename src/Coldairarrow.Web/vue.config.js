@@ -56,13 +56,10 @@ const vueConfig = {
     // If you want to turn on the proxy, please remove the mockjs /src/main.jsL11
     proxy: {
       '/api': {
-        target: 'http://qyapi.weixin.qq.com/',
+        target: 'https://qyapi.weixin.qq.com/cgi-bin/gettoken',
         ws: true,
         secure: true,
-        changeOrigin: true,
-        pathRewrite: {
-          '^/api': ''// /api/ / 凡是/api开头的地址都可以跨域
-        }
+        changeOrigin: true
 
       }
     }
