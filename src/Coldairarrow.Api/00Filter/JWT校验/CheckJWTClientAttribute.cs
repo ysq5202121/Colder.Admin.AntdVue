@@ -8,16 +8,13 @@ namespace Coldairarrow.Api
     /// <summary>
     /// JWT校验
     /// </summary>
-    public class CheckJWTAttribute : BaseActionFilterAsync
+    public class CheckJWTClientAttribute : BaseActionFilterAsync
     {
         private static readonly int _errorCode = 401;
-        public  string JwtKey = JWTHelper.JWTSecret;
+        public  string JwtKey = JWTHelper.JWTClient;
  
         public override async Task OnActionExecuting(ActionExecutingContext context)
         {
-            if (context.ContainsFilter<NoCheckJWTAttribute>())
-                return;
-
             try
             {
                 var req = context.HttpContext.Request;

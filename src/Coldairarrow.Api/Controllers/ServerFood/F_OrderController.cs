@@ -35,9 +35,16 @@ namespace Coldairarrow.Api.Controllers.ServerFood
             return await _f_OrderBus.GetTheDataAsync(input.id);
         }
 
+        [HttpPost]
+        public async Task ExcelToExport()
+        {
+            await Task.CompletedTask;
+
+        }
+
         #endregion
 
-        #region 提交
+            #region 提交
 
         [HttpPost]
         public async Task SaveData(F_Order data)
@@ -55,6 +62,8 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         }
 
         [HttpPost]
+        [NoCheckJWT]
+        [CheckJWTClient]
         public async Task PlaceOrderAsync(List<IF_OrderInputDTO> data) 
         {
             await _f_OrderBus.PlaceOrderAsync(data);

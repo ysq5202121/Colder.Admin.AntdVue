@@ -71,7 +71,14 @@ namespace Coldairarrow.Business.ServerFood
 
         public async Task PublishFoodDataAsync(List<string> ids)
         {
+           var tempQuery =Service.GetIQueryable<F_PublishFood>().Where(a => ids.Contains(a.FoodInfoId) && a.PublishDate > DateTime.Now.Date &&   a.PublishDate< DateTime.Now.Date.AddDays(1))
+                .ToList();
+            if (tempQuery.Count > 0)
+            {
+                throw new BusException("["+string.Join(",", tempQuery.Select(a => a.FoodName)) +"]菜品当日已经发布过,请重新选择!");
+            }
             var query = GetIQueryable().Where(a => ids.Contains(a.Id)).ToList();
+            if(query.Count==0) throw new BusException("数据异常!");
             List<F_PublishFood> publishFoodList = new List<F_PublishFood>();
             query.ForEach(a =>
             {
@@ -88,7 +95,8 @@ namespace Coldairarrow.Business.ServerFood
                     FoodDesc =a.FoodDesc,
                     FoodName = a.FoodName,
                     ImgUrl = a.ImgUrl,
-                    PublishDate = DateTime.Now
+                    PublishDate = DateTime.Now,
+                    FoodInfoId = a.Id
             
                 };
                 publishFoodList.Add(publishFood);

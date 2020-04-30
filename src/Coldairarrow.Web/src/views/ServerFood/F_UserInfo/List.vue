@@ -1,14 +1,6 @@
 ﻿<template>
   <a-card :bordered="false">
     <div class="table-operator">
-      <a-button type="primary" icon="plus" @click="hanldleAdd()">新建</a-button>
-      <a-button
-        type="primary"
-        icon="minus"
-        @click="handleDelete(selectedRowKeys)"
-        :disabled="!hasSelected()"
-        :loading="loading"
-      >删除</a-button>
       <a-button type="primary" icon="redo" @click="getDataList()">刷新</a-button>
     </div>
 
@@ -53,11 +45,14 @@
       :bordered="true"
       size="small"
     >
+      <span slot="IsAdmin" slot-scope="value">
+        <template>
+          <a-switch checkedChildren="是" unCheckedChildren="否" :checked="value" disabled="false" />
+        </template>
+      </span>
       <span slot="action" slot-scope="text, record">
         <template>
           <a @click="handleEdit(record.Id)">编辑</a>
-          <a-divider type="vertical" />
-          <a @click="handleDelete([record.Id])">删除</a>
         </template>
       </span>
     </a-table>
@@ -70,17 +65,15 @@
 import EditForm from './EditForm'
 
 const columns = [
-  { title: '用户名称', dataIndex: 'UserName', width: '10%' },
-  { title: '是否管理员', dataIndex: 'IsAdmin', width: '10%' },
-  { title: '门店ID', dataIndex: 'ShopInfoId', width: '10%' },
-  { title: '部门名称', dataIndex: 'Department', width: '10%' },
-  { title: '备注信息', dataIndex: 'Remark', width: '10%' },
-  { title: '创建人姓名', dataIndex: 'CreatorName', width: '10%' },
-  { title: '创建日期', dataIndex: 'CreateDate', width: '10%' },
-  { title: '修改人编号', dataIndex: 'UpdateId', width: '10%' },
-  { title: '修改人时间', dataIndex: 'UpdateName', width: '10%' },
-  { title: '修改时间', dataIndex: 'UpdateDate', width: '10%' },
-  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' } }
+  { title: '用户名称', dataIndex: 'UserName' },
+  { title: '是否管理员', dataIndex: 'IsAdmin', width: 100, scopedSlots: { customRender: 'IsAdmin' } },
+  { title: '归属门店', dataIndex: 'ShopInfoId', width: 150 },
+  { title: '部门名称', dataIndex: 'Department', width: 150 },
+  { title: '创建人', dataIndex: 'CreatorName', width: 100 },
+  { title: '创建时间', dataIndex: 'CreateTime', width: 150 },
+  { title: '修改人时间', dataIndex: 'UpdateName', width: 100 },
+  { title: '修改时间', dataIndex: 'CreateTime', width: 150 },
+  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, fixed: 'right', width: 100 }
 ]
 
 export default {

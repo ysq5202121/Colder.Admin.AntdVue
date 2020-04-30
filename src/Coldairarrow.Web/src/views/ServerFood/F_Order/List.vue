@@ -1,15 +1,8 @@
 ﻿<template>
   <a-card :bordered="false">
     <div class="table-operator">
-      <a-button type="primary" icon="plus" @click="hanldleAdd()">新建</a-button>
-      <a-button
-        type="primary"
-        icon="minus"
-        @click="handleDelete(selectedRowKeys)"
-        :disabled="!hasSelected()"
-        :loading="loading"
-      >删除</a-button>
       <a-button type="primary" icon="redo" @click="getDataList()">刷新</a-button>
+      <a-button type="primary" icon="redo" @click="handleExcelExport()">导出</a-button>
     </div>
 
     <div class="table-page-search-wrapper">
@@ -68,16 +61,15 @@
 import EditForm from './EditForm'
 
 const columns = [
-  { title: '订单编号', dataIndex: 'OrderCode', width: '10%' },
-  { title: '用户ID', dataIndex: 'UserInfoId', width: '10%' },
-  { title: '数量', dataIndex: 'OrderCount', width: '10%' },
-  { title: '订单金额', dataIndex: 'Price', width: '10%' },
-  { title: '创建人姓名', dataIndex: 'CreatorName', width: '10%' },
-  { title: '创建日期', dataIndex: 'CreateDate', width: '10%' },
-  { title: '修改人编号', dataIndex: 'UpdateId', width: '10%' },
-  { title: '修改人时间', dataIndex: 'UpdateName', width: '10%' },
-  { title: '修改时间', dataIndex: 'UpdateDate', width: '10%' },
-  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' } }
+  { title: '订单编号', dataIndex: 'OrderCode' },
+  { title: '用户ID', dataIndex: 'UserInfoId', width: 150 },
+  { title: '数量', dataIndex: 'OrderCount', width: 150 },
+  { title: '订单金额', dataIndex: 'Price', width: 150 },
+  { title: '创建人', dataIndex: 'CreatorName', width: 150 },
+  { title: '创建时间', dataIndex: 'CreateDate', width: 150 },
+  { title: '修改人', dataIndex: 'UpdateName', width: 150 },
+  { title: '修改时间', dataIndex: 'UpdateDate', width: 150 },
+  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, width: 100 }
 ]
 
 export default {
@@ -142,6 +134,21 @@ export default {
     },
     handleEdit(id) {
       this.$refs.editForm.openForm(id)
+    },
+    handleExcelExport() {
+      this.$http.post('/Test/ExcelExport', {}, { responseType: 'arraybuffer' }).then(resJson => {
+        console.log(resJson)
+        const blob = new Blob([resJson], { type: 'application/vnd.ms-excel' })
+        const downloadElement = document.createElement('a')
+        const href = window.URL.createObjectURL(blob) // 创建下载的链接
+        downloadElement.href = href
+        // downloadElement.download = fileName; //下载后文件名
+        downloadElement.download = name // 下载后文件名
+        document.body.appendChild(downloadElement)
+        downloadElement.click() // 点击下载
+        document.body.removeChild(downloadElement) // 下载完成移除元素
+        window.URL.revokeObjectURL(href) // 释放掉blob对象
+      })
     },
     handleDelete(ids) {
       var thisObj = this

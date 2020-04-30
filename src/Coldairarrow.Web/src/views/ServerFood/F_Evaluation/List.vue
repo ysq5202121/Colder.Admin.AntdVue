@@ -1,7 +1,6 @@
 ﻿<template>
   <a-card :bordered="false">
     <div class="table-operator">
-      <a-button type="primary" icon="plus" @click="hanldleAdd()">新建</a-button>
       <a-button
         type="primary"
         icon="minus"
@@ -55,8 +54,6 @@
     >
       <span slot="action" slot-scope="text, record">
         <template>
-          <a @click="handleEdit(record.Id)">编辑</a>
-          <a-divider type="vertical" />
           <a @click="handleDelete([record.Id])">删除</a>
         </template>
       </span>

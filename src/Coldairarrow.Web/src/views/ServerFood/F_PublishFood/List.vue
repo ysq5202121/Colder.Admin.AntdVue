@@ -1,7 +1,6 @@
 ﻿<template>
   <a-card :bordered="false">
     <div class="table-operator">
-      <a-button type="primary" icon="plus" @click="hanldleAdd()">新建</a-button>
       <a-button
         type="primary"
         icon="minus"
@@ -18,8 +17,6 @@
           <a-col :md="4" :sm="24">
             <a-form-item label="查询类别">
               <a-select allowClear v-model="queryParam.condition">
-                <a-select-option key="ShopInfoId">门店Id</a-select-option>
-                <a-select-option key="FoodInfoId">菜品Id</a-select-option>
                 <a-select-option key="SupplierName">商家名称</a-select-option>
                 <a-select-option key="FoodName">菜品名称</a-select-option>
                 <a-select-option key="FoodDesc">菜品描述信息</a-select-option>
@@ -62,9 +59,22 @@
           <a @click="handleDelete([record.Id])">删除</a>
         </template>
       </span>
+      <span slot="ImgUrl" slot-scope="image">
+        <a-avatar
+          icon="picture"
+          :src="image"
+          size="large"
+          shape="square"
+          style="cursor:pointer"
+          @click="handleOpenImg(image)"
+        />
+      </span>
     </a-table>
 
     <edit-form ref="editForm" :parentObj="this"></edit-form>
+    <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
+      <img alt="example" style="width: 100%" :src="previewImage" />
+    </a-modal>
   </a-card>
 </template>
 
@@ -73,18 +83,17 @@ import EditForm from './EditForm'
 
 const columns = [
   { title: '门店Id', dataIndex: 'ShopInfoId', width: 100 },
- 
   { title: '商家名称', dataIndex: 'SupplierName', width: 100 },
   { title: '菜品名称', dataIndex: 'FoodName' },
   { title: '菜品数量', dataIndex: 'FoodQty', width: 100 },
-  { title: '价格', dataIndex: 'Prcie', width: 100 },
-  { title: '图片', dataIndex: 'ImgUrl', width: 100 },
+  { title: '价格', dataIndex: 'Price', width: 100 },
+  { title: '图片', dataIndex: 'ImgUrl', width: 50, scopedSlots: { customRender: 'ImgUrl' } },
   { title: '发布时间', dataIndex: 'PublishDate', width: 150 },
   { title: '创建人', dataIndex: 'CreatorName', width: 100 },
   { title: '创建时间', dataIndex: 'CreateTime', width: 150 },
   { title: '修改人', dataIndex: 'UpdateName', width: 100 },
   { title: '修改时间', dataIndex: 'UpdateTime', width: 150 },
-  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, fixed: 'right', width: 150 }
+  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, fixed: 'right', width: 100 }
 ]
 
 export default {
@@ -107,7 +116,9 @@ export default {
       loading: false,
       columns,
       queryParam: {},
-      selectedRowKeys: []
+      selectedRowKeys: [],
+      previewVisible: false,
+      previewImage: ''
     }
   },
   methods: {
@@ -170,6 +181,13 @@ export default {
           })
         }
       })
+    },
+    handleCancel() {
+      this.previewVisible = false
+    },
+    handleOpenImg(image) {
+      this.previewVisible = true
+      this.previewImage = image
     }
   }
 }

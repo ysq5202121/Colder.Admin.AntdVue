@@ -6,6 +6,7 @@ namespace Coldairarrow.Util
     {
         private static readonly string _headerBase64Url = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}".Base64UrlEncode();
         public static readonly string JWTSecret = ConfigHelper.GetValue("JWTSecret");
+        public static readonly string JWTClient = ConfigHelper.GetValue("JWTClient");
 
         /// <summary>
         /// 生成Token

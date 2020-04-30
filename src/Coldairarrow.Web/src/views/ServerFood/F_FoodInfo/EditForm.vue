@@ -20,15 +20,15 @@
         <a-form-model-item label="菜品名称" prop="FoodName">
           <a-input v-model="entity.FoodName" autocomplete="off" />
         </a-form-model-item>
-        <a-form-item label="图片上传" >
-        <!--v-model为图片连接地址(可传单个或数组),maxCount为最大上传数:默认为1-->
-        <c-upload-img v-model="entity.ImgUrl" :maxCount="1"></c-upload-img>
+        <a-form-item label="图片上传">
+          <!--v-model为图片连接地址(可传单个或数组),maxCount为最大上传数:默认为1-->
+          <c-upload-img v-model="entity.ImgUrl" :maxCount="1"></c-upload-img>
         </a-form-item>
-        <a-form-model-item label="菜品描述信息" prop="FoodDesc">
+        <a-form-model-item label="菜品描述" prop="FoodDesc">
           <a-input v-model="entity.FoodDesc" autocomplete="off" type="textarea" />
         </a-form-model-item>
         <a-form-model-item label="价格" prop="Price">
-          <a-input v-model="entity.Price" autocomplete="off" />
+          <a-input-number v-model="entity.Price" :min="0" :max="999" :step="1"/>
         </a-form-model-item>
       </a-form-model>
     </a-spin>
@@ -54,9 +54,10 @@ export default {
       loading: false,
       entity: {},
       rules: {
+        ShopInfoId: [{ required: true, message: '必填' }],
         SupplierName: [{ required: true, message: '必填' }],
         FoodName: [{ required: true, message: '必填' }],
-        Prcie: [{ required: true, message: '必填' }]
+        Price: [{ required: true, message: '必填' }]
       },
       title: '',
       ShopInfoList: []

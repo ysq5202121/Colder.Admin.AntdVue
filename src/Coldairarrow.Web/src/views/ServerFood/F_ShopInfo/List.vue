@@ -67,7 +67,7 @@ const columns = [
   { title: '创建时间', dataIndex: 'CreateTime', width: 200 },
   { title: '修改人', dataIndex: 'UpdateName', width: 100 },
   { title: '修改时间', dataIndex: 'UpdateTime', width: 200 },
-  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' } ,fixed: 'right', width: 150}
+  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' } ,fixed: 'right', width: 100 } 
 ]
 
 export default {

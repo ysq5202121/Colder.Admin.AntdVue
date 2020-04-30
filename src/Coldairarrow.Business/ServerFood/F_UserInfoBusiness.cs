@@ -1,4 +1,5 @@
-﻿using Coldairarrow.Entity.ServerFood;
+﻿using System;
+using Coldairarrow.Entity.ServerFood;
 using Coldairarrow.Util;
 using EFCore.Sharding;
 using LinqKit;
@@ -7,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
+using Coldairarrow.Util.ApiHelper.WeChat;
 
 namespace Coldairarrow.Business.ServerFood
 {
@@ -56,7 +58,48 @@ namespace Coldairarrow.Business.ServerFood
             await DeleteAsync(ids);
         }
 
-        #endregion
+        public async Task<string> Login(string code)
+        {
+           string token= WeChatOperation.GetToken();
+           if(token==null) throw new BusException("获取授权失败!");
+           string userId = WeChatOperation.GetUserId(code,token);
+           if (userId == null) throw new BusException("授权登录失败!");
+           //缓存token,不重复获取
+
+           //查询用户信息
+           var userInfo = GetIQueryable().Where(a => a.WeCharUserId == userId)?.FirstOrDefault();
+           if(userInfo==null)
+           {
+              WeChatUserInfo weChatUserInfo= WeChatOperation.GetUserInfo(token, userId);
+              if(weChatUserInfo==null) throw new BusException("获取用户信息失败,登录失败!");
+              WeChatDepartmentList weChatDepartmentList = WeChatOperation.GetDepartment(token, weChatUserInfo.main_department); 
+              if (weChatDepartmentList == null) throw new BusException("获取部门信息失败!");
+              F_UserInfo fUserInfo = new F_UserInfo()
+              {
+                  Id = IdHelper.GetId(),
+                  IsAdmin = false,
+                  ShopInfoId = "",
+                  UserName = weChatUserInfo.name,
+                  UserImgUrl = weChatUserInfo.avatar,
+                  WeCharUserId = weChatUserInfo.userid,
+                  Department = weChatDepartmentList?.department?.FirstOrDefault()?.name,
+                  CreateTime = DateTime.Now,
+                  CreatorId = "system",
+                  CreatorName = weChatUserInfo.name,
+              };
+              await InsertAsync(fUserInfo);
+           }
+           //生成token,有效期一天
+           JWTPayload jWTPayload = new JWTPayload
+           {
+               UserId = userId,
+               Expire = DateTime.Now.AddDays(1)
+           };
+           string tk = JWTHelper.GetToken(jWTPayload.ToJson(), JWTHelper.JWTClient);
+           return tk;
+        }
+
+      #endregion
 
         #region 私有成员
 

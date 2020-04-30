@@ -5,6 +5,7 @@ using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
@@ -13,9 +14,11 @@ namespace Coldairarrow.Business.ServerFood
 {
     public class F_OrderBusiness : BaseBusiness<F_Order>, IF_OrderBusiness, ITransientDependency
     {
-        public F_OrderBusiness(IRepository repository)
+        public IOperator oOperator;
+        public F_OrderBusiness(IRepository repository, IOperator op)
             : base(repository)
         {
+            oOperator = op;
         }
 
         #region 外部接口
@@ -43,50 +46,62 @@ namespace Coldairarrow.Business.ServerFood
             {
                 throw new BusException("数据不正常请检查!");
             }
+            var userInfo = Service.GetIQueryable<F_UserInfo>().Where(a => a.WeCharUserId == oOperator.UserId)?.FirstOrDefault();
+            if(userInfo==null) throw new BusException("获取用户信息失败!");
             //查询发布菜品信息
-            var f_PublishFoodList = Service.GetIQueryable<F_PublishFood>().Where(a => data.Select(b => b.Id).Contains(a.Id)).ToList();
-            f_PublishFoodList.ForEach(a =>
+            var fPublishFoodList = Service.GetIQueryable<F_PublishFood>().Where(a => data.Select(b => b.Id).Contains(a.Id)).ToList();
+            if (fPublishFoodList.Any(a => a.FoodQty <= 0))
+            {
+                throw new BusException("商品已经售罄请重新选择!");
+            }
+            //查询门店是否可以点菜，是否在点餐时间内
+            fPublishFoodList.ForEach(a =>
             {
                 a.FoodQty = a.FoodQty - data.First(b => b.Id == a.Id).Num;
-                Service.Update(a);
             });
+            await Service.UpdateAsync<F_PublishFood>(fPublishFoodList);
             //计算总价
-            var TotalPrice = data.Sum(a => a.Price * a.Num);
-            var TotalNum = data.Sum(a => a.Num);
+            var totalPrice = data.Sum(a => a.Price * a.Num);
+            var totalNum = data.Sum(a => a.Num);
             //添加主表
             F_Order order= new F_Order()
             {
+                UserInfoId = userInfo.Id,
                 Id= IdHelper.GetId(),
                 OrderCode = IdHelper.GetId(),
-                Price = TotalPrice,
-                OrderCount = TotalNum,
+                Price = totalPrice,
+                OrderCount = totalNum,
                 CreateTime = DateTime.Now,
-                CreatorId="",
-                CreatorName="",
+                CreatorId= userInfo.Id,
+                CreatorName= userInfo.UserName,
                 UpdateTime = DateTime.Now,
-                UpdateId="",
-                UpdateName=""
+                UpdateId = userInfo.Id,
+                UpdateName = userInfo.UserName,
             };
            await InsertAsync(order);
             //添加明细
-           var OrderInfoList=data.Select(a => new F_OrderInfo 
+           var orderInfoList=data.Select(a => new F_OrderInfo 
             {
                OrderCode= order.OrderCode,
                Id= IdHelper.GetId(),
                OrderInfoQty=a.Num,
                PublishFoodId=a.Id,
                CreateTime = DateTime.Now,
-               CreatorId = "",
-               CreatorName = "",
+               CreatorId = userInfo.Id,
+               CreatorName = userInfo.UserName,
                UpdateTime = DateTime.Now,
-               UpdateId = "",
-               UpdateName = ""
+               UpdateId = userInfo.Id,
+               UpdateName = userInfo.UserName,
            }).ToList();
-           Service.BulkInsert<F_OrderInfo>(OrderInfoList);
-
+           await  Service.InsertAsync<F_OrderInfo>(orderInfoList);
            await Task.CompletedTask;
         }
 
+        public async Task ExcelToExport()
+        {
+
+            await Task.CompletedTask;
+        }
         public async Task AddDataAsync(List<F_Order> data)
         {
 

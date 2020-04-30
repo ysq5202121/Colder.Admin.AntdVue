@@ -53,7 +53,15 @@ export const constantRouterMap = [
   {
     path: '/WeChat/Authorize',
     name: 'Authorize',
-    component: () => import('@/views/WeChat/Authorize')
+    component: () => import('@/views/WeChat/Authorize'),
+    beforeEnter: (to, from, next) => {
+      // 路由导航拦截 modify by ysq 2020-04-29
+      if (localStorage.getItem('jwtToken')) {
+        next({ path: '/ClientFood/Order' })
+      } else {
+        next()
+      }
+    }
   },
   {
     path: '/404',

@@ -38,12 +38,22 @@ namespace Coldairarrow.Entity.ServerFood
         public String Department { get; set; }
 
         /// <summary>
+        /// 微信用户ID
+        /// </summary>
+        public String WeCharUserId { get; set; }
+
+        /// <summary>
+        /// 用户头像
+        /// </summary>
+        public String UserImgUrl { get; set; }
+
+        /// <summary>
         /// 备注信息
         /// </summary>
         public String Remark { get; set; }
 
         /// <summary>
-        /// 创建人编号 当前用户ID
+        /// 创建人编号
         /// </summary>
         public String CreatorId { get; set; }
 
@@ -53,7 +63,7 @@ namespace Coldairarrow.Entity.ServerFood
         public String CreatorName { get; set; }
 
         /// <summary>
-        /// 创建日期 默认为当前时间
+        /// 创建日期 
         /// </summary>
         public DateTime? CreateTime { get; set; }
 

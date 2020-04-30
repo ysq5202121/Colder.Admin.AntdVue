@@ -14,7 +14,6 @@ namespace Coldairarrow.Api
         {
             if (context.ContainsFilter<NoFormatResponseAttribute>())
                 return;
-
             if (context.Result is EmptyResult)
                 context.Result = Success();
             else if (context.Result is ObjectResult res)

@@ -67,13 +67,21 @@
           <a @click="handleDelete([record.Id])">删除</a>
         </template>
       </span>
-      <span slot="ImgUrl" slot-scope="image, record">
-      <a-avatar icon="file-image" :src="image" size="large" shape="square" />
- 
+      <span slot="ImgUrl" slot-scope="image">
+        <a-avatar
+          icon="picture"
+          :src="image"
+          size="large"
+          shape="square"
+          style="cursor:pointer"
+          @click="handleOpenImg(image)" />
       </span>
     </a-table>
 
     <edit-form ref="editForm" :parentObj="this"></edit-form>
+    <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
+      <img alt="example" style="width: 100%" :src="previewImage" />
+    </a-modal>
   </a-card>
 </template>
 
@@ -81,18 +89,18 @@
 import EditForm from './EditForm'
 
 const columns = [
-  { title: '门店名称', dataIndex: 'ShopName', width: 150},
+  { title: '门店名称', dataIndex: 'ShopName', width: 150 },
   { title: '商家名称', dataIndex: 'SupplierName', width: 100 },
   { title: '菜品名称', dataIndex: 'FoodName' },
-  { title: '菜品综合评分', dataIndex: 'Score', width: 110 },
+  { title: '综合评分', dataIndex: 'Score', width: 110 },
   { title: '评价人数', dataIndex: 'EvaluatorsNumber', width: 100 },
-  { title: '价格', dataIndex: 'Price', width: 100  },
-  { title: '图片', dataIndex: 'ImgUrl', scopedSlots: { customRender: 'ImgUrl' } },
-  { title: '创建时间', dataIndex: 'CreatorTime', width: 150},
+  { title: '价格', dataIndex: 'Price', width: 100 },
+  { title: '图片', dataIndex: 'ImgUrl', scopedSlots: { customRender: 'ImgUrl' }, width: 50 },
+  { title: '创建时间', dataIndex: 'CreateTime', width: 150 },
   { title: '创建人', dataIndex: 'CreatorName', width: 100 },
   { title: '修改人', dataIndex: 'UpdateName', width: 100 },
   { title: '修改时间', dataIndex: 'UpdateTime', width: 150 },
-  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, fixed: 'right', width: 150 }
+  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, fixed: 'right', width: 100 }
 ]
 
 export default {
@@ -115,7 +123,9 @@ export default {
       loading: false,
       columns,
       queryParam: {},
-      selectedRowKeys: []
+      selectedRowKeys: [],
+      previewVisible: false,
+      previewImage: ''
     }
   },
   methods: {
@@ -199,6 +209,13 @@ export default {
           })
         }
       })
+    },
+    handleCancel () {
+      this.previewVisible = false
+    },
+    handleOpenImg (image) {
+      this.previewVisible = true
+      this.previewImage = image
     }
   }
 }
