@@ -5,14 +5,14 @@
     <div v-for="item in data" :key="item.Id">
       <van-card :price="item.Price" :thumb="item.ImgUrl" @click-thumb="handleImage(item.ImgUrl)">
         <template #title>
-          <div style="font-size: 15px;">{{ item.FoodName }}</div>
+          <div style="font-size: 15px;font-weight:500">{{ item.FoodName }}</div>
         </template>
         <template #desc>
           <div style="font-size: 12px;">{{ item.FoodDesc }}</div>
         </template>
         <template #price>
-          <div style="color:red">
-            <b>¥{{ item.Price }}.00</b>
+          <div style="color:red;font-size: 13px;">
+            <b>¥{{ item.Price }}</b>
           </div>
         </template>
         <template #tags>
@@ -23,7 +23,9 @@
         </template>
         <template #num>剩余:{{ item.FoodQty }}份</template>
         <template #bottom>
-          <van-rate v-model="item.FoodQty" readonly />
+          <div>
+            <van-rate v-model="item.Sorce" readonly icon="like" void-icon="like-o" size="15" />
+          </div>
         </template>
         <template #footer>
           <van-stepper v-model="item.Num" min="0" :max="item.FoodQty" @change="onChange(item)" />
@@ -39,8 +41,8 @@
         v-if="!isempt"
         :loading="loading"
       >
-        <template #default>您的收货地址是：大餐厅</template>
         <template #tip>您的收货地址是：大餐厅</template>
+        <template #default>暂时空</template>
       </van-submit-bar>
     </div>
   </div>
@@ -82,7 +84,7 @@ export default {
     },
     onSubmit() {
       if (this.total === 0) {
-        this.$message.error('请先选择商品在提交')
+        this.$message.error('请先选择商品')
         return
       }
       this.loading = true

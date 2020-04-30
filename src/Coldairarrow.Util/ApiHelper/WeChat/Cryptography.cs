@@ -29,6 +29,7 @@ namespace Coldairarrow.Util
         /// </summary>
         /// <param name="Input">密文</param>
         /// <param name="EncodingAESKey"></param>
+        /// <param name="corpid"></param>
         /// <returns></returns>
         /// 
         public static string AES_decrypt(String Input, string EncodingAESKey, ref string corpid)

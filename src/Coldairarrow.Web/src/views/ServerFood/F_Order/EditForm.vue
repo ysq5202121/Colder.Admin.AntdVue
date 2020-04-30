@@ -24,7 +24,7 @@
         <a-form-model-item label="创建人姓名" prop="CreatorName">
           <a-input v-model="entity.CreatorName" autocomplete="off" />
         </a-form-model-item>
-        <a-form-model-item label="创建日期 默认为当前时间" prop="CreateDate">
+        <a-form-model-item label="创建日期" prop="CreateDate">
           <a-input v-model="entity.CreateDate" autocomplete="off" />
         </a-form-model-item>
         <a-form-model-item label="修改人编号" prop="UpdateId">

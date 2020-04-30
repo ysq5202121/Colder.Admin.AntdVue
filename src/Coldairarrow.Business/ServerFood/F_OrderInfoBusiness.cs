@@ -1,4 +1,5 @@
-﻿using Coldairarrow.Entity.ServerFood;
+﻿using System;
+using Coldairarrow.Entity.ServerFood;
 using Coldairarrow.Util;
 using EFCore.Sharding;
 using LinqKit;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace Coldairarrow.Business.ServerFood
@@ -34,6 +36,30 @@ namespace Coldairarrow.Business.ServerFood
             }
 
             return await q.Where(where).GetPageResultAsync(input);
+        }
+
+        public async Task<List<IF_OrderInfoResultDto>> GetDataListNoPageAsync(ConditionDTO input)
+        {
+            Expression<Func<F_OrderInfo,F_PublishFood, IF_OrderInfoResultDto>> select = (a, b) => new IF_OrderInfoResultDto
+            {
+                FoodName = b.FoodName
+            };
+            select = select.BuildExtendSelectExpre();
+            var q = from a in GetIQueryable().AsExpandable()
+                join b in Service.GetIQueryable<F_PublishFood>() on a.PublishFoodId equals b.Id into ab
+                from b in ab.DefaultIfEmpty()
+                select @select.Invoke(a, b);
+
+            var where = LinqHelper.True<IF_OrderInfoResultDto>();
+            var search = input;
+            //筛选
+            if (!search.Condition.IsNullOrEmpty() && !search.Keyword.IsNullOrEmpty())
+            {
+                var newWhere = DynamicExpressionParser.ParseLambda<IF_OrderInfoResultDto, bool>(
+                    ParsingConfig.Default, false, $@"{search.Condition}.Contains(@0)", search.Keyword);
+                where = where.And(newWhere);
+            }
+            return await q.Where(where).ToListAsync();
         }
 
         public async Task<F_OrderInfo> GetTheDataAsync(string id)

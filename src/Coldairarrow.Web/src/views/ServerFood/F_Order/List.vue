@@ -12,7 +12,7 @@
             <a-form-item label="查询类别">
               <a-select allowClear v-model="queryParam.condition">
                 <a-select-option key="OrderCode">订单编号</a-select-option>
-                <a-select-option key="UserInfoId">用户ID</a-select-option>
+                <a-select-option key="UserName">用户ID</a-select-option>
                 <a-select-option key="CreatorName">创建人姓名</a-select-option>
                 <a-select-option key="UpdateId">修改人编号</a-select-option>
                 <a-select-option key="UpdateName">修改人时间</a-select-option>
@@ -35,7 +35,7 @@
     <a-table
       ref="table"
       :columns="columns"
-      :rowKey="row => row.Id"
+      :rowKey="row => row.OrderCode"
       :dataSource="data"
       :pagination="pagination"
       :loading="loading"
@@ -43,6 +43,7 @@
       :rowSelection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
       :bordered="true"
       size="small"
+      @expand="HandleExpandedRowsChange"
     >
       <span slot="action" slot-scope="text, record">
         <template>
@@ -51,6 +52,16 @@
           <a @click="handleDelete([record.Id])">删除</a>
         </template>
       </span>
+
+      <a-table
+        slot="expandedRowRender"
+        slot-scope="record,index,indent,expanded"
+        :columns="innerColumns"
+        :dataSource="innerData.filter(a=>a.OrderCode===record.OrderCode)"
+        :pagination="false"
+        :rowKey="row => row.Id"
+        :bordered="true"
+      ></a-table>
     </a-table>
 
     <edit-form ref="editForm" :parentObj="this"></edit-form>
@@ -62,14 +73,18 @@ import EditForm from './EditForm'
 
 const columns = [
   { title: '订单编号', dataIndex: 'OrderCode' },
-  { title: '用户ID', dataIndex: 'UserInfoId', width: 150 },
+  { title: '用户', dataIndex: 'UserName', width: 150 },
   { title: '数量', dataIndex: 'OrderCount', width: 150 },
   { title: '订单金额', dataIndex: 'Price', width: 150 },
   { title: '创建人', dataIndex: 'CreatorName', width: 150 },
-  { title: '创建时间', dataIndex: 'CreateDate', width: 150 },
+  { title: '创建时间', dataIndex: 'CreateTime', width: 150 },
   { title: '修改人', dataIndex: 'UpdateName', width: 150 },
-  { title: '修改时间', dataIndex: 'UpdateDate', width: 150 },
+  { title: '修改时间', dataIndex: 'UpdateTime', width: 150 },
   { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, width: 100 }
+]
+const innerColumns = [
+  { title: '商品名称', dataIndex: 'FoodName' },
+  { title: '商品数量', dataIndex: 'OrderInfoQty' }
 ]
 
 export default {
@@ -88,11 +103,14 @@ export default {
         showTotal: (total, range) => `总数:${total} 当前:${range[0]}-${range[1]}`
       },
       filters: {},
-      sorter: { field: 'Id', order: 'asc' },
+      sorter: { field: 'Id', order: 'desc' },
       loading: false,
+      ChLoading: false,
       columns,
+      innerColumns,
       queryParam: {},
-      selectedRowKeys: []
+      selectedRowKeys: [],
+      innerData: [{ OrderCode: '' }]
     }
   },
   methods: {
@@ -170,6 +188,24 @@ export default {
           })
         }
       })
+    },
+    HandleExpandedRowsChange(expanded, record) {
+      if (expanded) {
+        this.ChLoading = true
+        if (this.innerData.length === 0 || !this.innerData.some(a => a.OrderCode === record.OrderCode)) {
+          this.$http
+            .post('/ServerFood/F_OrderInfo/GetDataListNoPage', {
+              condition: 'OrderCode',
+              keyword: record.OrderCode
+            })
+            .then(resJson => {
+              this.ChLoading = false
+              resJson.Data.forEach(a => {
+                this.innerData.push(a)
+              })
+            })
+        }
+      }
     }
   }
 }

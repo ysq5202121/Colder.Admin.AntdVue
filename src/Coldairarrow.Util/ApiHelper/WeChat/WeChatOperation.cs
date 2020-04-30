@@ -44,6 +44,7 @@ namespace Coldairarrow.Util.ApiHelper.WeChat
         /// 获取Code
         /// </summary>
         /// <param name="code"></param>
+        /// <param name="token"></param>
         /// <returns></returns>
         public static string GetUserId(string code, string token)
         {

@@ -28,6 +28,11 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         {
             return await _f_OrderInfoBus.GetDataListAsync(input);
         }
+        [HttpPost]
+        public async Task<List<IF_OrderInfoResultDto>> GetDataListNoPage(ConditionDTO input)
+        {
+            return await _f_OrderInfoBus.GetDataListNoPageAsync(input);
+        }
 
         [HttpPost]
         public async Task<F_OrderInfo> GetTheData(IdInputDTO input)

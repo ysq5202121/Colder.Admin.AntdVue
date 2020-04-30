@@ -1,4 +1,5 @@
-﻿using Coldairarrow.Entity.ServerFood;
+﻿using System;
+using Coldairarrow.Entity.ServerFood;
 using Coldairarrow.Util;
 using EFCore.Sharding;
 using LinqKit;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace Coldairarrow.Business.ServerFood
@@ -36,20 +38,20 @@ namespace Coldairarrow.Business.ServerFood
             return await q.Where(where).GetPageResultAsync(input);
         }
 
-        public async Task<List<F_PublishFood>> GetDataListToMoblieAsync(ConditionDTO input)
+        public async Task<List<F_PublishFoodResultDto>> GetDataListToMoblieAsync(ConditionDTO input)
         {
-            var q =  GetIQueryable();
-            var where = LinqHelper.True<F_PublishFood>();
-            where.And(a => a.Price > 0);
-            //if (!input.keyword.IsNullOrEmpty())
-            //{
-            //    where = where.And(x => EF.Functions.Like(x.Name, $"%{input.keyword}%"));
-            //}
-            //if (!input.parentId.IsNullOrEmpty())
-            //    where = where.And(x => x.ParentId == input.parentId);
-            //if (input.types?.Count > 0)
-            //    where = where.And(x => input.types.Contains((int)x.Type));
+            Expression<Func<F_PublishFood, F_FoodInfo, F_PublishFoodResultDto>> select = (a, b) => new F_PublishFoodResultDto
+            {
+                Sorce = b.Score
+            };
+            select = select.BuildExtendSelectExpre();
+            var q = from a in GetIQueryable().AsExpandable()
+                join b in Service.GetIQueryable<F_FoodInfo>() on a.ShopInfoId equals b.Id into ab
+                from b in ab.DefaultIfEmpty()
+                select @select.Invoke(a, b);
 
+            var where = LinqHelper.True<F_PublishFoodResultDto>();
+            
             return await q.Where(where).OrderBy(x => x.Id).ToListAsync();
         }
 
