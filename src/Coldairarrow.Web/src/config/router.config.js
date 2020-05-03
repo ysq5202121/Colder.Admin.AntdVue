@@ -41,6 +41,16 @@ export const constantRouterMap = [
     component: () => import('@/views/ClientFood/Order')
   },
   {
+    path: '/ClientFood/OrderList',
+    name: 'OrderList',
+    component: () => import('@/views/ClientFood/OrderList')
+  },
+  {
+    path: '/ClientFood/UserInfo',
+    name: 'UserInfo',
+    component: () => import('@/views/ClientFood/UserInfo')
+  },
+  {
     path: '/ClientFood/FoodTabbar',
     name: 'FoodTabbar',
     component: () => import('@/views/ClientFood/FoodTabbar')

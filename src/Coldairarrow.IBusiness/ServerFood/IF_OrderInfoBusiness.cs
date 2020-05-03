@@ -11,6 +11,8 @@ namespace Coldairarrow.Business.ServerFood
 
         Task<List<IF_OrderInfoResultDto>> GetDataListNoPageAsync(ConditionDTO input);
 
+        Task<List<IF_OrderInfoResultDto>> GetDataListToMoblieAsync(ConditionDTO input);
+
         Task<F_OrderInfo> GetTheDataAsync(string id);
         Task AddDataAsync(F_OrderInfo data);
         Task UpdateDataAsync(F_OrderInfo data);

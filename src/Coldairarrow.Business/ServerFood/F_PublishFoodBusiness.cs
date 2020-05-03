@@ -21,16 +21,25 @@ namespace Coldairarrow.Business.ServerFood
 
         #region 外部接口
 
-        public async Task<PageResult<F_PublishFood>> GetDataListAsync(PageInput<ConditionDTO> input)
+        public async Task<PageResult<F_PublishFoodResultDto>> GetDataListAsync(PageInput<ConditionDTO> input)
         {
-            var q = GetIQueryable();
-            var where = LinqHelper.True<F_PublishFood>();
+            Expression<Func<F_PublishFood, F_ShopInfo, F_PublishFoodResultDto>> select = (a, b) => new F_PublishFoodResultDto
+            {
+                ShopName = b.ShopName
+            };
+            select = select.BuildExtendSelectExpre();
+            var q = from a in GetIQueryable().AsExpandable()
+                    join b in Service.GetIQueryable<F_ShopInfo>() on a.ShopInfoId equals b.Id into ab
+                    from b in ab.DefaultIfEmpty()
+                    select @select.Invoke(a, b);
+
+            var where = LinqHelper.True<F_PublishFoodResultDto>();
             var search = input.Search;
 
             //筛选
             if (!search.Condition.IsNullOrEmpty() && !search.Keyword.IsNullOrEmpty())
             {
-                var newWhere = DynamicExpressionParser.ParseLambda<F_PublishFood, bool>(
+                var newWhere = DynamicExpressionParser.ParseLambda<F_PublishFoodResultDto, bool>(
                     ParsingConfig.Default, false, $@"{search.Condition}.Contains(@0)", search.Keyword);
                 where = where.And(newWhere);
             }
@@ -40,18 +49,24 @@ namespace Coldairarrow.Business.ServerFood
 
         public async Task<List<F_PublishFoodResultDto>> GetDataListToMoblieAsync(ConditionDTO input)
         {
-            Expression<Func<F_PublishFood, F_FoodInfo, F_PublishFoodResultDto>> select = (a, b) => new F_PublishFoodResultDto
+            Expression<Func<F_PublishFood, F_FoodInfo,F_ShopInfoSet, F_PublishFoodResultDto>> select = (a, b,c) => new F_PublishFoodResultDto
             {
-                Sorce = b.Score
+                Sorce = b.Score,
+                BeginTime=c.OrderBeginDate,
+                EndTime=c.OrderBeginEnd
+                
             };
             select = select.BuildExtendSelectExpre();
             var q = from a in GetIQueryable().AsExpandable()
                 join b in Service.GetIQueryable<F_FoodInfo>() on a.ShopInfoId equals b.Id into ab
                 from b in ab.DefaultIfEmpty()
-                select @select.Invoke(a, b);
+                join c in Service.GetIQueryable<F_ShopInfoSet>() on a.ShopInfoId equals c.ShopInfoId into ac
+                from c in ac.DefaultIfEmpty()
+                select @select.Invoke(a, b,c);
 
             var where = LinqHelper.True<F_PublishFoodResultDto>();
-            
+            var toDay = DateTime.Now.Date;
+            where.And(a => a.PublishDate > toDay && a.PublishDate < toDay.AddDays(1));
             return await q.Where(where).OrderBy(x => x.Id).ToListAsync();
         }
 

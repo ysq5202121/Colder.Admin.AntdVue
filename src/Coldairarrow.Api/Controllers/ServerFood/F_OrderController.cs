@@ -36,15 +36,23 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         }
 
         [HttpPost]
-        public async Task ExcelToExport()
+        [NoCheckJWT]
+        public async Task<List<IF_OrderResultDTO>> GetDataListToMoblie()
         {
-            await Task.CompletedTask;
+            return await _f_OrderBus.GetDataListToMoblieAsync();
+        }
 
+        [HttpPost]
+        public async Task ExcelToExport(ConditionDTO input)
+        {
+             var bytes= await _f_OrderBus.ExcelToExport(input);
+             Response.ContentType = "application/vnd.ms-excel";
+             await Response.Body.WriteAsync(bytes);
         }
 
         #endregion
 
-            #region 提交
+        #region 提交
 
         [HttpPost]
         public async Task SaveData(F_Order data)

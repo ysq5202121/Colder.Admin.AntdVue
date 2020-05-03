@@ -22,7 +22,6 @@
                 <a-select-option key="FoodDesc">菜品描述信息</a-select-option>
                 <a-select-option key="ImgUrl">图片</a-select-option>
                 <a-select-option key="CreatorName">创建人姓名</a-select-option>
-                <a-select-option key="UpdateId">修改人编号</a-select-option>
                 <a-select-option key="UpdateName">修改人时间</a-select-option>
               </a-select>
             </a-form-item>
@@ -82,7 +81,7 @@
 import EditForm from './EditForm'
 
 const columns = [
-  { title: '门店Id', dataIndex: 'ShopInfoId', width: 100 },
+  { title: '门店名称', dataIndex: 'ShopName', width: 100 },
   { title: '商家名称', dataIndex: 'SupplierName', width: 100 },
   { title: '菜品名称', dataIndex: 'FoodName' },
   { title: '菜品数量', dataIndex: 'FoodQty', width: 100 },

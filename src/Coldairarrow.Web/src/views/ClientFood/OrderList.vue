@@ -1,27 +1,58 @@
 <template>
-    <div>
-     我的订单
-    <a-row type="flex" justify="center" style="margin-top:10px">
-      <a-col :span="1"> <a-button type="primary">菜品管理</a-button></a-col>
-    </a-row>
-   <a-row type="flex" justify="center" style="margin-top:10px">
-      <a-col :span="1"> <a-button type="primary">点餐</a-button></a-col>
-    </a-row>
-   <a-row type="flex" justify="center" style="margin-top:10px">
-      <a-col :span="1"> <a-button type="primary">报餐统计</a-button></a-col>
-    </a-row>
-     <a-row type="flex" justify="center" style="margin-top:10px">
-      <a-col :span="1"> <a-button type="primary">设置</a-button></a-col>
-    </a-row>
+  <div>
+    <div v-for="item in data" :key="item.Id">
+      <van-card :price="item.Price" :thumb="avatar">
+        <template #title>
+          <div style="font-size: 15px;">订单编号:{{ item.OrderCode }}</div>
+        </template>
+        <template #desc>
+          <div style="font-size: 12px;">下单时间:{{ item.CreateTime }}</div>
+        </template>
+        <template #price>
+          <div style="color:red;font-size: 13px;">
+            <b>¥{{ item.Price }}</b>
+          </div>
+        </template>
+        <template #num>总数量:{{ item.OrderCount }}</template>
+        <template #footer>
+          <van-button size="mini">详情</van-button>
+        </template>
+      </van-card>
+    </div>
+    <FoodTabbar></FoodTabbar>
   </div>
 </template>
 
 <script>
-module.exports = {
+import FoodTabbar from './FoodTabbar'
+export default {
+  mounted() {
+    this.getDataList()
+  },
   data: function() {
     return {
-      greeting: "Hello"
-    };
+      data: [],
+      shopCar: [],
+      isempt: false,
+      loading: false,
+      avatar: require('@/assets/image/shop.jpg')
+    }
+  },
+  components: {
+    FoodTabbar
+  },
+  methods: {
+    getDataList() {
+      this.loading = true
+      this.$http.post('/ServerFood/F_Order/GetDataListToMoblie', {}).then(resJson => {
+        this.loading = false
+        this.data = resJson.Data
+
+        if (this.data !== undefined && this.data.length === 0) {
+          this.isempt = true
+        }
+      })
+    }
   }
-};
+}
 </script>

@@ -49,6 +49,26 @@ namespace Coldairarrow.Business.ServerFood
             return await q.Where(where).OrderByDescending(a=>a.CreateTime).GetPageResultAsync(input);
         }
 
+
+        public async Task<List<IF_OrderResultDTO>> GetDataListToMoblieAsync()
+        {
+            Expression<Func<F_Order, F_UserInfo, IF_OrderResultDTO>> select = (a, b) => new IF_OrderResultDTO
+            {
+                UserName = b.UserName
+            };
+            select = select.BuildExtendSelectExpre();
+            var q = from a in GetIQueryable().AsExpandable()
+                    join b in Service.GetIQueryable<F_UserInfo>() on a.UserInfoId equals b.Id into ab
+                    from b in ab.DefaultIfEmpty()
+                    select @select.Invoke(a, b);
+           var where = LinqHelper.True<IF_OrderResultDTO>();
+           var userInfo = Service.GetIQueryable<F_UserInfo>().Where(a => a.WeCharUserId =="YangShangQi")?.FirstOrDefault();
+           if (userInfo == null) throw new BusException("获取用户信息失败!");
+            //筛选
+           where = where.And(a=>a.UserInfoId== userInfo.Id);
+           return await q.Where(where).OrderByDescending(a => a.CreateTime).ToListAsync();
+        }
+
         public async Task PlaceOrderAsync(List<IF_OrderInputDTO> data)
         {
             if (data == null || data.Count==0)
@@ -59,6 +79,15 @@ namespace Coldairarrow.Business.ServerFood
             if(userInfo==null) throw new BusException("获取用户信息失败!");
             //查询发布菜品信息
             var fPublishFoodList = Service.GetIQueryable<F_PublishFood>().Where(a => data.Select(b => b.Id).Contains(a.Id)).ToList();
+            if(fPublishFoodList.Count==0) throw new BusException("数据查询错误!");
+            var fShopInfoSet= Service.GetIQueryable<F_ShopInfoSet>().Where(a => a.ShopInfoId == fPublishFoodList.FirstOrDefault().ShopInfoId).FirstOrDefault();
+            if (fShopInfoSet != null && fShopInfoSet.OrderBeginDate.HasValue && fShopInfoSet.OrderBeginEnd.HasValue)
+            {
+                var BeginDate = fShopInfoSet.OrderBeginDate.Value.ToString("HHmm").ToInt();
+                var BeginEnd = fShopInfoSet.OrderBeginEnd.Value.ToString("HHmm").ToInt();
+                var toDay = DateTime.Now.ToString("HHmm").ToInt();
+                if (toDay < BeginDate || toDay > BeginEnd) throw new BusException("目前不是点餐时间!");
+            }
             if (fPublishFoodList.Any(a => a.FoodQty <= 0))
             {
                 throw new BusException("商品已经售罄请重新选择!");
@@ -106,10 +135,38 @@ namespace Coldairarrow.Business.ServerFood
            await Task.CompletedTask;
         }
 
-        public async Task ExcelToExport()
+        public async Task<byte[]> ExcelToExport(ConditionDTO input)
         {
+            Expression<Func<F_Order, F_UserInfo, IF_OrderResultDTO>> select = (a, b) => new IF_OrderResultDTO
+            {
+                UserName = b.UserName,
+                DepartmentName = b.Department,
+                FoodName = string.Join(",", (from c in Service.GetIQueryable<F_OrderInfo>()
+                                             join d in Service.GetIQueryable<F_PublishFood>() on c.PublishFoodId equals d.Id
+                                             where c.OrderCode == a.OrderCode
+                                             select d.FoodName))
+            };
+
+            select = select.BuildExtendSelectExpre();
+            var q = from a in GetIQueryable().AsExpandable()
+                    join b in Service.GetIQueryable<F_UserInfo>() on a.UserInfoId equals b.Id into ab
+                    from b in ab.DefaultIfEmpty()
+                    select @select.Invoke(a, b);
+
+            var where = LinqHelper.True<IF_OrderResultDTO>();
+            var search = input;
+
+            //筛选
+            if (!search.Condition.IsNullOrEmpty() && !search.Keyword.IsNullOrEmpty())
+            {
+    
+                where = where.And(a=>a.CreateTime>input.Keyword.ToDateTime() && a.CreateTime< input.Keyword.ToDateTime().AddDays(1));
+            }
+            DataTable dt = q.Where(where).ToList().ToDataTable();
+            dt.Columns[0].ColumnName = "用户名";
 
             await Task.CompletedTask;
+            return AsposeOfficeHelper.DataTableToExcelBytes(dt);
         }
         public async Task AddDataAsync(List<F_Order> data)
         {

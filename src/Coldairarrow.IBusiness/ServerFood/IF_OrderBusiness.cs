@@ -8,8 +8,9 @@ namespace Coldairarrow.Business.ServerFood
     public interface IF_OrderBusiness
     {
         Task<PageResult<IF_OrderResultDTO>> GetDataListAsync(PageInput<ConditionDTO> input);
-
+        Task<List<IF_OrderResultDTO>> GetDataListToMoblieAsync();
         Task PlaceOrderAsync(List<IF_OrderInputDTO> data);
+        Task<byte[]> ExcelToExport(ConditionDTO input);
         Task<F_Order> GetTheDataAsync(string id);
         Task AddDataAsync(F_Order data);
         Task UpdateDataAsync(F_Order data);
@@ -27,6 +28,10 @@ namespace Coldairarrow.Business.ServerFood
     public class IF_OrderResultDTO: F_Order
     {
         public string UserName { get; set; }
+
+        public string FoodName { get; set; }
+
+        public string DepartmentName { get; set; }
 
     }
 }

@@ -1,6 +1,20 @@
 <template>
   <div>
-    <van-notice-bar color="#1989fa" background="#ecf9ff" left-icon="volume-o">点餐时间为:</van-notice-bar>
+    <van-notice-bar color="#1989fa" background="#ecf9ff" left-icon="volume-o">
+      点餐时间为:{{ this.BeginTime }}-{{ this.EndTime }}
+      <template>
+        <van-count-down :time="time" style="display: inline-block;margin-left:15px">
+          <template v-slot="timeData">
+            剩余:
+            <span class="item">{{ timeData.hours }}</span>
+            <span class="colon">:</span>
+            <span class="item">{{ timeData.minutes }}</span>
+            <span class="colon">:</span>
+            <span class="item">{{ timeData.seconds }}</span>
+          </template>
+        </van-count-down>
+      </template>
+    </van-notice-bar>
     <van-empty description="未发布菜品" v-if="isempt" />
     <div v-for="item in data" :key="item.Id">
       <van-card :price="item.Price" :thumb="item.ImgUrl" @click-thumb="handleImage(item.ImgUrl)">
@@ -32,7 +46,7 @@
         </template>
       </van-card>
     </div>
-    <div style="height:90px">
+    <div style="height:130px">
       <van-submit-bar
         :price="total"
         button-text="提交订单"
@@ -40,29 +54,37 @@
         tip-icon="shop"
         v-if="!isempt"
         :loading="loading"
+        style="bottom:50px"
       >
         <template #tip>您的收货地址是：大餐厅</template>
-        <template #default>暂时空</template>
+        <template #default></template>
       </van-submit-bar>
     </div>
+    <FoodTabbar></FoodTabbar>
   </div>
 </template>
 
 <script>
 import { ImagePreview } from 'vant'
+import FoodTabbar from './FoodTabbar'
+import moment from 'moment'
 export default {
   mounted() {
     this.getDataList()
   },
   components: {
-    [ImagePreview.Component.name]: ImagePreview.Component
+    [ImagePreview.Component.name]: ImagePreview.Component,
+    FoodTabbar
   },
   data: function() {
     return {
       data: [],
       shopCar: [],
       isempt: false,
-      loading: false
+      loading: false,
+      BeginTime: undefined,
+      EndTime: undefined,
+      time: 60 * 1000
     }
   },
   methods: {
@@ -77,8 +99,13 @@ export default {
           this.$set(a, 'Num', 0)
         })
         this.data = newData
-        if (this.data.length === 0) {
-          this.isempt = true
+        if (this.data !== undefined) {
+          this.BeginTime = moment(newData[0].BeginTime).format('HH:mm')
+          this.EndTime = moment(newData[0].EndTime).format('HH:mm')
+          this.time = moment(newData[0].EndTime) - moment(new Date())
+          if (this.data.length === 0) {
+            this.isempt = true
+          }
         }
       })
     },
@@ -134,3 +161,18 @@ export default {
   }
 }
 </script>
+<style>
+.colon {
+  display: inline-block;
+  margin: 0 4px;
+  color: #ee0a24;
+}
+.item {
+  display: inline-block;
+  width: 22px;
+  color: #fff;
+  font-size: 12px;
+  text-align: center;
+  background-color: #ee0a24;
+}
+</style>

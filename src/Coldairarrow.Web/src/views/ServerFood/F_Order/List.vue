@@ -2,7 +2,13 @@
   <a-card :bordered="false">
     <div class="table-operator">
       <a-button type="primary" icon="redo" @click="getDataList()">刷新</a-button>
-      <a-button type="primary" icon="redo" @click="handleExcelExport()">导出</a-button>
+      <a-date-picker
+        placeholder="请选择导出日期"
+        v-model="toDay"
+        :defaultValue="defaultToDay"
+        valueFormat="YYYY-MM-DD"
+      />
+      <a-button type="primary" icon="download" @click="handleExcelExport()">导出</a-button>
     </div>
 
     <div class="table-page-search-wrapper">
@@ -55,7 +61,7 @@
 
       <a-table
         slot="expandedRowRender"
-        slot-scope="record,index,indent,expanded"
+        slot-scope="record"
         :columns="innerColumns"
         :dataSource="innerData.filter(a=>a.OrderCode===record.OrderCode)"
         :pagination="false"
@@ -70,6 +76,7 @@
 
 <script>
 import EditForm from './EditForm'
+import moment from 'moment'
 
 const columns = [
   { title: '订单编号', dataIndex: 'OrderCode' },
@@ -110,7 +117,9 @@ export default {
       innerColumns,
       queryParam: {},
       selectedRowKeys: [],
-      innerData: [{ OrderCode: '' }]
+      innerData: [{ OrderCode: '' }],
+      defaultToDay: moment(new Date()),
+      toDay: moment(new Date())
     }
   },
   methods: {
@@ -154,19 +163,30 @@ export default {
       this.$refs.editForm.openForm(id)
     },
     handleExcelExport() {
-      this.$http.post('/Test/ExcelExport', {}, { responseType: 'arraybuffer' }).then(resJson => {
-        console.log(resJson)
-        const blob = new Blob([resJson], { type: 'application/vnd.ms-excel' })
-        const downloadElement = document.createElement('a')
-        const href = window.URL.createObjectURL(blob) // 创建下载的链接
-        downloadElement.href = href
-        // downloadElement.download = fileName; //下载后文件名
-        downloadElement.download = name // 下载后文件名
-        document.body.appendChild(downloadElement)
-        downloadElement.click() // 点击下载
-        document.body.removeChild(downloadElement) // 下载完成移除元素
-        window.URL.revokeObjectURL(href) // 释放掉blob对象
-      })
+      if (this.toDay === null) {
+        this.toDay = moment(new Date())
+      }
+      this.$http
+        .post(
+          '/ServerFood/F_Order/ExcelToExport',
+          {
+            Condition: 'CreateTime',
+            Keyword: this.toDay.format('YYYY-MM-DD')
+          },
+          { responseType: 'arraybuffer' }
+        )
+        .then(resJson => {
+          const blob = new Blob([resJson], { type: 'application/vnd.ms-excel' })
+          const downloadElement = document.createElement('a')
+          const href = window.URL.createObjectURL(blob) // 创建下载的链接
+          downloadElement.href = href
+          // downloadElement.download = fileName; //下载后文件名
+          downloadElement.download = '下载订单' + this.toDay.format('YYYY年MM月DD日') // 下载后文件名
+          document.body.appendChild(downloadElement)
+          downloadElement.click() // 点击下载
+          document.body.removeChild(downloadElement) // 下载完成移除元素
+          window.URL.revokeObjectURL(href) // 释放掉blob对象
+        })
     },
     handleDelete(ids) {
       var thisObj = this
