@@ -54,15 +54,15 @@ const vueConfig = {
     disableHostCheck: true,
     port: process.env.VUE_APP_DevPort,
     // If you want to turn on the proxy, please remove the mockjs /src/main.jsL11
-    proxy: {
-      '/api': {
-        target: 'https://qyapi.weixin.qq.com/cgi-bin/gettoken',
-        ws: true,
-        secure: true,
-        changeOrigin: true
+    //proxy: {
+      //'/api': {
+       // target: 'https://qyapi.weixin.qq.com/cgi-bin/gettoken',
+       // ws: true,
+        //secure: true,
+       // changeOrigin: true
 
-      }
-    }
+      //}
+    //}
   },
 
   // disable source map in production

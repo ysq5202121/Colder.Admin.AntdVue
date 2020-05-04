@@ -82,9 +82,9 @@ export default {
       shopCar: [],
       isempt: false,
       loading: false,
-      BeginTime: undefined,
-      EndTime: undefined,
-      time: 60 * 1000
+      BeginTime: '',
+      EndTime: '',
+      time: 1 * 1000
     }
   },
   methods: {
@@ -99,13 +99,13 @@ export default {
           this.$set(a, 'Num', 0)
         })
         this.data = newData
-        if (this.data !== undefined) {
+        if (this.data !== undefined && this.data.length > 0) {
           this.BeginTime = moment(newData[0].BeginTime).format('HH:mm')
           this.EndTime = moment(newData[0].EndTime).format('HH:mm')
           this.time = moment(newData[0].EndTime) - moment(new Date())
-          if (this.data.length === 0) {
-            this.isempt = true
-          }
+        }
+        if (this.data !== undefined && this.data.length === 0) {
+          this.isempt = true
         }
       })
     },

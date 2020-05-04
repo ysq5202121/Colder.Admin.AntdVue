@@ -41,6 +41,11 @@ Axios.interceptors.response.use(res => {
     TokenCache.deleteToken()
     location.href = '/'
   }
+  // 微信端鉴权失败 modify by ysq 2020-05-04
+  if (!res.data.Success && res.data.ErrorCode === 402) {
+    TokenCache.deleteToken()
+    location.href = '/WeChat/index'
+  }
 
   return res.data
 }, error => {

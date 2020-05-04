@@ -3,10 +3,15 @@
 </template>
 
 <script>
-module.exports = { 
+import defaultSettings from '@/config/defaultSettings'
+export default {
   mounted() {
     window.location.href =
-      'https://open.weixin.qq.com/connect/oauth2/authorize?appid=ww5edb01e84de945a4&redirect_uri=http://www.ysq.com:5001/WeChat/Authorize?get=1&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect'
+      'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' +
+      defaultSettings.weChatAppId +
+      '&redirect_uri=' +
+      defaultSettings.WeChatUrl +
+      '/WeChat/Authorize?get=1&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect'
   },
   data: function() {
     return {

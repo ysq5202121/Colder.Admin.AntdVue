@@ -21,6 +21,17 @@
     <OutputPath>bin\Release</OutputPath>
     <DocumentationFile>bin\Release\Coldairarrow.Api.xml</DocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="%2a%2a\**" />
+    <Compile Remove="Db\**" />
+    <Content Remove="%2a%2a\**" />
+    <Content Remove="Db\**" />
+    <EmbeddedResource Remove="%2a%2a\**" />
+    <EmbeddedResource Remove="Db\**" />
+    <None Remove="%2a%2a\**" />
+    <None Remove="Db\**" />
+  </ItemGroup>
   
   <ItemGroup>
     <Content Remove="wwwroot\Upload\_.txt" />
@@ -77,10 +88,6 @@
     <None Update="BuildCodeTemplate\List.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Db\" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="http://json.schemastore.org/asmdef" /></VisualStudio></ProjectExtensions>

@@ -66,7 +66,7 @@ namespace Coldairarrow.Business.ServerFood
 
             var where = LinqHelper.True<F_PublishFoodResultDto>();
             var toDay = DateTime.Now.Date;
-            where.And(a => a.PublishDate > toDay && a.PublishDate < toDay.AddDays(1));
+            where=where.And(a => a.PublishDate > toDay && a.PublishDate < toDay.AddDays(1));
             return await q.Where(where).OrderBy(x => x.Id).ToListAsync();
         }
 

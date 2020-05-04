@@ -10,7 +10,7 @@ namespace Coldairarrow.Api
     /// </summary>
     public class CheckJWTClientAttribute : BaseActionFilterAsync
     {
-        private static readonly int _errorCode = 401;
+        private static readonly int _errorCode = 402;
         public  string JwtKey = JWTHelper.JWTClient;
  
         public override async Task OnActionExecuting(ActionExecutingContext context)
