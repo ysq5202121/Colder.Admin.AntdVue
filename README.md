@@ -8,4 +8,6 @@ Web后台快速开发框架,.NETCore3.1+Ant Design Vue版本
 **在线预览地址**：<http://admin-antdvue-web.coldairarrow.com>  
 
 
-1.新增点餐功能模块
+1.增加企业微信点餐功能.
+2.后台配置菜品.
+3.企业微信点餐.
