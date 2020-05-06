@@ -33,5 +33,9 @@ namespace Coldairarrow.Business.ServerFood
 
         public string DepartmentName { get; set; }
 
+        public string SupplierName { get; set; }
+
+        public string ImageUrl { get; set; }
+
     }
 }

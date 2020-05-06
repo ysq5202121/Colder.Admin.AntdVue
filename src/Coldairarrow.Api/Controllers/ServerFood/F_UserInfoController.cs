@@ -34,6 +34,14 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         {
             return await _f_UserInfoBus.GetTheDataAsync(input.id);
         }
+        [HttpPost]
+        [NoCheckJWT]
+        //[CheckJWTClient]
+        public async Task<F_UserInfo> GetUserInfoToMoblie()
+        {
+
+            return await _f_UserInfoBus.GetUserInfoToMoblieAsync();
+        }
 
         #endregion
 

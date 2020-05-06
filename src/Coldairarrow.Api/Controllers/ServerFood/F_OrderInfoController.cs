@@ -39,6 +39,13 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         {
             return await _f_OrderInfoBus.GetTheDataAsync(input.id);
         }
+        [HttpPost]
+        [NoCheckJWT]
+        [CheckJWTClient]
+        public async Task<List<IF_OrderInfoResultDto>> GetDataListToMoblie(ConditionDTO input)
+        {
+            return await _f_OrderInfoBus.GetDataListToMoblieAsync(input);
+        }
 
         #endregion
 

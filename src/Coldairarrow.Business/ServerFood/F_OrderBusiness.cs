@@ -54,7 +54,12 @@ namespace Coldairarrow.Business.ServerFood
         {
             Expression<Func<F_Order, F_UserInfo, IF_OrderResultDTO>> select = (a, b) => new IF_OrderResultDTO
             {
-                UserName = b.UserName
+                UserName = b.UserName,
+                ImageUrl  = (from c in Service.GetIQueryable<F_OrderInfo>()
+                    join d in Service.GetIQueryable<F_PublishFood>() on c.PublishFoodId equals d.Id
+                    where c.OrderCode == a.OrderCode
+                    select d.ImgUrl).FirstOrDefault()
+
             };
             select = select.BuildExtendSelectExpre();
             var q = from a in GetIQueryable().AsExpandable()
@@ -62,7 +67,7 @@ namespace Coldairarrow.Business.ServerFood
                     from b in ab.DefaultIfEmpty()
                     select @select.Invoke(a, b);
            var where = LinqHelper.True<IF_OrderResultDTO>();
-           var userInfo = Service.GetIQueryable<F_UserInfo>().Where(a => a.WeCharUserId =="YangShangQi")?.FirstOrDefault();
+           var userInfo = Service.GetIQueryable<F_UserInfo>().Where(a => a.WeCharUserId ==oOperator.UserId)?.FirstOrDefault();
            if (userInfo == null) throw new BusException("获取用户信息失败!");
             //筛选
            where = where.And(a=>a.UserInfoId== userInfo.Id);
@@ -144,7 +149,12 @@ namespace Coldairarrow.Business.ServerFood
                 FoodName = string.Join(",", (from c in Service.GetIQueryable<F_OrderInfo>()
                                              join d in Service.GetIQueryable<F_PublishFood>() on c.PublishFoodId equals d.Id
                                              where c.OrderCode == a.OrderCode
-                                             select d.FoodName))
+                                             select d.FoodName)),
+                SupplierName = string.Join(",", (from c in Service.GetIQueryable<F_OrderInfo>()
+                    join d in Service.GetIQueryable<F_PublishFood>() on c.PublishFoodId equals d.Id
+                    where c.OrderCode == a.OrderCode
+                    select d.SupplierName))
+
             };
 
             select = select.BuildExtendSelectExpre();
@@ -163,8 +173,37 @@ namespace Coldairarrow.Business.ServerFood
                 where = where.And(a=>a.CreateTime>input.Keyword.ToDateTime() && a.CreateTime< input.Keyword.ToDateTime().AddDays(1));
             }
             DataTable dt = q.Where(where).ToList().ToDataTable();
-            dt.Columns[0].ColumnName = "用户名";
-
+            if(dt!=null && dt.Rows.Count==0) throw new BusException("无下载数据!");
+            if (dt.Columns.Contains("UserName"))
+                dt.Columns["UserName"].ColumnName = "用户名";
+            if (dt.Columns.Contains("SupplierName"))
+                dt.Columns["SupplierName"].ColumnName = "商户名称";
+            if (dt.Columns.Contains("FoodName"))
+                dt.Columns["FoodName"].ColumnName = "菜品名称";
+            if (dt.Columns.Contains("DepartmentName"))
+                dt.Columns["DepartmentName"].ColumnName = "部门名称";
+            if (dt.Columns.Contains("OrderCount"))
+                dt.Columns["OrderCount"].ColumnName = "数量";
+            if (dt.Columns.Contains("Price"))
+                dt.Columns["Price"].ColumnName = "价格";
+            if (dt.Columns.Contains("OrderCode"))
+                dt.Columns["OrderCode"].ColumnName = "订单编号";
+            if (dt.Columns.Contains("CreateTime"))
+                dt.Columns["CreateTime"].ColumnName = "下单时间";
+            if (dt.Columns.Contains("CreatorId"))
+                dt.Columns.Remove(dt.Columns["CreatorId"]);
+            if (dt.Columns.Contains("Id"))
+                dt.Columns.Remove(dt.Columns["Id"]);
+            if (dt.Columns.Contains("UserInfoId"))
+                dt.Columns.Remove(dt.Columns["UserInfoId"]);
+            if (dt.Columns.Contains("CreatorName"))
+                dt.Columns.Remove(dt.Columns["CreatorName"]);
+            if (dt.Columns.Contains("UpdateId"))
+                dt.Columns.Remove(dt.Columns["UpdateId"]);
+            if (dt.Columns.Contains("UpdateName"))
+                dt.Columns.Remove(dt.Columns["UpdateName"]);
+            if (dt.Columns.Contains("UpdateTime"))
+                dt.Columns.Remove(dt.Columns["UpdateTime"]);
             await Task.CompletedTask;
             return AsposeOfficeHelper.DataTableToExcelBytes(dt);
         }

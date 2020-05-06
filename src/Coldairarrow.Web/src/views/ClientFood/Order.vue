@@ -2,10 +2,10 @@
   <div>
     <van-notice-bar color="#1989fa" background="#ecf9ff" left-icon="volume-o">
       点餐时间为:{{ this.BeginTime }}-{{ this.EndTime }}
-      <template>
-        <van-count-down :time="time" style="display: inline-block;margin-left:15px">
+      <div style="display: inline-block;margin-left:15px">
+        剩余时间:
+        <van-count-down :time="time" style="display: inline-block;">
           <template v-slot="timeData">
-            剩余:
             <span class="item">{{ timeData.hours }}</span>
             <span class="colon">:</span>
             <span class="item">{{ timeData.minutes }}</span>
@@ -13,7 +13,7 @@
             <span class="item">{{ timeData.seconds }}</span>
           </template>
         </van-count-down>
-      </template>
+      </div>
     </van-notice-bar>
     <van-empty description="未发布菜品" v-if="isempt" />
     <div v-for="item in data" :key="item.Id">
@@ -118,9 +118,7 @@ export default {
       this.$http.post('/ServerFood/F_Order/PlaceOrder', this.shopCar).then(resJson => {
         this.loading = false
         if (resJson.Success) {
-          this.$message.success('操作成功!')
-          this.visible = false
-          this.getDataList()
+          this.$router.push({ path: '/ClientFood/OrderOk' })
         } else {
           this.$message.error(resJson.Msg)
         }

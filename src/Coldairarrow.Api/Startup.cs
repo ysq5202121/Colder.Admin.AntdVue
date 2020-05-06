@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
 using System.IO;
+using Hangfire;
 
 namespace Coldairarrow.Api
 {
@@ -24,9 +25,9 @@ namespace Coldairarrow.Api
         {
             services.AddFxServices();
             services.AddAutoMapper();
+            string conName = Configuration["ConnectionName"];
             services.UseEFCoreSharding(config =>
             {
-                string conName = Configuration["ConnectionName"];
                 if (Configuration["LogicDelete"].ToBool())
                     config.UseLogicDelete();
                 config.UseDatabase(Configuration.GetConnectionString(conName), Configuration["DatabaseType"].ToEnum<DatabaseType>());
@@ -86,6 +87,7 @@ namespace Coldairarrow.Api
                     c.IncludeXmlComments(aXml);
                 });
             });
+            services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString(conName)));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -110,6 +112,9 @@ namespace Coldairarrow.Api
                 endpoints.MapControllers();
             });
             ApiLog();
+            app.UseHangfireServer();
+            app.UseHangfireDashboard();
+            app.UseHangfireAddServer();
         }
 
         private void ApiLog()

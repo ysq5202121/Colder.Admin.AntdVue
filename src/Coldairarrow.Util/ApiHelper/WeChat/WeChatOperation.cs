@@ -12,7 +12,8 @@ namespace Coldairarrow.Util.ApiHelper.WeChat
        const string GetUserIdUrl = "https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo";
        const string GetUserInfoUrl = "https://qyapi.weixin.qq.com/cgi-bin/user/get";
        const string GetDepartmentUrl = "https://qyapi.weixin.qq.com/cgi-bin/department/list";
-
+       const string SendMssage = " https://qyapi.weixin.qq.com/cgi-bin/message/send";//发送消息接口
+       public static WeChatAuthInfo autoInfo = ConfigHelper.Configuration.GetSection("WeChatAuth").Get<WeChatAuthInfo>();
         /// <summary>
         /// 获取token
         /// </summary>
@@ -21,7 +22,7 @@ namespace Coldairarrow.Util.ApiHelper.WeChat
         {
             try
             {
-                WeChatAuthInfo autoInfo = ConfigHelper.Configuration.GetSection("WeChatAuth").Get<WeChatAuthInfo>();
+              
                 Dictionary<string, object> dic = new Dictionary<string, object>();
                 dic.Add("corpid", autoInfo.CorpId);
                 dic.Add("corpsecret", autoInfo.CorpSecret);
@@ -152,5 +153,7 @@ namespace Coldairarrow.Util.ApiHelper.WeChat
                 return null;
             }
         }
-    }
+
+
+   }
 }

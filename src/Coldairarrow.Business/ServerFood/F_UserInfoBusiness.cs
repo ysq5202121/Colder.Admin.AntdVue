@@ -14,9 +14,11 @@ namespace Coldairarrow.Business.ServerFood
 {
     public class F_UserInfoBusiness : BaseBusiness<F_UserInfo>, IF_UserInfoBusiness, ITransientDependency
     {
-        public F_UserInfoBusiness(IRepository repository)
+        public IOperator operators;
+        public F_UserInfoBusiness(IRepository repository, IOperator op)
             : base(repository)
         {
+            operators = op;
         }
 
         #region 外部接口
@@ -36,6 +38,11 @@ namespace Coldairarrow.Business.ServerFood
             }
 
             return await q.Where(where).GetPageResultAsync(input);
+        }
+
+        public async Task<F_UserInfo> GetUserInfoToMoblieAsync()
+        {
+            return await GetIQueryable().Where(a => a.WeCharUserId == operators.UserId).FirstOrDefaultAsync();
         }
 
         public async Task<F_UserInfo> GetTheDataAsync(string id)

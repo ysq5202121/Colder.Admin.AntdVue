@@ -66,7 +66,11 @@ namespace Coldairarrow.Business.ServerFood
         {
             Expression<Func<F_OrderInfo, F_PublishFood, IF_OrderInfoResultDto>> select = (a, b) => new IF_OrderInfoResultDto
             {
-                FoodName = b.FoodName
+                FoodName = b.FoodName,
+                Price =b.Price,
+                ImageUrl = b.ImgUrl,
+                FoodDesc = b.FoodDesc,
+                SupplierName=b.SupplierName
             };
             select = select.BuildExtendSelectExpre();
             var q = from a in GetIQueryable().AsExpandable()
@@ -76,13 +80,8 @@ namespace Coldairarrow.Business.ServerFood
 
             var where = LinqHelper.True<IF_OrderInfoResultDto>();
             var search = input;
-            //筛选
-            if (!search.Condition.IsNullOrEmpty() && !search.Keyword.IsNullOrEmpty())
-            {
-                var newWhere = DynamicExpressionParser.ParseLambda<IF_OrderInfoResultDto, bool>(
-                    ParsingConfig.Default, false, $@"{search.Condition}.Contains(@0)", search.Keyword);
-                where = where.And(newWhere);
-            }
+            where = where.And(a=>a.OrderCode==input.Keyword);
+
             return await q.Where(where).ToListAsync();
         }
 

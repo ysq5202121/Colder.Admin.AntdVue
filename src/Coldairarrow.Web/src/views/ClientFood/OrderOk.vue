@@ -1,27 +1,33 @@
 <template>
-    <div>
-     我的订单
-    <a-row type="flex" justify="center" style="margin-top:10px">
-      <a-col :span="1"> <a-button type="primary">菜品管理</a-button></a-col>
-    </a-row>
-   <a-row type="flex" justify="center" style="margin-top:10px">
-      <a-col :span="1"> <a-button type="primary">点餐</a-button></a-col>
-    </a-row>
-   <a-row type="flex" justify="center" style="margin-top:10px">
-      <a-col :span="1"> <a-button type="primary">报餐统计</a-button></a-col>
-    </a-row>
-     <a-row type="flex" justify="center" style="margin-top:10px">
-      <a-col :span="1"> <a-button type="primary">设置</a-button></a-col>
-    </a-row>
+  <div>
+    <a-result status="success" title="订单提交成功!">
+      <template #extra>
+        <a-button @click="goToOrderView" >点餐</a-button>
+        <a-button @click="goToOrderListView">我的订单</a-button>
+      </template>
+    </a-result>
+    <FoodTabbar></FoodTabbar>
   </div>
 </template>
 
 <script>
-module.exports = {
+import FoodTabbar from './FoodTabbar'
+export default {
+  components: {
+    FoodTabbar
+  },
   data: function() {
     return {
-      greeting: "Hello"
-    };
+      greeting: 'Hello'
+    }
+  },
+  methods: {
+    goToOrderView() {
+      this.$router.push({ path: '/ClientFood/Order' })
+    },
+    goToOrderListView() {
+      this.$router.push({ path: '/ClientFood/OrderList' })
+    }
   }
-};
+}
 </script>

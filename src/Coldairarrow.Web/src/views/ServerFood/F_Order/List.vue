@@ -176,6 +176,12 @@ export default {
           { responseType: 'arraybuffer' }
         )
         .then(resJson => {
+          console.log(resJson)
+          console.log(resJson.Success)
+          console.log(typeof resJson)
+        
+          const blobs = new Blob([resJson], { type: 'application/json' })
+          console.log(blobs)
           const blob = new Blob([resJson], { type: 'application/vnd.ms-excel' })
           const downloadElement = document.createElement('a')
           const href = window.URL.createObjectURL(blob) // 创建下载的链接

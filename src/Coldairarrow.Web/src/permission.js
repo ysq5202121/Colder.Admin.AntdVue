@@ -9,10 +9,12 @@ import defaultSettings from '@/config/defaultSettings'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const whiteList = ['Login', 'FoodCenter', 'index', 'Authorize', 'Order', 'OrderList', 'UserInfo'] // no redirect whitelist
-
+const whiteList = ['Login', 'FoodCenter', 'index', 'Authorize', 'Order', 'OrderList', 'UserInfo', 'OrderOk'] // no redirect whitelist
+const noProgress = ['FoodCenter', 'index', 'Authorize', 'Order', 'OrderList', 'UserInfo', 'OrderOk'] // no NProgress
 router.beforeEach((to, from, next) => {
-  NProgress.start() // start progress bar
+  if (!noProgress.includes(to.name)) {
+    NProgress.start() // start progress bar
+  }
   to.meta && (typeof to.meta.title !== 'undefined' && setDocumentTitle(`${to.meta.title} - ${domTitle}`))
   // 已授权
   if (TokenCache.getToken()) {

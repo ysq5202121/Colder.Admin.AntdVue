@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-for="item in data" :key="item.Id">
-      <van-card :price="item.Price" :thumb="avatar">
+      <van-card :price="item.Price" :thumb="item.ImageUrl">
         <template #title>
           <div style="font-size: 15px;">订单编号:{{ item.OrderCode }}</div>
         </template>
@@ -15,11 +15,34 @@
         </template>
         <template #num>总数量:{{ item.OrderCount }}</template>
         <template #footer>
-          <van-button size="mini">详情</van-button>
+          <van-button size="mini" @click="getDetials(item.OrderCode)">详情</van-button>
         </template>
       </van-card>
     </div>
-    <FoodTabbar></FoodTabbar>
+    <van-popup v-model="show" round position="bottom" :style="{ height: '50%' }" closeable>
+      <div v-for="item in dataDetail" :key="item.Id">
+        <van-card :price="item.Price" :thumb="item.ImageUrl">
+          <template #title>
+            <div style="font-size: 15px;">{{ item.FoodName }}</div>
+          </template>
+          <template #tags>
+            <van-tag plain type="danger">{{ item.SupplierName }}</van-tag>
+          </template>
+          <template #desc>
+            <div style="font-size: 12px;">{{ item.FoodDesc }}</div>
+          </template>
+          <template #price>
+            <div style="color:red;font-size: 13px;">
+              <b>¥{{ item.Price }}</b>
+            </div>
+          </template>
+          <template #num>数量:{{ item.OrderInfoQty }}</template>
+        </van-card>
+      </div>
+    </van-popup>
+    <div style="height:50px">
+      <FoodTabbar></FoodTabbar>
+    </div>
   </div>
 </template>
 
@@ -33,9 +56,11 @@ export default {
     return {
       data: [],
       shopCar: [],
+      dataDetail: [],
       isempt: false,
       loading: false,
-      avatar: require('@/assets/image/shop.jpg')
+      avatar: require('@/assets/image/shop.jpg'),
+      show: false
     }
   },
   components: {
@@ -47,11 +72,23 @@ export default {
       this.$http.post('/ServerFood/F_Order/GetDataListToMoblie', {}).then(resJson => {
         this.loading = false
         this.data = resJson.Data
-
         if (this.data !== undefined && this.data.length === 0) {
           this.isempt = true
         }
       })
+    },
+    getDetials(OrderCode) {
+      this.show = true
+      this.loading = true
+      this.$http
+        .post('/ServerFood/F_OrderInfo/GetDataListToMoblie', {
+          Condition: '',
+          Keyword: OrderCode
+        })
+        .then(resJson => {
+          this.loading = false
+          this.dataDetail = resJson.Data
+        })
     }
   }
 }

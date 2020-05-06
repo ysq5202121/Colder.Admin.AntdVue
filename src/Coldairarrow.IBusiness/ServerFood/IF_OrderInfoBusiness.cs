@@ -22,5 +22,14 @@ namespace Coldairarrow.Business.ServerFood
     public class IF_OrderInfoResultDto: F_OrderInfo
     {
         public string FoodName { get; set; }
+
+        public string ImageUrl { get; set; }
+
+        public decimal? Price { get; set; }
+        public string FoodDesc { get; set; }
+
+        public string SupplierName { get; set; }
+
+
     }
 }
