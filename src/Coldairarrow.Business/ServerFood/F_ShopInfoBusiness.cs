@@ -39,6 +39,12 @@ namespace Coldairarrow.Business.ServerFood
             return await q.Where(where).GetPageResultAsync(input);
         }
 
+        public async Task<List<F_ShopInfo>> GetDataListToMoblieAsync()
+        {
+            var q = GetIQueryable();
+            return await q.ToListAsync();
+        }
+
         public async Task<F_ShopInfo> GetTheDataAsync(string id)
         {
             return await GetEntityAsync(id);

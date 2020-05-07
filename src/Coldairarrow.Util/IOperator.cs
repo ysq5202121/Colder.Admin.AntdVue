@@ -1,4 +1,6 @@
-﻿namespace Coldairarrow.Util
+﻿using Coldairarrow.Entity.ServerFood;
+//为隔离开Entity modify by ysq 2020-05-07
+namespace Coldairarrow.Util
 {
     /// <summary>
     /// 操作者
@@ -11,6 +13,8 @@
         string UserId { get; }
 
         Base_UserDTO Property { get; }
+
+        F_UserInfo WeChatProperty { get; }
 
         #region 操作方法
 

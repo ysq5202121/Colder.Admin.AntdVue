@@ -1,6 +1,6 @@
 <template>
   <div>
-    <van-card>
+    <van-card v-if="data">
       <template #tags>
         <van-tag plain type="danger">VIP</van-tag>
       </template>
@@ -14,15 +14,14 @@
         <div style="font-size: 12px;">{{ data.Department }}</div>
       </template>
     </van-card>
-    <van-cell title="我的设置" is-link url="/ClientFood/UserInfoSet" />
     <van-field
       readonly
       clickable
       name="picker"
-      :value="value"
-      label="选择器"
-      placeholder="点击选择城市"
-      @click="showPicker = true"
+      :value="SelectValue"
+      label="关联门店"
+      placeholder="点击选择门店"
+      @click="OpenShopNameWin"
     />
     <van-popup v-model="showPicker" position="bottom">
       <van-picker
@@ -30,8 +29,10 @@
         :columns="columns"
         @confirm="onConfirm"
         @cancel="showPicker = false"
+        :default-index="defaultIndex"
       />
     </van-popup>
+    <van-cell title="我的设置" is-link url="/ClientFood/UserInfoSet" />
     <van-cell title="关于我们" is-link />
     <FoodTabbar></FoodTabbar>
   </div>
@@ -41,30 +42,68 @@
 import FoodTabbar from './FoodTabbar'
 export default {
   mounted() {
-    this.getData()
+    this.getUserInfoList()
+    this.getShopInfoList()
   },
   data: function() {
     return {
       data: [],
-      value: '',
-      columns: ['杭州', '宁波', '温州', '嘉兴', '湖州'],
-      showPicker: false
+      columns: [],
+      showPicker: false,
+      SelectValue: '',
+      dataShopName: [],
+      loading: false,
+      defaultIndex: 1
     }
   },
   components: {
     FoodTabbar
   },
   methods: {
-    getData() {
+    getUserInfoList() {
       this.loading = true
       this.$http.post('/ServerFood/F_UserInfo/GetUserInfoToMoblie', {}).then(resJson => {
         this.loading = false
         this.data = resJson.Data
+        if (this.data !== undefined) {
+          this.SelectValue = this.data.ShopName
+        }
+      })
+    },
+    getShopInfoList() {
+      this.loading = true
+      this.$http.post('/ServerFood/F_ShopInfo/GetDataListToMoblie', {}).then(resJson => {
+        this.loading = false
+        this.dataShopName = resJson.Data
+        resJson.Data.forEach(a => {
+          this.columns.push(a.ShopName)
+        })
       })
     },
     onConfirm(value) {
-      this.value = value
-      this.showPicker = false
+      this.loading = true
+      const shopData = this.dataShopName.find(a => a.ShopName === value)
+      if (value !== this.SelectValue) {
+        this.$http
+          .post('/ServerFood/F_UserInfo/UpdateShopName', {
+            ShopInfoId: shopData.Id
+          })
+          .then(resJson => {
+            this.loading = false
+            if (resJson.Success) {
+              this.SelectValue = value
+              this.showPicker = false
+            } else {
+              this.$message.error(resJson.Msg)
+            }
+          })
+      } else {
+        this.showPicker = false
+      }
+    },
+    OpenShopNameWin() {
+      this.showPicker = true
+      this.defaultIndex = this.columns.findIndex(a => a === this.SelectValue)
     }
   }
 }

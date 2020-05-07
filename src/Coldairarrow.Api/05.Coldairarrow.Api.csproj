@@ -32,20 +32,6 @@
     <None Remove="%2a%2a\**" />
     <None Remove="Db\**" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <Content Remove="wwwroot\Upload\_.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="wwwroot\Upload\_.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="wwwroot\Upload\_.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Hangfire.AspNetCore" Version="1.7.11" />

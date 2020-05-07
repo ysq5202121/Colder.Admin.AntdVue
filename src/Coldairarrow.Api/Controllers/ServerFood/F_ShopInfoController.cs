@@ -30,6 +30,13 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         }
 
         [HttpPost]
+        [NoCheckJWT]
+        public async Task<List<F_ShopInfo>> GetDataListToMoblie()
+        {
+            return await _f_ShopInfoBus.GetDataListToMoblieAsync();
+        }
+
+        [HttpPost]
         public async Task<F_ShopInfo> GetTheData(IdInputDTO input)
         {
             return await _f_ShopInfoBus.GetTheDataAsync(input.id);

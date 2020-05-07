@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Coldairarrow.Util.ApiHelper.WeChat;
 
@@ -23,16 +24,25 @@ namespace Coldairarrow.Business.ServerFood
 
         #region 外部接口
 
-        public async Task<PageResult<F_UserInfo>> GetDataListAsync(PageInput<ConditionDTO> input)
+        public async Task<PageResult<IF_UserInfoResultDto>> GetDataListAsync(PageInput<ConditionDTO> input)
         {
-            var q = GetIQueryable();
-            var where = LinqHelper.True<F_UserInfo>();
+            Expression<Func<F_UserInfo, F_ShopInfo, IF_UserInfoResultDto>> select = (a, b) => new IF_UserInfoResultDto
+            {
+                ShopName = b.ShopName
+            };
+            select = select.BuildExtendSelectExpre();
+            var q = from a in GetIQueryable().AsExpandable()
+                join b in Service.GetIQueryable<F_ShopInfo>() on a.ShopInfoId equals b.Id into ab
+                from b in ab.DefaultIfEmpty()
+                select @select.Invoke(a, b);
+
+            var where = LinqHelper.True<IF_UserInfoResultDto>();
             var search = input.Search;
 
             //筛选
             if (!search.Condition.IsNullOrEmpty() && !search.Keyword.IsNullOrEmpty())
             {
-                var newWhere = DynamicExpressionParser.ParseLambda<F_UserInfo, bool>(
+                var newWhere = DynamicExpressionParser.ParseLambda<IF_UserInfoResultDto, bool>(
                     ParsingConfig.Default, false, $@"{search.Condition}.Contains(@0)", search.Keyword);
                 where = where.And(newWhere);
             }
@@ -40,14 +50,30 @@ namespace Coldairarrow.Business.ServerFood
             return await q.Where(where).GetPageResultAsync(input);
         }
 
-        public async Task<F_UserInfo> GetUserInfoToMoblieAsync()
+        public async Task<IF_UserInfoResultDto> GetUserInfoToMoblieAsync()
         {
-            return await GetIQueryable().Where(a => a.WeCharUserId == operators.UserId).FirstOrDefaultAsync();
+            var q = from a in GetIQueryable().AsExpandable()
+                join b in Service.GetIQueryable<F_ShopInfo>() on a.ShopInfoId equals b.Id into ab
+                from b in ab.DefaultIfEmpty()
+                where a.WeCharUserId == operators.UserId
+                select new IF_UserInfoResultDto
+                {
+                    ShopName = b.ShopName,
+                    UserName = a.UserName,
+                    UserImgUrl = a.UserImgUrl,
+                    Department = a.Department
+
+                };
+            return await q.FirstOrDefaultAsync();
         }
 
         public async Task<F_UserInfo> GetTheDataAsync(string id)
         {
             return await GetEntityAsync(id);
+        }
+        public async Task<F_UserInfo> GetTheDataByWeChatIdAsync(string id)
+        {
+            return await GetIQueryable().Where(a => a.WeCharUserId == id).FirstOrDefaultAsync();
         }
 
         public async Task AddDataAsync(F_UserInfo data)
@@ -60,6 +86,17 @@ namespace Coldairarrow.Business.ServerFood
             await UpdateAsync(data);
         }
 
+        public async Task UpdateShopNameAsync(F_UserInfo data)
+        {
+            var userInfo = Service.GetIQueryable<F_UserInfo>().Where(a => a.WeCharUserId == operators.UserId)?.FirstOrDefault();
+            if (userInfo == null) throw new BusException("获取用户信息失败!");
+            userInfo.ShopInfoId = data.ShopInfoId;
+            userInfo.UpdateId = userInfo.Id;
+            userInfo.UpdateName = userInfo.UserName;
+            userInfo.UpdateTime = userInfo.UpdateTime;
+            await Service.UpdateAnyAsync(userInfo, new List<string> { "ShopInfoId", "UpdateId" , "UpdateName", "UpdateTime" });
+        }
+
         public async Task DeleteDataAsync(List<string> ids)
         {
             await DeleteAsync(ids);
@@ -68,11 +105,10 @@ namespace Coldairarrow.Business.ServerFood
         public async Task<string> Login(string code)
         {
            string token= WeChatOperation.GetToken();
-           if(token==null) throw new BusException("获取授权失败!");
+           if(token==null) throw new BusException("获取授权token失败!");
            string userId = WeChatOperation.GetUserId(code,token);
-           if (userId == null) throw new BusException("授权登录失败!");
+           if (userId == null) throw new BusException("获取授权userId失败");
            //缓存token,不重复获取
-
            //查询用户信息
            var userInfo = GetIQueryable().Where(a => a.WeCharUserId == userId)?.FirstOrDefault();
            if(userInfo==null)

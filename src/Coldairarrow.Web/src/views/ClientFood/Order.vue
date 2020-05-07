@@ -1,8 +1,8 @@
 <template>
   <div>
-    <van-notice-bar color="#1989fa" background="#ecf9ff" left-icon="volume-o">
+    <van-notice-bar color="#1989fa" background="#ecf9ff" left-icon="volume-o" v-if="isCommitEmpt">
       点餐时间为:{{ this.BeginTime }}-{{ this.EndTime }}
-      <div style="display: inline-block;margin-left:15px">
+      <div style="display: inline-block;margin-left:15px" v-if="time>0">
         剩余时间:
         <van-count-down :time="time" style="display: inline-block;">
           <template v-slot="timeData">
@@ -52,7 +52,7 @@
         button-text="提交订单"
         @submit="onSubmit"
         tip-icon="shop"
-        v-if="!isempt"
+        v-if="isCommitEmpt"
         :loading="loading"
         style="bottom:50px"
       >
@@ -81,10 +81,11 @@ export default {
       data: [],
       shopCar: [],
       isempt: false,
+      isCommitEmpt: false,
       loading: false,
       BeginTime: '',
       EndTime: '',
-      time: 1 * 1000
+      time: 0
     }
   },
   methods: {
@@ -100,6 +101,7 @@ export default {
         })
         this.data = newData
         if (this.data !== undefined && this.data.length > 0) {
+          this.isCommitEmpt = true
           this.BeginTime = moment(newData[0].BeginTime).format('HH:mm')
           this.EndTime = moment(newData[0].EndTime).format('HH:mm')
           this.time = moment(newData[0].EndTime) - moment(new Date())

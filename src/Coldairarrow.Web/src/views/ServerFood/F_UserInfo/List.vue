@@ -11,11 +11,9 @@
             <a-form-item label="查询类别">
               <a-select allowClear v-model="queryParam.condition">
                 <a-select-option key="UserName">用户名称</a-select-option>
-                <a-select-option key="ShopInfoId">门店ID</a-select-option>
+                <a-select-option key="ShopName">门店ID</a-select-option>
                 <a-select-option key="Department">部门名称</a-select-option>
-                <a-select-option key="Remark">备注信息</a-select-option>
                 <a-select-option key="CreatorName">创建人姓名</a-select-option>
-                <a-select-option key="UpdateId">修改人编号</a-select-option>
                 <a-select-option key="UpdateName">修改人时间</a-select-option>
               </a-select>
             </a-form-item>
@@ -67,7 +65,7 @@ import EditForm from './EditForm'
 const columns = [
   { title: '用户名称', dataIndex: 'UserName' },
   { title: '是否管理员', dataIndex: 'IsAdmin', width: 100, scopedSlots: { customRender: 'IsAdmin' } },
-  { title: '归属门店', dataIndex: 'ShopInfoId', width: 150 },
+  { title: '归属门店', dataIndex: 'ShopName', width: 150 },
   { title: '部门名称', dataIndex: 'Department', width: 150 },
   { title: '创建人', dataIndex: 'CreatorName', width: 100 },
   { title: '创建时间', dataIndex: 'CreateTime', width: 150 },

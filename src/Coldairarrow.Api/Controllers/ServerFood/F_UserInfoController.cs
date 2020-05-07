@@ -24,7 +24,7 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         #region 获取
 
         [HttpPost]
-        public async Task<PageResult<F_UserInfo>> GetDataList(PageInput<ConditionDTO> input)
+        public async Task<PageResult<IF_UserInfoResultDto>> GetDataList(PageInput<ConditionDTO> input)
         {
             return await _f_UserInfoBus.GetDataListAsync(input);
         }
@@ -41,6 +41,12 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         {
 
             return await _f_UserInfoBus.GetUserInfoToMoblieAsync();
+        }
+        [HttpPost]
+        [NoCheckJWT]
+        public async Task UpdateShopName(F_UserInfo data)
+        {
+             await _f_UserInfoBus.UpdateShopNameAsync(data);
         }
 
         #endregion

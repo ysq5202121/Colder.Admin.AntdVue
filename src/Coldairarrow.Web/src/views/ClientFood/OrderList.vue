@@ -19,6 +19,7 @@
         </template>
       </van-card>
     </div>
+    <van-empty description="没有订单信息" v-if="isempt" />
     <van-popup v-model="show" round position="bottom" :style="{ height: '50%' }" closeable>
       <div v-for="item in dataDetail" :key="item.Id">
         <van-card :price="item.Price" :thumb="item.ImageUrl">

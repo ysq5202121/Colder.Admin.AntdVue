@@ -83,8 +83,8 @@ export default {
       text-align: center;
 
       .header {
-        height: 44px;
-        line-height: 44px;
+        height: 51px;
+        line-height: 51px;
 
         .badge {
           position: absolute;
@@ -97,9 +97,8 @@ export default {
         }
 
         .logo {
-          height: 44px;
+          height: 51px;
           vertical-align: top;
-          margin-right: 16px;
           border-style: none;
         }
 

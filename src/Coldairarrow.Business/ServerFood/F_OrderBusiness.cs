@@ -102,7 +102,7 @@ namespace Coldairarrow.Business.ServerFood
             {
                 a.FoodQty = a.FoodQty - data.First(b => b.Id == a.Id).Num;
             });
-            await Service.UpdateAsync<F_PublishFood>(fPublishFoodList);
+            await Service.UpdateAnyAsync<F_PublishFood>(fPublishFoodList,new List<string>(){ "FoodQty" });
             //计算总价
             var totalPrice = data.Sum(a => a.Price * a.Num);
             var totalNum = data.Sum(a => a.Num);

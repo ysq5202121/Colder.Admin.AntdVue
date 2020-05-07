@@ -12,8 +12,8 @@ namespace Coldairarrow.Api
         public static void UseHangfireAddServer(this IApplicationBuilder app)
         {
 
-            BackgroundJob.Enqueue(() => Console.WriteLine("Fire-and-forget!"));
-            RecurringJob.AddOrUpdate(() => Console.Write("Easy!"), Cron.Hourly(30));
+           // BackgroundJob.Enqueue(() => Console.WriteLine("Fire-and-forget!"));
+            //RecurringJob.AddOrUpdate(() => Console.Write("Easy!"), Cron.Hourly(30));
         }
     }
 }

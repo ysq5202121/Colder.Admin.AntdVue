@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
+using Coldairarrow.Entity.ServerFood;
 
 namespace Coldairarrow.Business
 {
@@ -16,14 +17,17 @@ namespace Coldairarrow.Business
     {
         readonly IBase_UserCache _userCache;
         readonly IServiceProvider _serviceProvider;
-        public Operator(IBase_UserCache userCache, IHttpContextAccessor httpContextAccessor, IServiceProvider serviceProvider)
+        readonly IWeChatUserInfoCache _weChatCache;
+        public Operator(IBase_UserCache userCache,IWeChatUserInfoCache weChatCache, IHttpContextAccessor httpContextAccessor, IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
             _userCache = userCache;
+            _weChatCache = weChatCache;
             UserId = httpContextAccessor?.HttpContext?.Request.GetJWTPayload()?.UserId;
         }
 
         private Base_UserDTO _property;
+        private F_UserInfo _weChatProperty;
         private object _lockObj = new object();
 
         /// <summary>
@@ -53,6 +57,28 @@ namespace Coldairarrow.Business
                 }
 
                 return _property;
+            }
+        }
+
+        public F_UserInfo WeChatProperty
+        {
+            get
+            {
+                if (UserId.IsNullOrEmpty())
+                    return default;
+
+                if (_weChatProperty == null)
+                {
+                    lock (_lockObj)
+                    {
+                        if (_weChatProperty == null)
+                        {
+                            _weChatProperty = AsyncHelper.RunSync(() => _weChatCache.GetCacheAsync(UserId));
+                        }
+                    }
+                }
+
+                return _weChatProperty;
             }
         }
 

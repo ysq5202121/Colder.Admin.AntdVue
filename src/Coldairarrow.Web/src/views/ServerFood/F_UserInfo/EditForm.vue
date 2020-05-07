@@ -9,20 +9,25 @@
   >
     <a-spin :spinning="loading">
       <a-form-model ref="form" :model="entity" :rules="rules" v-bind="layout">
-        <a-form-model-item label="归属门店" prop="ShopInfoId">
-          <a-input v-model="entity.ShopInfoId" autocomplete="off" />
+        <a-form-model-item label="门店名称" prop="ShopInfoId">
+          <a-select v-model="entity.ShopInfoId" disabled="true">
+            <a-select-option
+              v-for="shopinfo in ShopInfoList"
+              :key="shopinfo.Id"
+            >{{ shopinfo.ShopName }}</a-select-option>
+          </a-select>
         </a-form-model-item>
         <a-form-model-item label="用户名称" prop="UserName">
-          <a-input v-model="entity.UserName" autocomplete="off" />
+          <a-input v-model="entity.UserName" autocomplete="off" disabled="true" />
         </a-form-model-item>
-        <a-form-model-item label="头像" prop="ImgUrl" >
-          <img :src="entity.UserImgUrl" width="100" height="100">
+        <a-form-model-item label="头像" prop="ImgUrl">
+          <img :src="entity.UserImgUrl" width="100" height="100" />
         </a-form-model-item>
         <a-form-model-item label="是否管理员" prop="IsAdmin">
           <a-switch v-model="entity.IsAdmin" />
         </a-form-model-item>
         <a-form-model-item label="部门名称" prop="Department">
-          <a-input v-model="entity.Department" autocomplete="off" />
+          <a-input v-model="entity.Department" autocomplete="off" disabled="true" />
         </a-form-model-item>
         <a-form-model-item label="备注信息" prop="Remark">
           <a-input v-model="entity.Remark" autocomplete="off" type="textarea" />
@@ -47,13 +52,19 @@ export default {
       loading: false,
       entity: {},
       rules: {},
-      title: ''
+      title: '',
+      ShopInfoList: []
     }
   },
   methods: {
     init() {
       this.visible = true
       this.entity = {}
+      this.$http.post('/ServerFood/F_ShopInfo/GetDataListAll', {}).then(resJson => {
+        if (resJson.Success) {
+          this.ShopInfoList = resJson.Data
+        }
+      })
       this.$nextTick(() => {
         this.$refs['form'].clearValidate()
       })

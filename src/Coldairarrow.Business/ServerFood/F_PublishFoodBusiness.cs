@@ -14,9 +14,11 @@ namespace Coldairarrow.Business.ServerFood
 {
     public class F_PublishFoodBusiness : BaseBusiness<F_PublishFood>, IF_PublishFoodBusiness, ITransientDependency
     {
-        public F_PublishFoodBusiness(IRepository repository)
+        public IOperator operators;
+        public F_PublishFoodBusiness(IRepository repository, IOperator op)
             : base(repository)
         {
+            operators = op;
         }
 
         #region 外部接口
@@ -66,7 +68,14 @@ namespace Coldairarrow.Business.ServerFood
 
             var where = LinqHelper.True<F_PublishFoodResultDto>();
             var toDay = DateTime.Now.Date;
+            
             where=where.And(a => a.PublishDate > toDay && a.PublishDate < toDay.AddDays(1));
+            var userInfo = Service.GetIQueryable<F_UserInfo>().Where(a => a.WeCharUserId == operators.UserId)?.FirstOrDefault();
+            if (userInfo == null) throw new BusException("获取用户信息失败!");
+            if (!string.IsNullOrEmpty(operators.WeChatProperty.ShopInfoId))
+            {
+                where = where.And(a => a.ShopInfoId == userInfo.ShopInfoId);
+            }
             return await q.Where(where).OrderBy(x => x.Id).ToListAsync();
         }
 
