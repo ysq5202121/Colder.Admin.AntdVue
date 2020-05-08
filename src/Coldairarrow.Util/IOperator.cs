@@ -1,6 +1,8 @@
-﻿using Coldairarrow.Entity.ServerFood;
+using Coldairarrow.Entity.ServerFood;
 //为隔离开Entity modify by ysq 2020-05-07
+
 namespace Coldairarrow.Util
+
 {
     /// <summary>
     /// 操作者

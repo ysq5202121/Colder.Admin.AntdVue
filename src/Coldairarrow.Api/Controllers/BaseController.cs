@@ -31,7 +31,6 @@ namespace Coldairarrow.Api
 
         protected string GetAbsolutePath(string virtualPath)
         {
-           
             string path = virtualPath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
             if (path[0] == '~')
                 path = path.Remove(0, 2);

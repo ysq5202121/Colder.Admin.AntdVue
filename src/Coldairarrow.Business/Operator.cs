@@ -8,6 +8,7 @@ using System;
 using System.Threading.Tasks;
 using Coldairarrow.Entity.ServerFood;
 
+
 namespace Coldairarrow.Business
 {
     /// <summary>
@@ -28,6 +29,7 @@ namespace Coldairarrow.Business
 
         private Base_UserDTO _property;
         private F_UserInfo _weChatProperty;
+
         private object _lockObj = new object();
 
         /// <summary>

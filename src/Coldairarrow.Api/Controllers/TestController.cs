@@ -11,13 +11,13 @@ using Coldairarrow.Util;
 using Dynamitey;
 using Microsoft.AspNetCore.Http;
 
+
 namespace Coldairarrow.Api.Controllers
 {
     [Route("/[controller]/[action]")]
     public class TestController : BaseController
     {
         readonly IRepository _repository;
-
         public TestController(IRepository repository)
         {
             _repository = repository;
@@ -44,7 +44,6 @@ namespace Coldairarrow.Api.Controllers
             await _repository.GetIQueryable<Base_User>().Where(x => x.Id == base_User.Id).FirstOrDefaultAsync();
             await _repository.DeleteAsync(base_User);
         }
-
         [HttpPost]
         public async Task ExcelExport()
         {
