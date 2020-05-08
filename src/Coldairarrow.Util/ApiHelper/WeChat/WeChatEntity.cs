@@ -18,6 +18,7 @@ namespace Coldairarrow.Util
     {
         public string CorpId { get; set; }
         public string CorpSecret { get; set; }
+        public string AgentId { get; set; }
     }
     public class WeChatUserIdInfo : WeChatEntity
     {
@@ -61,4 +62,43 @@ namespace Coldairarrow.Util
         public List<WeChatDepartment> department { get; set; }
     }
 
+    public class WeChatSendMsgResult: WeChatEntity
+    {
+        public  string invaliduser { get; set; }
+
+        public string invalidparty { get; set; }
+
+        public string invalidtag { get; set; }
+
+    }
+
+    public class WeChatSendMsgContext
+    {
+        public string content { get; set; }
+    }
+
+    public class WeChatSendMsg
+    {
+        public string touser { get; set; }
+
+        public string toparty { get; set; }
+
+        public string totag { get; set; }
+
+        public string msgtype { get; set; }
+
+        public string agentid { get; set; }
+
+        public WeChatSendMsgContext text { get; set; }
+
+        public string safe { get; set; }
+
+        public string enable_id_trans { get; set; }
+
+        public string enable_duplicate_check { get; set; }
+
+        public string duplicate_check_interval { get; set; }
+
+
+    }
 }

@@ -11,7 +11,10 @@
       <a-form-model ref="form" :model="entity" :rules="rules" v-bind="layout">
         <a-form-model-item label="门店名称" prop="ShopInfoId">
           <a-select v-model="entity.ShopInfoId" style="width: 120px">
-            <a-select-option v-for="shopinfo in ShopInfoList" :key="shopinfo.Id">{{ shopinfo.ShopName }}</a-select-option>
+            <a-select-option
+              v-for="shopinfo in ShopInfoList"
+              :key="shopinfo.Id"
+            >{{ shopinfo.ShopName }}</a-select-option>
           </a-select>
         </a-form-model-item>
         <a-form-model-item label="商家名称" prop="SupplierName">
@@ -27,8 +30,11 @@
         <a-form-model-item label="菜品描述" prop="FoodDesc">
           <a-input v-model="entity.FoodDesc" autocomplete="off" type="textarea" />
         </a-form-model-item>
+        <a-form-model-item label="限购数量" prop="Limit">
+          <a-input-number v-model="entity.Limit" :min="1" :max="9999" />
+        </a-form-model-item>
         <a-form-model-item label="价格" prop="Price">
-          <a-input-number v-model="entity.Price" :min="0" :max="999" :step="1"/>
+          <a-input-number v-model="entity.Price" :min="0" :max="999" :step="1" />
         </a-form-model-item>
       </a-form-model>
     </a-spin>

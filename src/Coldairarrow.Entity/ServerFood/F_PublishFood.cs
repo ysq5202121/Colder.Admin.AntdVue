@@ -53,6 +53,11 @@ namespace Coldairarrow.Entity.ServerFood
         public Int32? FoodQty { get; set; }
 
         /// <summary>
+        /// 限购数量
+        /// </summary>
+        public int? Limit { get; set; }
+
+        /// <summary>
         /// 图片
         /// </summary>
         public String ImgUrl { get; set; }

@@ -10,7 +10,7 @@
     <a-spin :spinning="loading">
       <a-form-model ref="form" :model="entity" :rules="rules" v-bind="layout">
         <a-form-model-item label="门店名称" prop="ShopInfoId">
-          <a-select v-model="entity.ShopInfoId" disabled="true">
+          <a-select v-model="entity.ShopInfoId" disabled>
             <a-select-option
               v-for="shopinfo in ShopInfoList"
               :key="shopinfo.Id"
@@ -18,10 +18,10 @@
           </a-select>
         </a-form-model-item>
         <a-form-model-item label="商家名称" prop="SupplierName">
-          <a-input v-model="entity.SupplierName" autocomplete="off" disabled="true" />
+          <a-input v-model="entity.SupplierName" autocomplete="off" disabled />
         </a-form-model-item>
         <a-form-model-item label="菜品名称" prop="FoodName">
-          <a-input v-model="entity.FoodName" autocomplete="off" disabled="true" />
+          <a-input v-model="entity.FoodName" autocomplete="off" disabled />
         </a-form-model-item>
         <a-form-model-item label="图片" prop="ImgUrl">
           <img
@@ -36,13 +36,16 @@
           </a-modal>
         </a-form-model-item>
         <a-form-model-item label="价格" prop="Price">
-          <a-input v-model="entity.Price" autocomplete="off" disabled="true" />
+          <a-input v-model="entity.Price" autocomplete="off" disabled />
         </a-form-model-item>
         <a-form-model-item label="发布时间" prop="PublishDate">
-          <a-input v-model="entity.PublishDate" autocomplete="off" disabled="true" />
+          <a-input v-model="entity.PublishDate" autocomplete="off" disabled />
         </a-form-model-item>
         <a-form-model-item label="菜品描述" prop="FoodDesc">
-          <a-input v-model="entity.FoodDesc" autocomplete="off" disabled="true" type="textarea" />
+          <a-input v-model="entity.FoodDesc" autocomplete="off" disabled type="textarea" />
+        </a-form-model-item>
+        <a-form-model-item label="限购数量" prop="Limit">
+          <a-input-number v-model="entity.Limit" :min="1" :max="9999" />
         </a-form-model-item>
         <a-form-model-item label="菜品数量" prop="FoodQty">
           <a-input v-model="entity.FoodQty" autocomplete="off" />

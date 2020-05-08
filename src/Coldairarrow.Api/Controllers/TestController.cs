@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Coldairarrow.Util;
+using Coldairarrow.Util.ApiHelper.WeChat;
 using Dynamitey;
 using Microsoft.AspNetCore.Http;
 
@@ -69,6 +70,14 @@ namespace Coldairarrow.Api.Controllers
         {
            
             //await Response.Body.WriteAsync(b);
+            await Task.CompletedTask;
+        }
+
+        [HttpGet]
+        public async Task SendMsg(string token, string userList, string agentid, string msgContent)
+        {
+
+            WeChatOperation.SendMsg(token, userList, agentid, msgContent);
             await Task.CompletedTask;
         }
     }

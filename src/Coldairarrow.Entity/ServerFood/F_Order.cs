@@ -28,6 +28,11 @@ namespace Coldairarrow.Entity.ServerFood
         public String UserInfoId { get; set; }
 
         /// <summary>
+        /// 订单状态
+        /// </summary>
+        public int Status { get; set; }
+
+        /// <summary>
         /// 数量
         /// </summary>
         public Int32? OrderCount { get; set; }

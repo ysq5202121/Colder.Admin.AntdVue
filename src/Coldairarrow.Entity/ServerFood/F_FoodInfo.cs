@@ -48,6 +48,11 @@ namespace Coldairarrow.Entity.ServerFood
         public Int32? EvaluatorsNumber { get; set; }
 
         /// <summary>
+        /// 限购数量
+        /// </summary>
+        public int? Limit { get; set; }
+
+        /// <summary>
         /// 价格
         /// </summary>
         public decimal? Price { get; set; }

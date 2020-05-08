@@ -23,6 +23,16 @@ namespace Coldairarrow.Entity.ServerFood
         public String ShopInfoId { get; set; }
 
         /// <summary>
+        /// 单用户当天订单数量
+        /// </summary>
+        public int? UserOrderNum { get; set; }
+
+        /// <summary>
+        /// 单订单商品种类数量
+        /// </summary>
+        public int? OrderFoodTypeNum { get; set; }
+
+        /// <summary>
         /// 点餐开始时间
         /// </summary>
         public DateTime? OrderBeginDate { get; set; }

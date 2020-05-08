@@ -45,7 +45,7 @@
     >
       <span slot="IsAdmin" slot-scope="value">
         <template>
-          <a-switch checkedChildren="是" unCheckedChildren="否" :checked="value" disabled="false" />
+          <a-switch checkedChildren="是" unCheckedChildren="否" :checked="value" disabled  />
         </template>
       </span>
       <span slot="action" slot-scope="text, record">
@@ -70,7 +70,7 @@ const columns = [
   { title: '创建人', dataIndex: 'CreatorName', width: 100 },
   { title: '创建时间', dataIndex: 'CreateTime', width: 150 },
   { title: '修改人时间', dataIndex: 'UpdateName', width: 100 },
-  { title: '修改时间', dataIndex: 'CreateTime', width: 150 },
+  { title: '修改时间', dataIndex: 'UpdateTime', width: 150 },
   { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, fixed: 'right', width: 100 }
 ]
 

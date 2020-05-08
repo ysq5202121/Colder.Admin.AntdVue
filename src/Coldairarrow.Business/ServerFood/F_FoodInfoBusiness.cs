@@ -79,6 +79,7 @@ namespace Coldairarrow.Business.ServerFood
             }
             var query = GetIQueryable().Where(a => ids.Contains(a.Id)).ToList();
             if(query.Count==0) throw new BusException("数据异常!");
+            if(query.GroupBy(a => a.ShopInfoId)?.Count() > 1) throw new BusException("不能同时发布两个门店菜品!");
             List<F_PublishFood> publishFoodList = new List<F_PublishFood>();
             query.ForEach(a =>
             {
@@ -102,6 +103,8 @@ namespace Coldairarrow.Business.ServerFood
                 publishFoodList.Add(publishFood);
             });
             Service.BulkInsert(publishFoodList);
+            //添加发送消息
+
             await Task.CompletedTask;
         }
 
