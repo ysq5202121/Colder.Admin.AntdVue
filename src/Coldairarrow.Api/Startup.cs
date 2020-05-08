@@ -86,7 +86,7 @@ namespace Coldairarrow.Api
                 {
                     c.IncludeXmlComments(aXml);
                 });
-            });
+            }); 
             services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString(conName)));
         }
 

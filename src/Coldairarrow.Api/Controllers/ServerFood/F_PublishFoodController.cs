@@ -35,8 +35,9 @@ namespace Coldairarrow.Api.Controllers.ServerFood
             return await _f_PublishFoodBus.GetTheDataAsync(input.id);
         }
 
-        [NoCheckJWT]
         [HttpPost]
+        [NoCheckJWT]
+        [CheckJWTClient]
         public async Task<List<F_PublishFoodResultDto>> GetDataListToMobile(ConditionDTO input)
         {
             return await _f_PublishFoodBus.GetDataListToMoblieAsync(input);

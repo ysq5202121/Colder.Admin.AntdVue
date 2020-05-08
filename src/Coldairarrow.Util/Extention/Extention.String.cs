@@ -27,6 +27,19 @@ namespace Coldairarrow.Util
         }
 
         /// <summary>
+        /// 转换bool
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="defalutVal"></param>
+        /// <returns></returns>
+        public static bool ToBool(this string str,bool defalutVal)
+        {
+            if (string.IsNullOrEmpty(str)) return defalutVal; 
+            bool.TryParse(str, out defalutVal);
+            return defalutVal;
+        }
+
+        /// <summary>
         /// 转为字节数组
         /// </summary>
         /// <param name="base64Str">base64字符串</param>

@@ -1,39 +1,41 @@
 <template>
   <div>
-    <van-card v-if="data">
-      <template #tags>
-        <van-tag plain type="danger">VIP</van-tag>
-      </template>
-      <template #thumb>
-        <van-image round width="80" height="80" :src="data.UserImgUrl" />
-      </template>
-      <template #title>
-        <div style="font-size: 15px;font-weight:500">{{ data.UserName }}</div>
-      </template>
-      <template #desc>
-        <div style="font-size: 12px;">{{ data.Department }}</div>
-      </template>
-    </van-card>
-    <van-field
-      readonly
-      clickable
-      name="picker"
-      :value="SelectValue"
-      label="关联门店"
-      placeholder="点击选择门店"
-      @click="OpenShopNameWin"
-    />
-    <van-popup v-model="showPicker" position="bottom">
-      <van-picker
-        show-toolbar
-        :columns="columns"
-        @confirm="onConfirm"
-        @cancel="showPicker = false"
-        :default-index="defaultIndex"
+    <div v-if="isOk">
+      <van-card v-if="data">
+        <template #tags>
+          <van-tag plain type="danger">VIP</van-tag>
+        </template>
+        <template #thumb>
+          <van-image round width="80" height="80" :src="data.UserImgUrl" />
+        </template>
+        <template #title>
+          <div style="font-size: 15px;font-weight:500">{{ data.UserName }}</div>
+        </template>
+        <template #desc>
+          <div style="font-size: 12px;">{{ data.Department }}</div>
+        </template>
+      </van-card>
+      <van-field
+        readonly
+        clickable
+        name="picker"
+        :value="SelectValue"
+        label="关联门店"
+        placeholder="点击选择门店"
+        @click="OpenShopNameWin"
       />
-    </van-popup>
-    <van-cell title="我的设置" is-link url="/ClientFood/UserInfoSet" />
-    <van-cell title="关于我们" is-link />
+      <van-popup v-model="showPicker" position="bottom">
+        <van-picker
+          show-toolbar
+          :columns="columns"
+          @confirm="onConfirm"
+          @cancel="showPicker = false"
+          :default-index="defaultIndex"
+        />
+      </van-popup>
+      <van-cell title="我的设置" is-link url="/ClientFood/UserInfoSet" />
+      <van-cell title="关于我们" is-link />
+    </div>
     <FoodTabbar></FoodTabbar>
   </div>
 </template>
@@ -45,6 +47,7 @@ export default {
     this.getUserInfoList()
     this.getShopInfoList()
   },
+
   data: function() {
     return {
       data: [],
@@ -53,6 +56,7 @@ export default {
       SelectValue: '',
       dataShopName: [],
       loading: false,
+      isOk: false,
       defaultIndex: 1
     }
   },
@@ -63,11 +67,12 @@ export default {
     getUserInfoList() {
       this.loading = true
       this.$http.post('/ServerFood/F_UserInfo/GetUserInfoToMoblie', {}).then(resJson => {
-        this.loading = false
         this.data = resJson.Data
+        this.loading = false
         if (this.data !== undefined) {
           this.SelectValue = this.data.ShopName
         }
+        this.isOk = true
       })
     },
     getShopInfoList() {

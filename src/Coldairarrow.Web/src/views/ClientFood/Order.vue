@@ -15,37 +15,42 @@
         </van-count-down>
       </div>
     </van-notice-bar>
-    <van-empty description="未发布菜品" v-if="isempt" />
-    <div v-for="item in data" :key="item.Id">
-      <van-card :price="item.Price" :thumb="item.ImgUrl" @click-thumb="handleImage(item.ImgUrl)">
-        <template #title>
-          <div style="font-size: 15px;font-weight:500">{{ item.FoodName }}</div>
-        </template>
-        <template #desc>
-          <div style="font-size: 12px;">{{ item.FoodDesc }}</div>
-        </template>
-        <template #price>
-          <div style="color:red;font-size: 13px;">
-            <b>¥{{ item.Price }}</b>
-          </div>
-        </template>
-        <template #tags>
-          <van-tag plain type="danger">{{ item.SupplierName }}</van-tag>
-        </template>
-        <template #tag>
-          <van-tag mark type="danger" v-show="item.FoodQty==0">售罄</van-tag>
-        </template>
-        <template #num>剩余:{{ item.FoodQty }}份</template>
-        <template #bottom>
-          <div>
-            <van-rate v-model="item.Sorce" readonly icon="like" void-icon="like-o" size="15" />
-          </div>
-        </template>
-        <template #footer>
-          <van-stepper v-model="item.Num" min="0" :max="item.FoodQty" @change="onChange(item)" />
-        </template>
-      </van-card>
-    </div>
+    <van-pull-refresh v-model="refresh" @refresh="getDataList">
+      <van-empty v-if="isempt">
+        <template #default>{{ shopName }}-未发布菜品</template>
+      </van-empty>
+      <div v-for="item in data" :key="item.Id">
+        <van-card :price="item.Price" :thumb="item.ImgUrl" @click-thumb="handleImage(item.ImgUrl)">
+          <template #title>
+            <div style="font-size: 15px;font-weight:500">{{ item.FoodName }}</div>
+          </template>
+          <template #desc>
+            <div style="font-size: 12px;">{{ item.FoodDesc }}</div>
+          </template>
+          <template #price>
+            <div style="color:red;font-size: 13px;">
+              <b>¥{{ item.Price }}</b>
+            </div>
+          </template>
+          <template #tags>
+            <van-tag plain type="success">{{ item.SupplierName }}</van-tag>
+            <van-tag plain type="danger" style="margin-left:5px">限购1件</van-tag>
+          </template>
+          <template #tag>
+            <van-tag mark type="danger" v-show="item.FoodQty==0">售罄</van-tag>
+          </template>
+          <template #num>剩余:{{ item.FoodQty }}份</template>
+          <template #bottom>
+            <div>
+              <van-rate v-model="item.Sorce" readonly icon="like" void-icon="like-o" size="15" />
+            </div>
+          </template>
+          <template #footer>
+            <van-stepper v-model="item.Num" min="0" :max="item.FoodQty" @change="onChange(item)" />
+          </template>
+        </van-card>
+      </div>
+    </van-pull-refresh>
     <div style="height:130px">
       <van-submit-bar
         :price="total"
@@ -57,7 +62,7 @@
         style="bottom:50px"
       >
         <template #tip>您的收货地址是：大餐厅</template>
-        <template #default></template>
+        <template #default>门店:{{ shopName }}</template>
       </van-submit-bar>
     </div>
     <FoodTabbar></FoodTabbar>
@@ -71,6 +76,7 @@ import moment from 'moment'
 export default {
   mounted() {
     this.getDataList()
+    this.getUserInfoList()
   },
   components: {
     [ImagePreview.Component.name]: ImagePreview.Component,
@@ -83,16 +89,20 @@ export default {
       isempt: false,
       isCommitEmpt: false,
       loading: false,
+      refresh: false,
       BeginTime: '',
       EndTime: '',
-      time: 0
+      time: 0,
+      shopName: '未绑定门店'
     }
   },
   methods: {
     getDataList() {
       this.loading = true
+      this.refresh = true
       this.$http.post('/ServerFood/F_PublishFood/GetDataListToMobile', {}).then(resJson => {
         this.loading = false
+        this.refresh = false
         // 扩展对象集合
         const newData = []
         Object.assign(newData, resJson.Data)
@@ -146,6 +156,14 @@ export default {
     },
     handleImage(img) {
       ImagePreview({ images: [img], closeable: 'true' })
+    },
+    getUserInfoList() {
+      this.$http.post('/ServerFood/F_UserInfo/GetUserInfoToMoblie', {}).then(resJson => {
+        console.log(this.shopName)
+        if (resJson.Data !== undefined && resJson.Data.ShopName !== null) {
+          this.shopName = resJson.Data.ShopName
+        }
+      })
     }
   },
   computed: {

@@ -82,6 +82,7 @@ namespace Coldairarrow.Business.ServerFood
             }
             var userInfo = Service.GetIQueryable<F_UserInfo>().Where(a => a.WeCharUserId == oOperator.UserId)?.FirstOrDefault();
             if(userInfo==null) throw new BusException("获取用户信息失败!");
+            if(string.IsNullOrEmpty(userInfo.ShopInfoId)) throw new BusException("请先到[我的]绑定门店!");
             //查询发布菜品信息
             var fPublishFoodList = Service.GetIQueryable<F_PublishFood>().Where(a => data.Select(b => b.Id).Contains(a.Id)).ToList();
             if(fPublishFoodList.Count==0) throw new BusException("数据查询错误!");

@@ -1,25 +1,28 @@
 <template>
   <div>
-    <div v-for="item in data" :key="item.Id">
-      <van-card :price="item.Price" :thumb="item.ImageUrl">
-        <template #title>
-          <div style="font-size: 15px;">订单编号:{{ item.OrderCode }}</div>
-        </template>
-        <template #desc>
-          <div style="font-size: 12px;">下单时间:{{ item.CreateTime }}</div>
-        </template>
-        <template #price>
-          <div style="color:red;font-size: 13px;">
-            <b>¥{{ item.Price }}</b>
-          </div>
-        </template>
-        <template #num>总数量:{{ item.OrderCount }}</template>
-        <template #footer>
-          <van-button size="mini" @click="getDetials(item.OrderCode)">详情</van-button>
-        </template>
-      </van-card>
-    </div>
-    <van-empty description="没有订单信息" v-if="isempt" />
+    <van-pull-refresh v-model="loading" @refresh="getDataList">
+      <div v-for="item in data" :key="item.Id">
+        <van-card :price="item.Price" :thumb="item.ImageUrl">
+          <template #title>
+            <div style="font-size: 15px;">订单编号:{{ item.OrderCode }}</div>
+          </template>
+          <template #desc>
+            <div style="font-size: 12px;">下单时间:{{ item.CreateTime }}</div>
+          </template>
+          <template #price>
+            <div style="color:red;font-size: 13px;">
+              总价
+              <b>¥{{ item.Price }}</b>
+            </div>
+          </template>
+          <template #num>总数量:{{ item.OrderCount }}</template>
+          <template #footer>
+            <van-button size="mini" @click="getDetials(item.OrderCode)">详情</van-button>
+          </template>
+        </van-card>
+      </div>
+      <van-empty description="没有订单信息" v-if="isempt" />
+    </van-pull-refresh>
     <van-popup v-model="show" round position="bottom" :style="{ height: '50%' }" closeable>
       <div v-for="item in dataDetail" :key="item.Id">
         <van-card :price="item.Price" :thumb="item.ImageUrl">
@@ -80,14 +83,12 @@ export default {
     },
     getDetials(OrderCode) {
       this.show = true
-      this.loading = true
       this.$http
         .post('/ServerFood/F_OrderInfo/GetDataListToMoblie', {
           Condition: '',
           Keyword: OrderCode
         })
         .then(resJson => {
-          this.loading = false
           this.dataDetail = resJson.Data
         })
     }

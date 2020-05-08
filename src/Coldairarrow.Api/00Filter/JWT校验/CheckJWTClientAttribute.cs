@@ -10,23 +10,23 @@ namespace Coldairarrow.Api
     /// </summary>
     public class CheckJWTClientAttribute : BaseActionFilterAsync
     {
-        private static readonly int _errorCode = 402;
-        public  string JwtKey = JWTHelper.JWTClient;
+        private  static readonly int _errorCode = 402;
+        private  string JwtKey = JWTHelper.JWTClient;
+        private  bool IsQuickDebug =ConfigHelper.GetValue("IsQuickDebug").ToBool(false);
  
         public override async Task OnActionExecuting(ActionExecutingContext context)
         {
             try
             {
                 var req = context.HttpContext.Request;
-
                 string token = req.GetToken();
                 if (token.IsNullOrEmpty())
                 {
                     context.Result = Error("缺少token", _errorCode);
                     return;
                 }
-
-                if (!JWTHelper.CheckToken(token, JwtKey))
+                
+                if (!JWTHelper.CheckToken(token, JwtKey) && !IsQuickDebug)
                 {
                     context.Result = Error("token校验失败!", _errorCode);
                     return;
