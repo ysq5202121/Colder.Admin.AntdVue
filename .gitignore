@@ -22,15 +22,10 @@ bld/
 [Oo]bj/
 [Ll]og/
 
-<<<<<<< HEAD
-
 # Visual Studio 2015 cache/options directory
 .vs/
 .svn/
-=======
-# Visual Studio 2015 cache/options directory
-.vs/
->>>>>>> master/master
+
 # Uncomment if you have tasks that create the project's static files in wwwroot
 #wwwroot/
 
