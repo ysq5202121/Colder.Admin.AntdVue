@@ -87,6 +87,7 @@ namespace Coldairarrow.Business.ServerFood
             var fPublishFoodList = Service.GetIQueryable<F_PublishFood>().Where(a => data.Select(b => b.Id).Contains(a.Id)).ToList();
             if(fPublishFoodList.Count==0) throw new BusException("数据查询错误!");
             var fShopInfoSet= Service.GetIQueryable<F_ShopInfoSet>().Where(a => a.ShopInfoId == fPublishFoodList.FirstOrDefault().ShopInfoId).FirstOrDefault();
+            if(fShopInfoSet==null) throw new BusException("门店设置异常!");
             if (fShopInfoSet != null && fShopInfoSet.OrderBeginDate.HasValue && fShopInfoSet.OrderBeginEnd.HasValue)
             {
                 var BeginDate = fShopInfoSet.OrderBeginDate.Value.ToString("HHmm").ToInt();
@@ -98,7 +99,32 @@ namespace Coldairarrow.Business.ServerFood
             {
                 throw new BusException("商品已经售罄请重新选择!");
             }
-            //查询门店是否可以点菜，是否在点餐时间内
+            //检查限购
+            fPublishFoodList.ForEach(a =>
+            {
+                if (a.Limit.HasValue)
+                {
+                    if (data.Any(b => b.Id == a.Id && b.Num > a.Limit))
+                    {
+                        throw new BusException("商品["+a.FoodName+"]限购"+a.Limit+"件");
+                    }
+                }
+            });
+            //检查订单SKU数量
+            if (fShopInfoSet.OrderFoodTypeNum.HasValue)
+            {
+                if (data.Count > fShopInfoSet.OrderFoodTypeNum)
+                {
+                    throw new BusException("订单只能选择"+ fShopInfoSet.OrderFoodTypeNum+"种商品");
+                }
+            }//检查当天订单数量
+            if (fShopInfoSet.UserOrderNum.HasValue)
+            {
+                var toDay = DateTime.Now.Date; 
+                var taDayOrderNum= Service.GetIQueryable<F_Order>().Count(a=>a.UserInfoId==userInfo.Id &&  a.CreateTime > toDay && a.CreateTime < toDay.AddDays(1));
+                if(taDayOrderNum >= fShopInfoSet.UserOrderNum) throw new BusException("今天已下单"+ taDayOrderNum+"个,不能在下单");
+            }
+            //扣减商品数量
             fPublishFoodList.ForEach(a =>
             {
                 a.FoodQty = a.FoodQty - data.First(b => b.Id == a.Id).Num;

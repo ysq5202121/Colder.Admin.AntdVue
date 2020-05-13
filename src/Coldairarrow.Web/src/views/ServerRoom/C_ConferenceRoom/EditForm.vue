@@ -9,28 +9,29 @@
   >
     <a-spin :spinning="loading">
       <a-form-model ref="form" :model="entity" :rules="rules" v-bind="layout">
-        <a-form-model-item label="门店名称" prop="ShopInfoId">
-          <a-select v-model="entity.ShopInfoId" disabled>
-            <a-select-option
-              v-for="shopinfo in ShopInfoList"
-              :key="shopinfo.Id"
-            >{{ shopinfo.ShopName }}</a-select-option>
-          </a-select>
+        <a-form-model-item label="办公楼ID" prop="OfficeId">
+          <a-input v-model="entity.OfficeId" autocomplete="off" />
         </a-form-model-item>
-        <a-form-model-item label="用户名称" prop="UserName">
-          <a-input v-model="entity.UserName" autocomplete="off" disabled />
+        <a-form-model-item label="会议室名称" prop="ConferenceRoomName">
+          <a-input v-model="entity.ConferenceRoomName" autocomplete="off" />
         </a-form-model-item>
-        <a-form-model-item label="头像" prop="ImgUrl">
-          <img :src="entity.UserImgUrl" width="100" height="100" />
+        <a-form-model-item label="会议室说明" prop="Description">
+          <a-input v-model="entity.Description" autocomplete="off" />
         </a-form-model-item>
-        <a-form-model-item label="是否管理员" prop="IsAdmin">
-          <a-switch v-model="entity.IsAdmin" />
+        <a-form-model-item label="预约会议地点" prop="Place">
+          <a-input v-model="entity.Place" autocomplete="off" />
         </a-form-model-item>
-        <a-form-model-item label="部门名称" prop="Department">
-          <a-input v-model="entity.Department" autocomplete="off" disabled />
+        <a-form-model-item label="时段" prop="TimeInterval">
+          <a-input v-model="entity.TimeInterval" autocomplete="off" />
         </a-form-model-item>
-        <a-form-model-item label="备注信息" prop="Remark">
-          <a-input v-model="entity.Remark" autocomplete="off" type="textarea" />
+        <a-form-model-item label="容纳人数" prop="Capacity">
+          <a-input v-model="entity.Capacity" autocomplete="off" />
+        </a-form-model-item>
+        <a-form-model-item label="会议标签属性" prop="RoomAttribute">
+          <a-input v-model="entity.RoomAttribute" autocomplete="off" />
+        </a-form-model-item>
+        <a-form-model-item label="会议图片" prop="RommImage">
+          <a-input v-model="entity.RommImage" autocomplete="off" />
         </a-form-model-item>
       </a-form-model>
     </a-spin>
@@ -52,19 +53,13 @@ export default {
       loading: false,
       entity: {},
       rules: {},
-      title: '',
-      ShopInfoList: []
+      title: ''
     }
   },
   methods: {
     init() {
       this.visible = true
       this.entity = {}
-      this.$http.post('/ServerFood/F_ShopInfo/GetDataListAll', {}).then(resJson => {
-        if (resJson.Success) {
-          this.ShopInfoList = resJson.Data
-        }
-      })
       this.$nextTick(() => {
         this.$refs['form'].clearValidate()
       })
@@ -74,7 +69,7 @@ export default {
 
       if (id) {
         this.loading = true
-        this.$http.post('/ServerFood/F_UserInfo/GetTheData', { id: id }).then(resJson => {
+        this.$http.post('/ServerRoom/C_ConferenceRoom/GetTheData', { id: id }).then(resJson => {
           this.loading = false
 
           this.entity = resJson.Data
@@ -87,7 +82,7 @@ export default {
           return
         }
         this.loading = true
-        this.$http.post('/ServerFood/F_UserInfo/SaveData', this.entity).then(resJson => {
+        this.$http.post('/ServerRoom/C_ConferenceRoom/SaveData', this.entity).then(resJson => {
           this.loading = false
 
           if (resJson.Success) {

@@ -33,8 +33,8 @@
           :default-index="defaultIndex"
         />
       </van-popup>
-      <van-cell title="我的设置" is-link url="/ClientFood/UserInfoSet" />
-      <van-cell title="关于我们" is-link />
+      <van-cell title="我的地址" is-link @click="HanldTest" />
+      <van-cell title="关于我们" is-link @click="HanldTest"/>
     </div>
     <FoodTabbar></FoodTabbar>
   </div>
@@ -109,6 +109,9 @@ export default {
     OpenShopNameWin() {
       this.showPicker = true
       this.defaultIndex = this.columns.findIndex(a => a === this.SelectValue)
+    },
+    HanldTest() {
+      this.$message.info('暂未开放')
     }
   }
 }

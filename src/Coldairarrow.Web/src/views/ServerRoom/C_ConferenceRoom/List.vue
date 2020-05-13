@@ -2,6 +2,13 @@
   <a-card :bordered="false">
     <div class="table-operator">
       <a-button type="primary" icon="plus" @click="hanldleAdd()">新建</a-button>
+      <a-button
+        type="primary"
+        icon="minus"
+        @click="handleDelete(selectedRowKeys)"
+        :disabled="!hasSelected()"
+        :loading="loading"
+      >删除</a-button>
       <a-button type="primary" icon="redo" @click="getDataList()">刷新</a-button>
     </div>
 
@@ -11,9 +18,15 @@
           <a-col :md="4" :sm="24">
             <a-form-item label="查询类别">
               <a-select allowClear v-model="queryParam.condition">
-                <a-select-option key="ShopName">门店名称</a-select-option>
-                <a-select-option key="ShopDesc">门店描述</a-select-option>
-                <a-select-option key="CreatorName">创建人姓名</a-select-option>
+                <a-select-option key="OfficeId">办公楼ID</a-select-option>
+                <a-select-option key="ConferenceRoomName">会议室名称</a-select-option>
+                <a-select-option key="Description">会议室说明</a-select-option>
+                <a-select-option key="Place">预约会议地点</a-select-option>
+                <a-select-option key="TimeInterval">时段</a-select-option>
+                <a-select-option key="RoomAttribute">会议标签属性</a-select-option>
+                <a-select-option key="RommImage">会议图片</a-select-option>
+                <a-select-option key="CreateName">创建人姓名</a-select-option>
+                <a-select-option key="UpdateId">修改人编号</a-select-option>
                 <a-select-option key="UpdateName">修改人时间</a-select-option>
               </a-select>
             </a-form-item>
@@ -39,7 +52,7 @@
       :pagination="pagination"
       :loading="loading"
       @change="handleTableChange"
-      :rowSelection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange ,columnWidth:50 }"
+      :rowSelection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
       :bordered="true"
       size="small"
     >
@@ -60,13 +73,18 @@
 import EditForm from './EditForm'
 
 const columns = [
-  { title: '门店名称', dataIndex: 'ShopName', width: 200 },
-  { title: '门店描述', dataIndex: 'ShopDesc' },
-  { title: '创建人', dataIndex: 'CreatorName', width: 100 },
-  { title: '创建时间', dataIndex: 'CreateTime', width: 200 },
+  { title: '办公楼ID', dataIndex: 'OfficeId', width: 100 },
+  { title: '会议室名称', dataIndex: 'ConferenceRoomName' },
+  { title: '会议室状态', dataIndex: 'STATUS', width: 100 },
+  { title: '时段', dataIndex: 'TimeInterval', width: 100 },
+  { title: '容纳人数', dataIndex: 'Capacity', width: 100 },
+  { title: '标签属性', dataIndex: 'RoomAttribute', width: 100 },
+  { title: '会议图片', dataIndex: 'RommImage', width: 100 },
+  { title: '创建时间', dataIndex: 'CreateTime', width: 100 },
+  { title: '创建人', dataIndex: 'CreateName', width: 100 },
   { title: '修改人', dataIndex: 'UpdateName', width: 100 },
-  { title: '修改时间', dataIndex: 'UpdateTime', width: 200 },
-  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' } ,fixed: 'right', width: 100 } 
+  { title: '修改时间', dataIndex: 'UpdateTime', width: 100 },
+  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, width: 130 }
 ]
 
 export default {
@@ -85,7 +103,7 @@ export default {
         showTotal: (total, range) => `总数:${total} 当前:${range[0]}-${range[1]}`
       },
       filters: {},
-      sorter: { field: 'CreateTime', order: 'desc' },
+      sorter: { field: 'Id', order: 'asc' },
       loading: false,
       columns,
       queryParam: {},
@@ -96,7 +114,7 @@ export default {
     handleTableChange(pagination, filters, sorter) {
       this.pagination = { ...pagination }
       this.filters = { ...filters }
-      this.sorter = Object.assign(this.sorter, { ...sorter })
+      this.sorter = { ...sorter }
       this.getDataList()
     },
     getDataList() {
@@ -104,7 +122,7 @@ export default {
 
       this.loading = true
       this.$http
-        .post('/ServerFood/F_ShopInfo/GetDataList', {
+        .post('/ServerRoom/C_ConferenceRoom/GetDataList', {
           PageIndex: this.pagination.current,
           PageRows: this.pagination.pageSize,
           SortField: this.sorter.field || 'Id',
@@ -138,7 +156,7 @@ export default {
         title: '确认删除吗?',
         onOk() {
           return new Promise((resolve, reject) => {
-            thisObj.$http.post('/ServerFood/F_ShopInfo/DeleteData', ids).then(resJson => {
+            thisObj.$http.post('/ServerRoom/C_ConferenceRoom/DeleteData', ids).then(resJson => {
               resolve()
 
               if (resJson.Success) {

@@ -19,11 +19,8 @@
               <a-select allowClear v-model="queryParam.condition">
                 <a-select-option key="UserInfoId">用户ID</a-select-option>
                 <a-select-option key="FoodInfoId">菜品ID</a-select-option>
-                <a-select-option key="FoodContent">内容</a-select-option>
-                <a-select-option key="Remark">备注信息</a-select-option>
-                <a-select-option key="CreatorName">创建人姓名</a-select-option>
-                <a-select-option key="UpdateId">修改人编号</a-select-option>
-                <a-select-option key="UpdateName">修改人时间</a-select-option>
+                <a-select-option key="CreatorName">创建人</a-select-option>
+                <a-select-option key="UpdateName">修改人</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -70,13 +67,10 @@ const columns = [
   { title: '用户ID', dataIndex: 'UserInfoId', width: '10%' },
   { title: '菜品ID', dataIndex: 'FoodInfoId', width: '10%' },
   { title: '评分', dataIndex: 'Score', width: '10%' },
-  { title: '内容', dataIndex: 'FoodContent', width: '10%' },
-  { title: '备注信息', dataIndex: 'Remark', width: '10%' },
-  { title: '创建人姓名', dataIndex: 'CreatorName', width: '10%' },
-  { title: '创建日期', dataIndex: 'CreateDate', width: '10%' },
-  { title: '修改人编号', dataIndex: 'UpdateId', width: '10%' },
-  { title: '修改人时间', dataIndex: 'UpdateName', width: '10%' },
-  { title: '修改时间', dataIndex: 'UpdateDate', width: '10%' },
+  { title: '创建人', dataIndex: 'CreatorName', width: '10%' },
+  { title: '创建时间', dataIndex: 'CreateTime', width: '10%' },
+  { title: '修改人', dataIndex: 'UpdateName', width: '10%' },
+  { title: '修改时间', dataIndex: 'UpdateTime', width: '10%' },
   { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' } }
 ]
 

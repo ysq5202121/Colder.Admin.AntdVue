@@ -19,8 +19,6 @@
               <a-select allowClear v-model="queryParam.condition">
                 <a-select-option key="SupplierName">商家名称</a-select-option>
                 <a-select-option key="FoodName">菜品名称</a-select-option>
-                <a-select-option key="FoodDesc">菜品描述信息</a-select-option>
-                <a-select-option key="ImgUrl">图片</a-select-option>
                 <a-select-option key="CreatorName">创建人姓名</a-select-option>
                 <a-select-option key="UpdateName">修改人时间</a-select-option>
               </a-select>
@@ -89,7 +87,7 @@ const columns = [
   { title: '图片', dataIndex: 'ImgUrl', width: 50, scopedSlots: { customRender: 'ImgUrl' } },
   { title: '发布时间', dataIndex: 'PublishDate', width: 150 },
   { title: '创建人', dataIndex: 'CreatorName', width: 100 },
-  { title: '创建时间', dataIndex: 'CreateTime', width: 150 },
+  { title: '创建时间', dataIndex: 'CreateTime', width: 150, sorter: true },
   { title: '修改人', dataIndex: 'UpdateName', width: 100 },
   { title: '修改时间', dataIndex: 'UpdateTime', width: 150 },
   { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, fixed: 'right', width: 100 }
@@ -111,7 +109,7 @@ export default {
         showTotal: (total, range) => `总数:${total} 当前:${range[0]}-${range[1]}`
       },
       filters: {},
-      sorter: { field: 'Id', order: 'asc' },
+      sorter: { field: 'CreateTime', order: 'desc' },
       loading: false,
       columns,
       queryParam: {},
@@ -124,12 +122,11 @@ export default {
     handleTableChange(pagination, filters, sorter) {
       this.pagination = { ...pagination }
       this.filters = { ...filters }
-      this.sorter = { ...sorter }
+      this.sorter = Object.assign(this.sorter, { ...sorter })
       this.getDataList()
     },
     getDataList() {
       this.selectedRowKeys = []
-
       this.loading = true
       this.$http
         .post('/ServerFood/F_PublishFood/GetDataList', {

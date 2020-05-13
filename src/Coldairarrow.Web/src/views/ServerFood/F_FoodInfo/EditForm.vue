@@ -23,9 +23,9 @@
         <a-form-model-item label="菜品名称" prop="FoodName">
           <a-input v-model="entity.FoodName" autocomplete="off" />
         </a-form-model-item>
-        <a-form-item label="图片上传">
+        <a-form-item label="图片上传" >
           <!--v-model为图片连接地址(可传单个或数组),maxCount为最大上传数:默认为1-->
-          <c-upload-img v-model="entity.ImgUrl" :maxCount="1"></c-upload-img>
+          <c-upload-img v-model="entity.ImgUrl" :maxCount="1" />
         </a-form-item>
         <a-form-model-item label="菜品描述" prop="FoodDesc">
           <a-input v-model="entity.FoodDesc" autocomplete="off" type="textarea" />

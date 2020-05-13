@@ -7,8 +7,8 @@
           src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
           slot="cover"
         />
-        <a-card-meta title="获取用户信息" description="需要访问您企业微信基础信息">
-          <a-avatar icon="exchange" slot="avatar" />
+        <a-card-meta title="由 佰思威 提供" description="申请访问您企业微信基础信息">
+          <a-avatar :src="logoUrl" slot="avatar" />
         </a-card-meta>
       </a-card>
     </van-dialog>
@@ -24,7 +24,8 @@ export default {
     return {
       data: {},
       code: '',
-      show: true
+      show: true,
+      logoUrl: require('@/assets/logo.png')
     }
   },
   methods: {

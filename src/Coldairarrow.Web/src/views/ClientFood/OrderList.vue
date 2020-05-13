@@ -9,6 +9,9 @@
           <template #desc>
             <div style="font-size: 12px;">下单时间:{{ item.CreateTime }}</div>
           </template>
+          <template #price-top>
+            <div>订单状态：待评价</div>
+          </template>
           <template #price>
             <div style="color:red;font-size: 13px;">
               总价
@@ -18,6 +21,7 @@
           <template #num>总数量:{{ item.OrderCount }}</template>
           <template #footer>
             <van-button size="mini" @click="getDetials(item.OrderCode)">详情</van-button>
+            <van-button size="mini" @click="getDetials(item.OrderCode)">评价</van-button>
           </template>
         </van-card>
       </div>

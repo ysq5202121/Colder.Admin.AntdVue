@@ -18,9 +18,7 @@
             <a-form-item label="查询类别">
               <a-select allowClear v-model="queryParam.condition">
                 <a-select-option key="OrderCode">订单编号</a-select-option>
-                <a-select-option key="UserName">用户ID</a-select-option>
                 <a-select-option key="CreatorName">创建人姓名</a-select-option>
-                <a-select-option key="UpdateId">修改人编号</a-select-option>
                 <a-select-option key="UpdateName">修改人时间</a-select-option>
               </a-select>
             </a-form-item>
@@ -53,8 +51,6 @@
     >
       <span slot="action" slot-scope="text, record">
         <template>
-          <a @click="handleEdit(record.Id)">编辑</a>
-          <a-divider type="vertical" />
           <a @click="handleDelete([record.Id])">删除</a>
         </template>
       </span>
@@ -110,7 +106,7 @@ export default {
         showTotal: (total, range) => `总数:${total} 当前:${range[0]}-${range[1]}`
       },
       filters: {},
-      sorter: { field: 'Id', order: 'desc' },
+      sorter: { field: 'CreateTime', order: 'desc' },
       loading: false,
       ChLoading: false,
       columns,
@@ -126,7 +122,7 @@ export default {
     handleTableChange(pagination, filters, sorter) {
       this.pagination = { ...pagination }
       this.filters = { ...filters }
-      this.sorter = { ...sorter }
+      this.sorter = Object.assign(this.sorter, { ...sorter })
       this.getDataList()
     },
     getDataList() {
@@ -176,10 +172,6 @@ export default {
           { responseType: 'arraybuffer' }
         )
         .then(resJson => {
-          console.log(resJson)
-          console.log(resJson.Success)
-          console.log(typeof resJson)
-        
           const blobs = new Blob([resJson], { type: 'application/json' })
           console.log(blobs)
           const blob = new Blob([resJson], { type: 'application/vnd.ms-excel' })

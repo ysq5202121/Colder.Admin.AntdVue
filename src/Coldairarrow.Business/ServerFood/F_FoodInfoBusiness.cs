@@ -97,7 +97,8 @@ namespace Coldairarrow.Business.ServerFood
                     FoodName = a.FoodName,
                     ImgUrl = a.ImgUrl,
                     PublishDate = DateTime.Now,
-                    FoodInfoId = a.Id
+                    FoodInfoId = a.Id,
+                    Limit = a.Limit
             
                 };
                 publishFoodList.Add(publishFood);

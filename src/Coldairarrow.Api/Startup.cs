@@ -87,7 +87,7 @@ namespace Coldairarrow.Api
                     c.IncludeXmlComments(aXml);
                 });
             }); 
-            services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString(conName)));
+            //services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString(conName)));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -112,9 +112,9 @@ namespace Coldairarrow.Api
                 endpoints.MapControllers();
             });
             ApiLog();
-            app.UseHangfireServer();
-            app.UseHangfireDashboard();
-            app.UseHangfireAddServer();
+            //app.UseHangfireServer();
+           // app.UseHangfireDashboard();
+           // app.UseHangfireAddServer();
         }
 
         private void ApiLog()

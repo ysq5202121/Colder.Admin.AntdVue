@@ -34,7 +34,12 @@
           </template>
           <template #tags>
             <van-tag plain type="success">{{ item.SupplierName }}</van-tag>
-            <van-tag plain type="danger" style="margin-left:5px">限购1件</van-tag>
+            <van-tag
+              plain
+              type="danger"
+              style="margin-left:5px"
+              v-if="item.Limit"
+            >限购{{ item.Limit }}件</van-tag>
           </template>
           <template #tag>
             <van-tag mark type="danger" v-show="item.FoodQty==0">售罄</van-tag>
@@ -46,7 +51,12 @@
             </div>
           </template>
           <template #footer>
-            <van-stepper v-model="item.Num" min="0" :max="item.FoodQty" @change="onChange(item)" />
+            <van-stepper
+              v-model="item.Num"
+              min="0"
+              :max="item.Limit || item.FoodQty"
+              @change="onChange(item)"
+            />
           </template>
         </van-card>
       </div>
@@ -138,7 +148,6 @@ export default {
     },
     onChange(item) {
       var isOn = true
-      this.shopCar = this.shopCar.filter(a => a.Num > 0)
       this.shopCar.some(a => {
         if (a.Id === item.Id) {
           a.Num = item.Num
@@ -146,6 +155,7 @@ export default {
           return true
         }
       })
+      this.shopCar = this.shopCar.filter(a => a.Num > 0)
       if (isOn) {
         this.shopCar.push({
           Id: item.Id,
@@ -159,7 +169,6 @@ export default {
     },
     getUserInfoList() {
       this.$http.post('/ServerFood/F_UserInfo/GetUserInfoToMoblie', {}).then(resJson => {
-        console.log(this.shopName)
         if (resJson.Data !== undefined && resJson.Data.ShopName !== null) {
           this.shopName = resJson.Data.ShopName
         }

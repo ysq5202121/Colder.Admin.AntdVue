@@ -28,9 +28,7 @@
                 <a-select-option key="ShopName">门店名称</a-select-option>
                 <a-select-option key="SupplierName">商家名称</a-select-option>
                 <a-select-option key="FoodName">菜品名称</a-select-option>
-                <a-select-option key="FoodDesc">菜品描述信息</a-select-option>
                 <a-select-option key="CreatorName">创建人姓名</a-select-option>
-                <a-select-option key="UpdateId">修改人编号</a-select-option>
                 <a-select-option key="UpdateName">修改人时间</a-select-option>
               </a-select>
             </a-form-item>
@@ -119,7 +117,7 @@ export default {
         showTotal: (total, range) => `总数:${total} 当前:${range[0]}-${range[1]}`
       },
       filters: {},
-      sorter: { field: 'Id', order: 'asc' },
+      sorter: { field: 'CreateTime', order: 'desc' },
       loading: false,
       columns,
       queryParam: {},
@@ -132,7 +130,7 @@ export default {
     handleTableChange(pagination, filters, sorter) {
       this.pagination = { ...pagination }
       this.filters = { ...filters }
-      this.sorter = { ...sorter }
+      this.sorter = Object.assign(this.sorter, { ...sorter })
       this.getDataList()
     },
     getDataList() {
