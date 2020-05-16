@@ -58,7 +58,7 @@
 
 <script>
 import EditForm from './EditForm'
-
+import moment from 'moment'
 const columns = [
   { title: '门店名称', dataIndex: 'ShopName' },
   { title: '点餐开始时间', dataIndex: 'OrderBeginDate', width: 150 },
@@ -116,6 +116,10 @@ export default {
         .then(resJson => {
           this.loading = false
           this.data = resJson.Data
+          this.data.forEach(a => {
+            if (a.OrderBeginDate) a.OrderBeginDate = moment(a.OrderBeginDate).format('HH:mm')
+            if (a.OrderBeginEnd) a.OrderBeginEnd = moment(a.OrderBeginEnd).format('HH:mm')
+          })
           const pagination = { ...this.pagination }
           pagination.total = resJson.Total
           this.pagination = pagination

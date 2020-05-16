@@ -35,6 +35,11 @@ namespace Coldairarrow.Api.Controllers.ServerRoom
             return await _c_OfficeBus.GetTheDataAsync(input.id);
         }
 
+        [HttpPost]
+        public async Task<List<C_Office>> GetDataListAll()
+        {
+            return await _c_OfficeBus.GetDataListAllAsync();
+        }
         #endregion
 
         #region 提交
@@ -50,6 +55,8 @@ namespace Coldairarrow.Api.Controllers.ServerRoom
             }
             else
             {
+                InitUpdateEntity(data); 
+
                 await _c_OfficeBus.UpdateDataAsync(data);
             }
         }

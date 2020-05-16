@@ -24,7 +24,7 @@ namespace Coldairarrow.Api.Controllers.ServerRoom
         #region 获取
 
         [HttpPost]
-        public async Task<PageResult<C_ConferenceRoom>> GetDataList(PageInput<ConditionDTO> input)
+        public async Task<PageResult<C_ConferenceRoomResultDto>> GetDataList(PageInput<ConditionDTO> input)
         {
             return await _c_ConferenceRoomBus.GetDataListAsync(input);
         }

@@ -231,6 +231,10 @@ namespace Coldairarrow.Business.ServerFood
                 dt.Columns.Remove(dt.Columns["UpdateName"]);
             if (dt.Columns.Contains("UpdateTime"))
                 dt.Columns.Remove(dt.Columns["UpdateTime"]);
+            if (dt.Columns.Contains("ImageUrl"))
+                dt.Columns.Remove(dt.Columns["ImageUrl"]);
+            if (dt.Columns.Contains("Status"))
+                dt.Columns.Remove(dt.Columns["Status"]);
             await Task.CompletedTask;
             return AsposeOfficeHelper.DataTableToExcelBytes(dt);
         }

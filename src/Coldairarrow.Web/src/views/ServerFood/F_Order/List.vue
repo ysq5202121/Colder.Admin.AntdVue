@@ -3,7 +3,7 @@
     <div class="table-operator">
       <a-button type="primary" icon="redo" @click="getDataList()">刷新</a-button>
       <a-date-picker
-        placeholder="请选择导出日期"
+        placeholder="请选择订单日期"
         v-model="toDay"
         :defaultValue="defaultToDay"
         valueFormat="YYYY-MM-DD"

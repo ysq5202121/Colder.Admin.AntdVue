@@ -5,12 +5,12 @@
     :visible="visible"
     :confirmLoading="loading"
     @ok="handleSubmit"
-    @cancel="()=>{this.visible=false}"
+    @cancel="handleCancel"
   >
     <a-spin :spinning="loading">
       <a-form-model ref="form" :model="entity" :rules="rules" v-bind="layout">
         <a-form-model-item label="门店名称" prop="ShopInfoId">
-          <a-select v-model="entity.ShopInfoId" style="width: 120px">
+          <a-select v-model="entity.ShopInfoId" style="width: 200px">
             <a-select-option
               v-for="shopinfo in ShopInfoList"
               :key="shopinfo.Id"
@@ -25,12 +25,12 @@
         </a-form-model-item>
         <a-form-item label="图片上传" >
           <!--v-model为图片连接地址(可传单个或数组),maxCount为最大上传数:默认为1-->
-          <c-upload-img v-model="entity.ImgUrl" :maxCount="1" />
+          <c-upload-img ref="upload" v-model="entity.ImgUrl" :maxCount="1" ></c-upload-img>
         </a-form-item>
-        <a-form-model-item label="菜品描述" prop="FoodDesc">
+        <a-form-model-item label="菜品描述" >
           <a-input v-model="entity.FoodDesc" autocomplete="off" type="textarea" />
         </a-form-model-item>
-        <a-form-model-item label="限购数量" prop="Limit">
+        <a-form-model-item label="限购数量" >
           <a-input-number v-model="entity.Limit" :min="1" :max="9999" />
         </a-form-model-item>
         <a-form-model-item label="价格" prop="Price">
@@ -112,6 +112,10 @@ export default {
           }
         })
       })
+    },
+    handleCancel() {
+      this.visible = false
+      this.$refs['upload'].initforceUpdate()
     }
   }
 }

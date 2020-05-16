@@ -21,12 +21,30 @@ namespace Coldairarrow.Api
                 obj.SetPropertyValue("Id", IdHelper.GetId());
             if (obj.ContainsProperty("CreateTime"))
                 obj.SetPropertyValue("CreateTime", DateTime.Now);
+            if (obj.ContainsProperty("CreateDate"))
+                obj.SetPropertyValue("CreateDate", DateTime.Now);
             if (obj.ContainsProperty("CreatorId"))
                 obj.SetPropertyValue("CreatorId", op?.UserId);
+            if (obj.ContainsProperty("CreateId"))
+                obj.SetPropertyValue("CreateId", op?.UserId);
             if (obj.ContainsProperty("CreatorRealName"))
                 obj.SetPropertyValue("CreatorRealName", op?.Property?.RealName);
             if (obj.ContainsProperty("CreatorName"))
                 obj.SetPropertyValue("CreatorName", op?.Property?.RealName);
+            if (obj.ContainsProperty("CreateName"))
+                obj.SetPropertyValue("CreateName", op?.Property?.RealName);
+        }
+
+        protected void InitUpdateEntity(object obj)
+        {
+            var op = HttpContext.RequestServices.GetService<IOperator>();
+            if (obj.ContainsProperty("UpdateId"))
+                obj.SetPropertyValue("UpdateId", op?.UserId);
+            if (obj.ContainsProperty("UpdateName"))
+                obj.SetPropertyValue("UpdateName", op?.Property?.RealName);
+            if (obj.ContainsProperty("UpdateTime"))
+                obj.SetPropertyValue("UpdateTime", DateTime.Now);
+        
         }
 
         protected string GetAbsolutePath(string virtualPath)

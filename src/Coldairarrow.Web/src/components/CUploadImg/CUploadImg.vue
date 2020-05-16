@@ -7,6 +7,7 @@
       @preview="handlePreview"
       @change="handleChange"
       accept="image/*"
+      ref="upload"
     >
       <div v-if="fileList.length < maxCount">
         <a-icon type="plus" />
@@ -56,6 +57,7 @@ export default {
       this.refresh()
     }
   },
+
   methods: {
     checkType(val) {
       if (this.maxCount == 1 && TypeHelper.isArray(val)) {
@@ -64,6 +66,9 @@ export default {
       if (this.maxCount > 1 && !TypeHelper.isArray(val)) {
         throw 'maxCount>1时model必须为Array<String>'
       }
+    },
+    initforceUpdate() {
+      this.fileList = []
     },
     refresh() {
       if (this.maxCount < 1) {

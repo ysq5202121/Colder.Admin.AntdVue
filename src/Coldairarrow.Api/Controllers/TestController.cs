@@ -77,7 +77,7 @@ namespace Coldairarrow.Api.Controllers
         public async Task SendMsg(string token, string userList, string agentid, string msgContent)
         {
 
-            WeChatOperation.SendMsg(token, userList, agentid, msgContent);
+            //WeChatOperation.SendMsg(token, userList, EnumWeChatAppType.Food, msgContent);
             await Task.CompletedTask;
         }
     }

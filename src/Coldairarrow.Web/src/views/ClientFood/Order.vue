@@ -20,14 +20,14 @@
         <template #default>{{ shopName }}-未发布菜品</template>
       </van-empty>
       <div v-for="item in data" :key="item.Id">
-        <van-card :price="item.Price" :thumb="item.ImgUrl" @click-thumb="handleImage(item.ImgUrl)">
+        <van-card :thumb="item.ImgUrl" @click-thumb="handleImage(item.ImgUrl)">
           <template #title>
             <div style="font-size: 15px;font-weight:500">{{ item.FoodName }}</div>
           </template>
           <template #desc>
             <div style="font-size: 12px;">{{ item.FoodDesc }}</div>
           </template>
-          <template #price>
+          <template #price v-if="item.Price>0">
             <div style="color:red;font-size: 13px;">
               <b>¥{{ item.Price }}</b>
             </div>
@@ -63,7 +63,7 @@
     </van-pull-refresh>
     <div style="height:130px">
       <van-submit-bar
-        :price="total"
+        :price="totalPrice"
         button-text="提交订单"
         @submit="onSubmit"
         tip-icon="shop"
@@ -75,7 +75,7 @@
         <template #default>门店:{{ shopName }}</template>
       </van-submit-bar>
     </div>
-    <FoodTabbar></FoodTabbar>
+    <FoodTabbar :badge="totalNumber"></FoodTabbar>
   </div>
 </template>
 
@@ -132,7 +132,7 @@ export default {
       })
     },
     onSubmit() {
-      if (this.total === 0) {
+      if (this.shopCar.length === 0) {
         this.$message.error('请先选择商品')
         return
       }
@@ -176,13 +176,21 @@ export default {
     }
   },
   computed: {
-    total() {
+    totalPrice() {
       // 计算总价的方法
       let sum = 0
       for (let i = 0; i < this.shopCar.length; i++) {
         sum += parseFloat(this.shopCar[i].Price) * parseFloat(this.shopCar[i].Num)
       }
       sum = sum * 10 * 10 // 转换成分
+      return sum
+    },
+    totalNumber() {
+      // 计算总数量
+      let sum = 0
+      for (let i = 0; i < this.shopCar.length; i++) {
+        sum += parseFloat(this.shopCar[i].Num)
+      }
       return sum
     }
   }

@@ -21,7 +21,6 @@
           <template #num>总数量:{{ item.OrderCount }}</template>
           <template #footer>
             <van-button size="mini" @click="getDetials(item.OrderCode)">详情</van-button>
-            <van-button size="mini" @click="getDetials(item.OrderCode)">评价</van-button>
           </template>
         </van-card>
       </div>

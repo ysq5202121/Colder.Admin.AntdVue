@@ -10,22 +10,60 @@
     <a-spin :spinning="loading">
       <a-form-model ref="form" :model="entity" :rules="rules" v-bind="layout">
         <a-form-model-item label="点餐开始时间" prop="OrderBeginDate">
-          <a-date-picker v-model="entity.OrderBeginDate" type="date" showTime />
+          <a-date-picker
+            v-model="entity.OrderBeginDate"
+            type="date"
+            showTime
+            format="HH:mm"
+            @openChange="handleOpenChange1"
+            @panelChange="handlePanelChange1"
+            :mode="showTime1"
+          />
         </a-form-model-item>
         <a-form-model-item label="点餐结束时间" prop="OrderBeginEnd">
-          <a-date-picker v-model="entity.OrderBeginEnd" type="date" showTime />
+          <a-date-picker
+            v-model="entity.OrderBeginEnd"
+            type="date"
+            showTime
+            format="HH:mm"
+            @openChange="handleOpenChange1"
+            @panelChange="handlePanelChange1"
+            :mode="showTime1"
+          />
         </a-form-model-item>
         <a-form-model-item label="单用户可下订单数量" prop="UserOrderNum">
-          <a-input-number v-model="entity.UserOrderNum" :min="1" :max="999" />
+          <a-input-number
+            v-model="entity.UserOrderNum"
+            :min="1"
+            :max="999"
+            placeholder="为空不生效"
+            style="width:200px"
+          />
         </a-form-model-item>
         <a-form-model-item label="订单可含商品SKU数" prop="OrderFoodTypeNum">
-          <a-input-number v-model="entity.OrderFoodTypeNum" :min="1" :max="9999" />
+          <a-input-number
+            v-model="entity.OrderFoodTypeNum"
+            :min="1"
+            :max="9999"
+            placeholder="为空不生效"
+            style="width:200px"
+          />
         </a-form-model-item>
         <a-form-model-item label="开始点餐提醒" prop="OrderBeginRemind">
-          <a-input v-model="entity.OrderBeginRemind" autocomplete="off" type="textarea" />
+          <a-input
+            v-model="entity.OrderBeginRemind"
+            autocomplete="off"
+            type="textarea"
+            placeholder="为空则不会发送消息"
+          />
         </a-form-model-item>
         <a-form-model-item label="结束点餐提醒" prop="OrderEndRemind">
-          <a-input v-model="entity.OrderEndRemind" autocomplete="off" type="textarea" />
+          <a-input
+            v-model="entity.OrderEndRemind"
+            autocomplete="off"
+            type="textarea"
+            placeholder="为空则不会发送消息"
+          />
         </a-form-model-item>
       </a-form-model>
     </a-spin>
@@ -39,6 +77,29 @@ export default {
     parentObj: Object
   },
   data() {
+    const validateOrderBeginDate = (rule, value, callback) => {
+      if (value === null || value === '') {
+        callback(new Error('请选择时间段'))
+      } else {
+        if (this.entity.OrderBeginEnd !== '') {
+          this.$refs.form.validateField('OrderBeginEnd')
+        }
+        callback()
+      }
+    }
+    const validateOrderBeginEnd = (rule, value, callback) => {
+      if (value === null || value === '') {
+        callback(new Error('请选择时间段'))
+      } else {
+        const OrderBeginDate = moment(this.entity.OrderBeginDate).format('HHmm')
+        const OrderBeginEnd = moment(this.entity.OrderBeginEnd).format('HHmm')
+        if (OrderBeginDate > OrderBeginEnd) {
+          callback(new Error('结束时间不能大于起始时间'))
+        }
+        callback()
+      }
+    }
+
     return {
       layout: {
         labelCol: { span: 5 },
@@ -47,7 +108,17 @@ export default {
       visible: false,
       loading: false,
       entity: {},
-      rules: {},
+      showTime1: 'time',
+      rules: {
+        OrderBeginDate: [
+          { required: true, message: '请选择时间段', trigger: 'blur' },
+          { validator: validateOrderBeginDate, trigger: 'blur', type: Date }
+        ],
+        OrderBeginEnd: [
+          { required: true, message: '请选择时间段', trigger: 'blur' },
+          { validator: validateOrderBeginEnd, trigger: 'blur', type: Date }
+        ]
+      },
       title: ''
     }
   },
@@ -96,6 +167,14 @@ export default {
           }
         })
       })
+    },
+    handleOpenChange1(open) {
+      if (open) {
+        this.showTime1 = 'time'
+      }
+    },
+    handlePanelChange1(value, mode) {
+      this.showTime1 = mode
     }
   }
 }

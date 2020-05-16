@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using EFCore.Sharding.Util;
+using Elasticsearch.Net;
 using Microsoft.Extensions.Configuration;
 
 namespace Coldairarrow.Util.ApiHelper.WeChat
@@ -15,20 +16,20 @@ namespace Coldairarrow.Util.ApiHelper.WeChat
        const string GetUserInfoUrl = "https://qyapi.weixin.qq.com/cgi-bin/user/get";
        const string GetDepartmentUrl = "https://qyapi.weixin.qq.com/cgi-bin/department/list";
        const string SendMssage = " https://qyapi.weixin.qq.com/cgi-bin/message/send";//发送消息接口
-       public static WeChatAuthInfo autoInfo = ConfigHelper.Configuration.GetSection("WeChatAuth").Get<WeChatAuthInfo>();
+       public static List<WeChatAuthInfo> autoInfoList = ConfigHelper.Configuration.GetSection("WeChatAuth").Get<List<WeChatAuthInfo>>();
         /// <summary>
         /// 获取token
         /// </summary>
         /// <returns></returns>
-        public static string GetToken()
+        public static string GetToken(EnumWeChatAppType app)
         {
             try
             {
 
                 Dictionary<string, object> dic = new Dictionary<string, object>
                 {
-                    { "corpid", autoInfo.CorpId },
-                    { "corpsecret", autoInfo.CorpSecret }
+                    { "corpid", autoInfoList.FirstOrDefault(a=>a.AppId==(int)app)?.CorpId },
+                    { "corpsecret", autoInfoList.FirstOrDefault(a=>a.AppId==(int)app)?.CorpSecret }
                 };
                 string resultJson = HttpHelper.GetData(GetTokenUrl, dic);
                 WeChatTokenReuslt token = resultJson.ToObject<WeChatTokenReuslt>();
@@ -79,11 +80,11 @@ namespace Coldairarrow.Util.ApiHelper.WeChat
         /// 根据Code获取用户信息
         /// </summary>
         /// <returns></returns>
-        public static WeChatUserInfo GetUserInfo(string code)
+        public static WeChatUserInfo GetUserInfo(EnumWeChatAppType app,string code)
         {
             try
             {
-                string token = GetToken();
+                string token = GetToken(app);
                 string userId = GetUserId(code, token);
                 Dictionary<string, object> dic = new Dictionary<string, object>
                 {
@@ -174,22 +175,21 @@ namespace Coldairarrow.Util.ApiHelper.WeChat
         /// <param name="agentid">企业应用的id，整型。企业内部开发，可在应用的设置页面查看</param>
         /// <param name="msgContent">消息内容，最长不超过2048个字节，超过将截断（支持id转译）</param>
         /// <returns></returns>
-        public static bool SendMsg(string token,string userList,string agentid,string msgContent)
+        public static bool SendMsg(string token,string userList, EnumWeChatAppType app, WeChatSendMsgContext weChatSendMsgContext)
         {
-
             try
             {
                 WeChatSendMsg weChatSendMsg=new WeChatSendMsg();
-                WeChatSendMsgContext weChatSendMsgContext = new WeChatSendMsgContext
+                if (string.IsNullOrEmpty(weChatSendMsgContext.url))
                 {
-                    content = msgContent
-                };
+                    weChatSendMsgContext.url = autoInfoList.FirstOrDefault(a => a.AppId == (int) app)?.Url;
+                }
                 Dictionary<string, object> dic = new Dictionary<string, object>
                 {
                     { "touser", userList },
-                    { "msgtype", "text" },
-                    { "agentid", agentid },
-                    { "text", weChatSendMsgContext }
+                    { "msgtype", "textcard" },
+                    { "agentid", autoInfoList.FirstOrDefault(a=>a.AppId==(int)app)?.AgentId },
+                    { "textcard", weChatSendMsgContext }
                 };
                 string url = SendMssage + "?access_token=" + token;
                 string resultJson = HttpHelper.PostData(url, dic,contentType:ContentType.Json);

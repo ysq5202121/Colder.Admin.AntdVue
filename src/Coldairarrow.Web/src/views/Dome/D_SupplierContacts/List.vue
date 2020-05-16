@@ -18,10 +18,15 @@
           <a-col :md="4" :sm="24">
             <a-form-item label="查询类别">
               <a-select allowClear v-model="queryParam.condition">
-                <a-select-option key="OfficeName">办公楼</a-select-option>
-                <a-select-option key="ConferenceRoomName">会议室名称</a-select-option>
-                <a-select-option key="CreateName">创建人</a-select-option>
-                <a-select-option key="UpdateName">修改人时间</a-select-option>
+                <a-select-option key="SupplierId">供应商ID</a-select-option>
+                <a-select-option key="Contacts">联系人</a-select-option>
+                <a-select-option key="POSITION">职位</a-select-option>
+                <a-select-option key="MobilePhone">手机</a-select-option>
+                <a-select-option key="Landline">座机</a-select-option>
+                <a-select-option key="Email">邮箱</a-select-option>
+                <a-select-option key="CreatorName">创建人</a-select-option>
+                <a-select-option key="UpdateId">修改人编号</a-select-option>
+                <a-select-option key="UpdateName">修改人</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -57,41 +62,29 @@
           <a @click="handleDelete([record.Id])">删除</a>
         </template>
       </span>
-      <span slot="ImgUrl" slot-scope="image">
-        <a-avatar
-          icon="picture"
-          :src="image"
-          size="large"
-          shape="square"
-          style="cursor:pointer"
-          @click="handleOpenImg(image)"
-        />
-      </span>
-      <span slot="TimeInterval" slot-scope="a,b">{{ b.BeginTimeSlot }}-{{ b.EndTimeSlot }}</span>
     </a-table>
 
     <edit-form ref="editForm" :parentObj="this"></edit-form>
-    <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
-      <img alt="example" style="width: 100%" :src="previewImage" />
-    </a-modal>
   </a-card>
 </template>
 
 <script>
 import EditForm from './EditForm'
+
 const columns = [
-  { title: '办公楼', dataIndex: 'OfficeName', width: 150 },
-  { title: '会议室名称', dataIndex: 'ConferenceRoomName' },
-  { title: '会议室状态', dataIndex: 'STATUS', width: 100 },
-  { title: '时段', dataIndex: 'BeginTimeSlot', width: 100, scopedSlots: { customRender: 'TimeInterval' } },
-  { title: '容纳人数', dataIndex: 'Capacity', width: 100 },
-  { title: '会议室图片', dataIndex: 'RommImage', width: 100, scopedSlots: { customRender: 'ImgUrl' } },
-  { title: '标签属性', dataIndex: 'RoomAttribute', width: 100 },
-  { title: '创建人', dataIndex: 'CreateName', width: 100 },
-  { title: '创建时间', dataIndex: 'CreateTime', width: 150 },
-  { title: '修改人', dataIndex: 'UpdateName', width: 100 },
-  { title: '修改时间', dataIndex: 'UpdateTime', width: 150 },
-  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, width: 130 }
+  { title: '供应商ID', dataIndex: 'SupplierId', width: '10%' },
+  { title: '联系人', dataIndex: 'Contacts', width: '10%' },
+  { title: '职位', dataIndex: 'POSITION', width: '10%' },
+  { title: '手机', dataIndex: 'MobilePhone', width: '10%' },
+  { title: '座机', dataIndex: 'Landline', width: '10%' },
+  { title: '邮箱', dataIndex: 'Email', width: '10%' },
+  { title: '是否默认', dataIndex: 'IsDefault', width: '10%' },
+  { title: '创建人', dataIndex: 'CreatorName', width: '10%' },
+  { title: '创建日期', dataIndex: 'CreateDate', width: '10%' },
+  { title: '修改人编号', dataIndex: 'UpdateId', width: '10%' },
+  { title: '修改人', dataIndex: 'UpdateName', width: '10%' },
+  { title: '修改时间', dataIndex: 'UpdateTime', width: '10%' },
+  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' } }
 ]
 
 export default {
@@ -114,9 +107,7 @@ export default {
       loading: false,
       columns,
       queryParam: {},
-      selectedRowKeys: [],
-      previewVisible: false,
-      previewImage: ''
+      selectedRowKeys: []
     }
   },
   methods: {
@@ -131,7 +122,7 @@ export default {
 
       this.loading = true
       this.$http
-        .post('/ServerRoom/C_ConferenceRoom/GetDataList', {
+        .post('/Dome/D_SupplierContacts/GetDataList', {
           PageIndex: this.pagination.current,
           PageRows: this.pagination.pageSize,
           SortField: this.sorter.field || 'Id',
@@ -165,7 +156,7 @@ export default {
         title: '确认删除吗?',
         onOk() {
           return new Promise((resolve, reject) => {
-            thisObj.$http.post('/ServerRoom/C_ConferenceRoom/DeleteData', ids).then(resJson => {
+            thisObj.$http.post('/Dome/D_SupplierContacts/DeleteData', ids).then(resJson => {
               resolve()
 
               if (resJson.Success) {
@@ -179,13 +170,6 @@ export default {
           })
         }
       })
-    },
-    handleCancel() {
-      this.previewVisible = false
-    },
-    handleOpenImg(image) {
-      this.previewVisible = true
-      this.previewImage = image
     }
   }
 }

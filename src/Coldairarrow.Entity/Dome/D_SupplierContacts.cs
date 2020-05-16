@@ -2,13 +2,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Coldairarrow.Entity.ServerRoom
+namespace Coldairarrow.Entity.Dome
 {
     /// <summary>
-    /// 会议室表
+    /// 供应商联系
     /// </summary>
-    [Table("C_ConferenceRoom")]
-    public class C_ConferenceRoom
+    [Table("D_SupplierContacts")]
+    public class D_SupplierContacts
     {
 
         /// <summary>
@@ -18,54 +18,39 @@ namespace Coldairarrow.Entity.ServerRoom
         public String Id { get; set; }
 
         /// <summary>
-        /// 办公楼ID
+        /// 供应商ID
         /// </summary>
-        public String OfficeId { get; set; }
+        public String SupplierId { get; set; }
 
         /// <summary>
-        /// 会议室名称
+        /// 联系人
         /// </summary>
-        public String ConferenceRoomName { get; set; }
+        public String Contacts { get; set; }
 
         /// <summary>
-        /// 会议室说明
+        /// 职位
         /// </summary>
-        public String Description { get; set; }
+        public String POSITION { get; set; }
 
         /// <summary>
-        /// 预约会议地点
+        /// 手机
         /// </summary>
-        public String Place { get; set; }
+        public String MobilePhone { get; set; }
 
         /// <summary>
-        /// 会议室状态
+        /// 座机
         /// </summary>
-        public Int32? STATUS { get; set; }
+        public String Landline { get; set; }
 
         /// <summary>
-        /// 开始时段
+        /// 邮箱
         /// </summary>
-        public String BeginTimeSlot { get; set; }
+        public String Email { get; set; }
 
         /// <summary>
-        /// 结束时段
+        /// 是否默认
         /// </summary>
-        public String EndTimeSlot { get; set; }
-
-        /// <summary>
-        /// 容纳人数
-        /// </summary>
-        public Int32? Capacity { get; set; }
-
-        /// <summary>
-        /// 会议标签属性
-        /// </summary>
-        public String RoomAttribute { get; set; }
-
-        /// <summary>
-        /// 会议图片
-        /// </summary>
-        public String RommImage { get; set; }
+        public Boolean? IsDefault { get; set; }
 
         /// <summary>
         /// 创建人编号
@@ -73,14 +58,14 @@ namespace Coldairarrow.Entity.ServerRoom
         public String CreatorId { get; set; }
 
         /// <summary>
-        /// 创建人姓名
+        /// 创建人
         /// </summary>
-        public String CreateName { get; set; }
+        public String CreatorName { get; set; }
 
         /// <summary>
         /// 创建日期
         /// </summary>
-        public DateTime? CreateTime { get; set; }
+        public DateTime? CreateDate { get; set; }
 
         /// <summary>
         /// 修改人编号
@@ -88,7 +73,7 @@ namespace Coldairarrow.Entity.ServerRoom
         public String UpdateId { get; set; }
 
         /// <summary>
-        /// 修改人时间
+        /// 修改人
         /// </summary>
         public String UpdateName { get; set; }
 

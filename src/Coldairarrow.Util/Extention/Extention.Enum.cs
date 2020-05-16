@@ -16,11 +16,20 @@ namespace Coldairarrow.Util
         /// <returns></returns>
         public static string GetDescription(this Enum value)
         {
-            DescriptionAttribute attribute = value.GetType()
-                .GetField(value.ToString())
-                .GetCustomAttributes(typeof(DescriptionAttribute), false)
-                .SingleOrDefault() as DescriptionAttribute;
-            return attribute == null ? value.ToString() : attribute.Description;
+            try
+            {
+                if (value == null) return null;
+                DescriptionAttribute attribute = value.GetType()
+                    .GetField(value.ToString())
+                    .GetCustomAttributes(typeof(DescriptionAttribute), false)
+                    .SingleOrDefault() as DescriptionAttribute;
+                return attribute == null ? value.ToString() : attribute.Description;
+            }
+            catch (Exception e)
+            {
+                return value.ToString();
+            }
+            
         }
     }
 }

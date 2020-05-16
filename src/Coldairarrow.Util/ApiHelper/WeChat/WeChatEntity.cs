@@ -16,9 +16,17 @@ namespace Coldairarrow.Util
     }
     public class WeChatAuthInfo
     {
+        public int AppId { get; set; }
         public string CorpId { get; set; }
         public string CorpSecret { get; set; }
         public string AgentId { get; set; }
+        public string Url { get; set; }
+    }
+
+    public enum EnumWeChatAppType
+    {
+        Food=1,
+        Room=2
     }
     public class WeChatUserIdInfo : WeChatEntity
     {
@@ -73,8 +81,15 @@ namespace Coldairarrow.Util
     }
 
     public class WeChatSendMsgContext
-    {
-        public string content { get; set; }
+    { 
+        public string title { get; set; }
+
+        public string description { get; set; }
+
+        public string url { get; set; }
+
+        public string btntxt { get; set; }
+
     }
 
     public class WeChatSendMsg

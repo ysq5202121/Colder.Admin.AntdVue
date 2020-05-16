@@ -9,16 +9,21 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Coldairarrow.Business.Job;
+using Coldairarrow.Util.ApiHelper.WeChat;
+using Hangfire;
 
 namespace Coldairarrow.Business.ServerFood
 {
     public class F_FoodInfoBusiness : BaseBusiness<F_FoodInfo>, IF_FoodInfoBusiness, ITransientDependency
     {
         public IOperator oOperator;
-        public F_FoodInfoBusiness(IRepository repository, IOperator op)
+        public IJobServer Job;
+        public F_FoodInfoBusiness(IRepository repository, IOperator op, IJobServer _job)
             : base(repository)
         {
             oOperator = op;
+            Job = _job;
         }
 
         #region 外部接口
@@ -80,6 +85,10 @@ namespace Coldairarrow.Business.ServerFood
             var query = GetIQueryable().Where(a => ids.Contains(a.Id)).ToList();
             if(query.Count==0) throw new BusException("数据异常!");
             if(query.GroupBy(a => a.ShopInfoId)?.Count() > 1) throw new BusException("不能同时发布两个门店菜品!");
+            string shopInfoId = query?.FirstOrDefault()?.ShopInfoId;
+            var shopInfo = Service.GetIQueryable<F_ShopInfoSet>().FirstOrDefault(a => a.ShopInfoId == shopInfoId);
+            var toDayFoodsCount = Service.GetIQueryable<F_PublishFood>().Count(a =>
+                a.PublishDate > DateTime.Now.Date && a.PublishDate < DateTime.Now.Date.AddDays(1) && a.ShopInfoId== shopInfoId);
             List<F_PublishFood> publishFoodList = new List<F_PublishFood>();
             query.ForEach(a =>
             {
@@ -103,10 +112,39 @@ namespace Coldairarrow.Business.ServerFood
                 };
                 publishFoodList.Add(publishFood);
             });
-            Service.BulkInsert(publishFoodList);
-            //添加发送消息
-
+            await Service.InsertAsync(publishFoodList);
+            //如果今天有发布的菜品则不再发送消息
+            if (shopInfo!=null && !string.IsNullOrEmpty(shopInfo.OrderBeginRemind) && shopInfo.OrderBeginDate.HasValue && toDayFoodsCount<=0)
+            {
+                //发送开始点餐信息
+                var timeSpan = shopInfo.OrderBeginDate.Value.TimeOfDay - DateTime.Now.TimeOfDay;
+                //如果当前时间已经过了点餐时间不在发送小
+                if (shopInfo.OrderBeginEnd.HasValue && DateTime.Now.TimeOfDay < shopInfo.OrderBeginEnd.Value.TimeOfDay)
+                {
+                    //添加发送消息
+                    BackgroundJob.Schedule(() => PublishFoodSendToWeChat(shopInfoId, shopInfo.OrderBeginRemind),
+                        timeSpan);
+                }
+            }
             await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// 发布消息到微信
+        /// </summary>
+        public void PublishFoodSendToWeChat(string shopId,string msg)
+        {
+            //查询门店需要发送时间
+            var userList = Service.GetIQueryable<F_UserInfo>().Where(a => a.ShopInfoId == shopId).Select(a=>a.WeCharUserId).ToList();
+            var joinUser = string.Join("|", userList);
+            LogHelper.WriteLog_LocalTxt(joinUser);
+            //查询是否已经发送消息
+            var token = WeChatOperation.GetToken(EnumWeChatAppType.Food);
+            WeChatSendMsgContext weChatSendMsgContext=new WeChatSendMsgContext();
+            weChatSendMsgContext.title = "点餐提醒";
+            weChatSendMsgContext.btntxt = "点餐";
+            weChatSendMsgContext.description = "<div class=\"gray\">"+DateTime.Now.ToString("yyyy-MM-dd")+ "</div> <div class=\"normal\">" + msg + "</div>";
+            WeChatOperation.SendMsg(token, joinUser, EnumWeChatAppType.Food, weChatSendMsgContext);
         }
 
         #endregion
