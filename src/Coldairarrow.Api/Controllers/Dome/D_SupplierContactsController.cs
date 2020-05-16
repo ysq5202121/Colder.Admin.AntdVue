@@ -3,6 +3,7 @@ using Coldairarrow.Entity.Dome;
 using Coldairarrow.Util;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Coldairarrow.Api.Controllers.Dome
@@ -60,9 +61,38 @@ namespace Coldairarrow.Api.Controllers.Dome
         }
 
         [HttpPost]
+        public async Task SaveDataList(List<D_SupplierContacts> data)
+        {
+            var queryInsert = data.Where(a => a.Id.IsNullOrEmpty()).ToList();
+            var queryUpdate = data.Where(a => !(a.Id.IsNullOrEmpty())).ToList();
+            if (queryUpdate.Count > 0)
+            {
+                queryUpdate.ForEach(a =>
+                {
+                    InitUpdateEntity(a);
+                });
+                await _d_SupplierContactsBus.UpdateDataAsync(queryUpdate);
+                await _d_SupplierContactsBus.DeleteDataAsync(queryUpdate);
+            }
+            if (queryInsert.Count > 0)
+            {
+                queryInsert.ForEach(a =>
+                {
+                    InitEntity(a);
+                });
+                await _d_SupplierContactsBus.AddDataAsync(queryInsert);
+            }
+        }
+
+        [HttpPost]
         public async Task DeleteData(List<string> ids)
         {
             await _d_SupplierContactsBus.DeleteDataAsync(ids);
+        }
+        [HttpPost]
+        public async Task SetDefault(D_SupplierContacts data)
+        {
+            await _d_SupplierContactsBus.SetDefaultAsync(data);
         }
 
         #endregion

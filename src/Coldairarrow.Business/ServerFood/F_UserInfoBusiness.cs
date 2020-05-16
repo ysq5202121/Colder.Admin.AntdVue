@@ -149,11 +149,11 @@ namespace Coldairarrow.Business.ServerFood
                        new List<string>() {"Department", "UpdateTime", "UpdateName", "UpdateId"});
                }
            }
-           //生成token,有效期一天
+           //生成token,有效期一个星期
            JWTPayload jWTPayload = new JWTPayload
            {
                UserId = userId,
-               Expire = DateTime.Now.AddDays(1)
+               Expire = DateTime.Now.AddDays(7)
            };
            string tk = JWTHelper.GetToken(jWTPayload.ToJson(), JWTHelper.JWTClient);
            return tk;

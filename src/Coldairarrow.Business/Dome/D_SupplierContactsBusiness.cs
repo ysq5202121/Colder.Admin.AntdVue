@@ -60,10 +60,37 @@ namespace Coldairarrow.Business.Dome
         {
             await UpdateAsync(data);
         }
+        public async Task AddDataAsync(List<D_SupplierContacts> data)
+        {
+            await InsertAsync(data);
+        }
+
+        public async Task UpdateDataAsync(List<D_SupplierContacts> data)
+        {
+            await UpdateAsync(data);
+        }
+        public async Task SetDefaultAsync(D_SupplierContacts data)
+        {
+            await UpdateWhereAsync(a => a.SupplierId == data.SupplierId, a => { a.IsDefault = false; });
+            await UpdateWhereAsync(a => a.Id == data.Id, a => { a.IsDefault = true; });
+        }
 
         public async Task DeleteDataAsync(List<string> ids)
         {
             await DeleteAsync(ids);
+        }
+
+        public async Task DeleteDataAsync(List<D_SupplierContacts> data)
+        {
+            var query = GetIQueryable().Where(a => !data.Select(b => b.Id).Contains(a.Id) && a.SupplierId==data.FirstOrDefault().SupplierId).Select(a=>a.Id).ToList();
+            if (query.Count > 0)
+            {
+                await DeleteAsync(query);
+            }
+            else
+            {
+              await  Task.CompletedTask;
+            }
         }
 
         #endregion

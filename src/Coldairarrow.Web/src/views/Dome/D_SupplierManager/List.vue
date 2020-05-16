@@ -25,7 +25,6 @@
                 <a-select-option key="Region">所属区域</a-select-option>
                 <a-select-option key="City">城市</a-select-option>
                 <a-select-option key="CreatorName">创建人</a-select-option>
-                <a-select-option key="UpdateId">修改人编号</a-select-option>
                 <a-select-option key="UpdateName">修改人</a-select-option>
               </a-select>
             </a-form-item>
@@ -72,20 +71,19 @@
 import EditForm from './EditForm'
 
 const columns = [
-  { title: '供应商全称', dataIndex: 'SupplierName', width: '10%' },
-  { title: '供应商英文名称', dataIndex: 'SupplierEnName', width: '10%' },
-  { title: '供应商地址', dataIndex: 'SupplierAddress', width: '10%' },
-  { title: '供应商代码', dataIndex: 'SupplierCode', width: '10%' },
-  { title: '所属区域', dataIndex: 'Region', width: '10%' },
-  { title: '城市', dataIndex: 'City', width: '10%' },
-  { title: '供应商状态', dataIndex: 'STATUS', width: '10%' },
-  { title: '供应商类型', dataIndex: 'SupplierType', width: '10%' },
-  { title: '创建人', dataIndex: 'CreatorName', width: '10%' },
-  { title: '创建日期', dataIndex: 'CreateDate', width: '10%' },
-  { title: '修改人编号', dataIndex: 'UpdateId', width: '10%' },
-  { title: '修改时间', dataIndex: 'UpdateTime', width: '10%' },
-  { title: '修改人', dataIndex: 'UpdateName', width: '10%' },
-  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' } }
+  { title: '供应商全称', dataIndex: 'SupplierName', width: 250 },
+  { title: '供应商英文名称', dataIndex: 'SupplierEnName', width: 150 },
+  { title: '供应商地址', dataIndex: 'SupplierAddress', width: 100 },
+  { title: '供应商代码', dataIndex: 'SupplierCode', width: 100 },
+  { title: '所属区域', dataIndex: 'Region', width: 100 },
+  { title: '城市', dataIndex: 'City', width: 100 },
+  { title: '供应商状态', dataIndex: 'STATUS', width: 100 },
+  { title: '供应商类型', dataIndex: 'SupplierType', width: 100 },
+  { title: '创建人', dataIndex: 'CreatorName', width: 100 },
+  { title: '创建时间', dataIndex: 'CreateDate', width: 150 },
+  { title: '修改人', dataIndex: 'UpdateName', width: 100 },
+  { title: '修改时间', dataIndex: 'UpdateTime', width: 150 },
+  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, fixed: 'right', width: 100 }
 ]
 
 export default {

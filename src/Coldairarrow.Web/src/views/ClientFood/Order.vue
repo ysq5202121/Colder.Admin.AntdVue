@@ -56,6 +56,7 @@
               min="0"
               :max="item.Limit || item.FoodQty"
               @change="onChange(item)"
+              integer
             />
           </template>
         </van-card>
