@@ -24,7 +24,7 @@ namespace Coldairarrow.Api.Controllers.Dome
         #region 获取
 
         [HttpPost]
-        public async Task<PageResult<D_SupplierManager>> GetDataList(PageInput<ConditionDTO> input)
+        public async Task<PageResult<D_SupplierManagerResultDto>> GetDataList(PageInput<ConditionDTO> input)
         {
             return await _d_SupplierManagerBus.GetDataListAsync(input);
         }

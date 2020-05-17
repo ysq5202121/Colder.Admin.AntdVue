@@ -20,10 +20,7 @@
               <a-select allowClear v-model="queryParam.condition">
                 <a-select-option key="SupplierName">供应商全称</a-select-option>
                 <a-select-option key="SupplierEnName">供应商英文名称</a-select-option>
-                <a-select-option key="SupplierAddress">供应商地址</a-select-option>
                 <a-select-option key="SupplierCode">供应商代码</a-select-option>
-                <a-select-option key="Region">所属区域</a-select-option>
-                <a-select-option key="City">城市</a-select-option>
                 <a-select-option key="CreatorName">创建人</a-select-option>
                 <a-select-option key="UpdateName">修改人</a-select-option>
               </a-select>
@@ -75,10 +72,10 @@ const columns = [
   { title: '供应商英文名称', dataIndex: 'SupplierEnName', width: 150 },
   { title: '供应商地址', dataIndex: 'SupplierAddress', width: 100 },
   { title: '供应商代码', dataIndex: 'SupplierCode', width: 100 },
-  { title: '所属区域', dataIndex: 'Region', width: 100 },
-  { title: '城市', dataIndex: 'City', width: 100 },
+  { title: '所属区域', dataIndex: 'RegionName', width: 100 },
+  { title: '城市', dataIndex: 'CityName', width: 100 },
   { title: '供应商状态', dataIndex: 'STATUS', width: 100 },
-  { title: '供应商类型', dataIndex: 'SupplierType', width: 100 },
+  { title: '供应商类型', dataIndex: 'SupplierTypeName', width: 100 },
   { title: '创建人', dataIndex: 'CreatorName', width: 100 },
   { title: '创建时间', dataIndex: 'CreateDate', width: 150 },
   { title: '修改人', dataIndex: 'UpdateName', width: 100 },

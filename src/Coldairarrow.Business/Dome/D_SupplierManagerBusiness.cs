@@ -9,6 +9,8 @@ using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Coldairarrow.Entity.Base_Manage;
 using Dynamitey.DynamicObjects;
+using System.Linq.Expressions;
+using System;
 
 namespace Coldairarrow.Business.Dome
 {
@@ -21,22 +23,53 @@ namespace Coldairarrow.Business.Dome
 
         #region 外部接口
 
-        public async Task<PageResult<D_SupplierManager>> GetDataListAsync(PageInput<ConditionDTO> input)
+        public async Task<PageResult<D_SupplierManagerResultDto>> GetDataListAsync(PageInput<ConditionDTO> input)
         {
-            var q = GetIQueryable();
-            var where = LinqHelper.True<D_SupplierManager>();
+            var queryDic= await Service.GetIQueryable<Base_Dictionary>().ToListAsync();
+            string x = queryDic.FirstOrDefault(b => b.DicKey == "Region" && b.DicValue == "1")?.DicDisplayValue;
+            //var q = GetIQueryable().Select(a =>  new D_SupplierManagerResultDto 
+            //{ 
+            //    RegionName=queryDic.FirstOrDefault(b=>b.DicKey== "Region" && b.DicValue=="1").DicDisplayValue,
+            //    Id=a.Id,
+            //    SupplierName=a.SupplierName
+
+            //});
+            //var q = from a in GetIQueryable().AsExpandable()
+            //        join b in Service.GetIQueryable<Base_Dictionary>() on a.Region equals  b.DicValue
+            //        where b.DicKey== "Region"
+            //         select new D_SupplierManagerResultDto
+            //         {
+            //             Id = a.Id,
+            //             SupplierName = a.SupplierName,
+            //             RegionName=b.DicDisplayValue
+
+            //         };
+
+            Expression<Func<D_SupplierManager, D_SupplierManagerResultDto>> select = a => new D_SupplierManagerResultDto
+            {
+        
+            };
+            select = select.BuildExtendSelectExpre();
+            var q = from a in GetIQueryable().AsExpandable()
+                    select @select.Invoke(a);
+            var where = LinqHelper.True<D_SupplierManagerResultDto>();
             var search = input.Search;
 
             //筛选
             if (!search.Condition.IsNullOrEmpty() && !search.Keyword.IsNullOrEmpty())
             {
-                var newWhere = DynamicExpressionParser.ParseLambda<D_SupplierManager, bool>(
+                var newWhere = DynamicExpressionParser.ParseLambda<D_SupplierManagerResultDto, bool>(
                     ParsingConfig.Default, false, $@"{search.Condition}.Contains(@0)", search.Keyword);
                 where = where.And(newWhere);
             }
-
-            return await q.Where(where).GetPageResultAsync(input);
-        }
+            var listPage = await q.Where(where).GetPageResultAsync(input);
+            listPage.Data.ForEach(a => {
+                a.RegionName = queryDic.FirstOrDefault(b => b.DicKey == "Region" && b.DicValue == a.Region).DicDisplayValue;
+                a.CityName = queryDic.FirstOrDefault(b => b.DicKey == "City" && b.DicValue == a.City).DicDisplayValue;
+                a.SupplierTypeName= queryDic.FirstOrDefault(b => b.DicKey == "SupplierType" && b.DicValue == a.SupplierType.ToString()).DicDisplayValue;
+            });
+            return listPage;
+    }
 
         public async Task<SupplierManagerStatusDto> GetStatusListAsync()
         {
