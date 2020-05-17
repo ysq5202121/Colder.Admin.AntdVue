@@ -77,6 +77,7 @@
               <a-button
                 type="link"
                 @click="SetDefault(item,index)"
+                v-if="item.Id"
               >{{ item.IsDefault==true?'取消默认':'设置默认' }}</a-button>
               <a-button type="link" @click="addOrDelContacts(item,index)" v-if="index===0">新增</a-button>
               <a-popconfirm
@@ -243,7 +244,7 @@ export default {
           }
         } else {
           this.contacts.dataList.sort((a, b) => {
-            return a.IsDefault === true ? 0 : 1
+            return b.IsDefault - a.IsDefault
           })
         }
       })
@@ -268,9 +269,8 @@ export default {
               a.IsDefault = false
             })
           item.IsDefault = true
-          this.parentObj.getDataList()
           this.contacts.dataList.sort((a, b) => {
-            return a.IsDefault === true ? 0 : 1
+            return b.IsDefault - a.IsDefault
           })
         } else {
           this.$message.error(resJson.Msg)
