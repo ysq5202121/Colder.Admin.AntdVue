@@ -9,6 +9,7 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
 using System.IO;
 using Hangfire;
+using Hangfire.Dashboard;
 
 namespace Coldairarrow.Api
 {
@@ -113,7 +114,11 @@ namespace Coldairarrow.Api
             });
             ApiLog();
             app.UseHangfireServer();
-            app.UseHangfireDashboard();
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                Authorization = new[] { new HangfireAuthorizationFilter() }
+
+            });
             app.UseHangfireAddServer();
         }
 

@@ -64,9 +64,10 @@ namespace Coldairarrow.Business.Dome
             }
             var listPage = await q.Where(where).GetPageResultAsync(input);
             listPage.Data.ForEach(a => {
-                a.RegionName = queryDic.FirstOrDefault(b => b.DicKey == "Region" && b.DicValue == a.Region).DicDisplayValue;
-                a.CityName = queryDic.FirstOrDefault(b => b.DicKey == "City" && b.DicValue == a.City).DicDisplayValue;
-                a.SupplierTypeName= queryDic.FirstOrDefault(b => b.DicKey == "SupplierType" && b.DicValue == a.SupplierType.ToString()).DicDisplayValue;
+                a.RegionName = queryDic.FirstOrDefault(b => b.DicKey == "Region" && b.DicValue == a.Region)?.DicDisplayValue;
+                a.CityName = queryDic.FirstOrDefault(b => b.DicKey == "City" && b.DicValue == a.City)?.DicDisplayValue;
+                a.SupplierTypeName= queryDic.FirstOrDefault(b => b.DicKey == "SupplierType" && b.DicValue == a.SupplierType.ToString())?.DicDisplayValue;
+                a.StatusName= queryDic.FirstOrDefault(b => b.DicKey == "SupplierStatus" && b.DicValue == a.STATUS.ToString())?.DicDisplayValue;
             });
             return listPage;
     }
@@ -76,23 +77,28 @@ namespace Coldairarrow.Business.Dome
             var query = await Service.GetIQueryable<Base_Dictionary>().ToListAsync();
             SupplierManagerStatusDto supplierManagerStatusDto = new SupplierManagerStatusDto()
             {
-                 SupplierType = query.Where(a=>a.DicKey== "SupplierType").Select(a=>new SelectOption
-                 {
+                SupplierType = query.Where(a => a.DicKey == "SupplierType").Select(a => new SelectOption
+                {
                     title = a.DicDisplayValue,
                     value = a.DicValue
-                 }).ToList(),
-                 Region = query.Where(a => a.DicKey == "Region").Select(a => new SelectOption
-                 {
-                     title = a.DicDisplayValue,
-                     value = a.DicValue
-                 }).ToList(),
-                 City = query.Where(a => a.DicKey == "City").Select(a => new SelectOption
-                 {
-                 title = a.DicDisplayValue,
-                 value = a.DicValue
-            }).ToList()
+                }).ToList(),
+                Region = query.Where(a => a.DicKey == "Region").Select(a => new SelectOption
+                {
+                    title = a.DicDisplayValue,
+                    value = a.DicValue
+                }).ToList(),
+                City = query.Where(a => a.DicKey == "City").Select(a => new SelectOption
+                {
+                    title = a.DicDisplayValue,
+                    value = a.DicValue
+                }).ToList(),
+                Status = query.Where(a => a.DicKey == "SupplierStatus").Select(a => new SelectOption
+                {
+                    title = a.DicDisplayValue,
+                    value = a.DicValue
+                }).ToList()
             };
-            return  supplierManagerStatusDto;
+            return supplierManagerStatusDto;
         }
 
         public async Task<D_SupplierManager> GetTheDataAsync(string id)

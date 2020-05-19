@@ -44,7 +44,13 @@
         <a-form-model-item label="菜品描述" prop="FoodDesc">
           <a-input v-model="entity.FoodDesc" autocomplete="off" disabled type="textarea" />
         </a-form-model-item>
-        <a-form-model-item label="限购数量" prop="Limit">
+        <a-form-model-item prop="Limit">
+          <span slot="label">
+            限购数量
+            <a-tooltip title="每个订单限购单个商品数量">
+              <a-icon type="question-circle-o" />
+            </a-tooltip>
+          </span>
           <a-input-number v-model="entity.Limit" :min="1" :max="9999" />
         </a-form-model-item>
         <a-form-model-item label="菜品数量" prop="FoodQty">

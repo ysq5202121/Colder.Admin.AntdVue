@@ -4,7 +4,7 @@
       <a-card hoverable>
         <img
           alt="example"
-          src="https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png"
+          :src="dinnerUrl"
           slot="cover"
         />
         <a-card-meta title="由 佰思威 提供" description="申请访问您企业微信基础信息">
@@ -25,7 +25,8 @@ export default {
       data: {},
       code: '',
       show: true,
-      logoUrl: require('@/assets/logo.png')
+      logoUrl: require('@/assets/logo.png'),
+      dinnerUrl: require('@/assets/image/dinner.jpg')
     }
   },
   methods: {

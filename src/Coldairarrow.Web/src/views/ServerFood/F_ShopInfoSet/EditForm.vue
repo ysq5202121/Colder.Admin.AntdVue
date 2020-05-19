@@ -31,7 +31,13 @@
             :mode="showTime1"
           />
         </a-form-model-item>
-        <a-form-model-item label="单用户可下订单数量" prop="UserOrderNum">
+        <a-form-model-item prop="UserOrderNum">
+          <span slot="label">
+            订单数量
+            <a-tooltip title="每个用户每一天可以提交的订单数量(如果不设置则不限制)">
+              <a-icon type="question-circle-o" />
+            </a-tooltip>
+          </span>
           <a-input-number
             v-model="entity.UserOrderNum"
             :min="1"
@@ -40,7 +46,13 @@
             style="width:200px"
           />
         </a-form-model-item>
-        <a-form-model-item label="订单可含商品SKU数" prop="OrderFoodTypeNum">
+        <a-form-model-item prop="OrderFoodTypeNum">
+          <span slot="label">
+            订单SKU数
+            <a-tooltip title="每个用户每个订单可以包含多少种商品(如果不设置则不限制)">
+              <a-icon type="question-circle-o" />
+            </a-tooltip>
+          </span>
           <a-input-number
             v-model="entity.OrderFoodTypeNum"
             :min="1"

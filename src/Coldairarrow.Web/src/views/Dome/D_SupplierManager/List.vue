@@ -74,7 +74,7 @@ const columns = [
   { title: '供应商代码', dataIndex: 'SupplierCode', width: 100 },
   { title: '所属区域', dataIndex: 'RegionName', width: 100 },
   { title: '城市', dataIndex: 'CityName', width: 100 },
-  { title: '供应商状态', dataIndex: 'STATUS', width: 100 },
+  { title: '供应商状态', dataIndex: 'StatusName', width: 100 },
   { title: '供应商类型', dataIndex: 'SupplierTypeName', width: 100 },
   { title: '创建人', dataIndex: 'CreatorName', width: 100 },
   { title: '创建时间', dataIndex: 'CreateDate', width: 150 },

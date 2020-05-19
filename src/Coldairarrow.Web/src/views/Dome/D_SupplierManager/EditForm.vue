@@ -26,7 +26,7 @@
             <a-row>
               <a-col :span="12">
                 <a-form-model-item label="供应商状态" prop="STATUS">
-                  <a-input v-model="entity.STATUS" autocomplete="off" />
+                  <a-select v-model="entity.STATUS" :options="AllStatusList.Status"></a-select>
                 </a-form-model-item>
               </a-col>
               <a-col :span="12">

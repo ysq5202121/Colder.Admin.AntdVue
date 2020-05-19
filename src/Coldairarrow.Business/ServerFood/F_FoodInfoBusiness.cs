@@ -107,8 +107,8 @@ namespace Coldairarrow.Business.ServerFood
                     ImgUrl = a.ImgUrl,
                     PublishDate = DateTime.Now,
                     FoodInfoId = a.Id,
-                    Limit = a.Limit
-            
+                    Limit = a.Limit.HasValue ? a.Limit:1
+
                 };
                 publishFoodList.Add(publishFood);
             });
@@ -117,13 +117,26 @@ namespace Coldairarrow.Business.ServerFood
             if (shopInfo!=null && !string.IsNullOrEmpty(shopInfo.OrderBeginRemind) && shopInfo.OrderBeginDate.HasValue && toDayFoodsCount<=0)
             {
                 //发送开始点餐信息
-                var timeSpan = shopInfo.OrderBeginDate.Value.TimeOfDay - DateTime.Now.TimeOfDay;
+                var beginTimeSpan = shopInfo.OrderBeginDate.Value.TimeOfDay - DateTime.Now.TimeOfDay;
                 //如果当前时间已经过了点餐时间不在发送小
                 if (shopInfo.OrderBeginEnd.HasValue && DateTime.Now.TimeOfDay < shopInfo.OrderBeginEnd.Value.TimeOfDay)
                 {
                     //添加发送消息
                     BackgroundJob.Schedule(() => PublishFoodSendToWeChat(shopInfoId, shopInfo.OrderBeginRemind),
-                        timeSpan);
+                        beginTimeSpan);
+                }
+            }
+            //如果今天有发布的菜品则不再发送消息
+            if (shopInfo != null && !string.IsNullOrEmpty(shopInfo.OrderEndRemind) && shopInfo.OrderBeginEnd.HasValue && toDayFoodsCount <= 0)
+            {
+                //发送结束点餐信息
+                var endTimeSpan = shopInfo.OrderBeginEnd.Value.TimeOfDay - DateTime.Now.TimeOfDay;
+                //如果当前时间已经过了点餐时间不在发送
+                if (DateTime.Now.TimeOfDay < shopInfo.OrderBeginEnd.Value.TimeOfDay)
+                {
+                    //添加发送消息
+                    BackgroundJob.Schedule(() => PublishFoodSendToWeChat(shopInfoId, shopInfo.OrderEndRemind),
+                        endTimeSpan);
                 }
             }
             await Task.CompletedTask;

@@ -127,7 +127,12 @@ namespace Coldairarrow.Business.ServerFood
             //扣减商品数量
             fPublishFoodList.ForEach(a =>
             {
+                
                 a.FoodQty = a.FoodQty - data.First(b => b.Id == a.Id).Num;
+                if (a.FoodQty < 0)
+                {
+                    throw new BusException("商品数量不足请刷新页面重试!");
+                }
             });
             await Service.UpdateAnyAsync<F_PublishFood>(fPublishFoodList,new List<string>(){ "FoodQty" });
             //计算总价

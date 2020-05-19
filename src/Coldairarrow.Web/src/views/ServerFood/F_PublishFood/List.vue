@@ -1,6 +1,7 @@
 ﻿<template>
   <a-card :bordered="false">
     <div class="table-operator">
+      <a-button type="primary" icon="redo" @click="getDataList()">刷新</a-button>
       <a-button
         type="primary"
         icon="minus"
@@ -8,7 +9,6 @@
         :disabled="!hasSelected()"
         :loading="loading"
       >删除</a-button>
-      <a-button type="primary" icon="redo" @click="getDataList()">刷新</a-button>
     </div>
 
     <div class="table-page-search-wrapper">
@@ -52,8 +52,6 @@
       <span slot="action" slot-scope="text, record">
         <template>
           <a @click="handleEdit(record.Id)">编辑</a>
-          <a-divider type="vertical" />
-          <a @click="handleDelete([record.Id])">删除</a>
         </template>
       </span>
       <span slot="ImgUrl" slot-scope="image">

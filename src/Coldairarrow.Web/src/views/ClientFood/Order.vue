@@ -25,7 +25,7 @@
             <div style="font-size: 15px;font-weight:500">{{ item.FoodName }}</div>
           </template>
           <template #desc>
-            <div style="font-size: 12px;">{{ item.FoodDesc }}</div>
+            <div style="font-size: 12px;">{{ item.FoodDesc?item.FoodDesc:item.FoodName }}</div>
           </template>
           <template #price v-if="item.Price>0">
             <div style="color:red;font-size: 13px;">
@@ -39,7 +39,7 @@
               type="danger"
               style="margin-left:5px"
               v-if="item.Limit"
-            >限购{{ item.Limit }}件</van-tag>
+            >限购{{ item.Limit }}份</van-tag>
           </template>
           <template #tag>
             <van-tag mark type="danger" v-show="item.FoodQty==0">售罄</van-tag>
@@ -72,7 +72,7 @@
         :loading="loading"
         style="bottom:50px"
       >
-        <template #tip>您的收货地址是：大餐厅</template>
+        <template #tip>温馨提示领餐地点：大餐厅</template>
         <template #default>门店:{{ shopName }}</template>
       </van-submit-bar>
     </div>

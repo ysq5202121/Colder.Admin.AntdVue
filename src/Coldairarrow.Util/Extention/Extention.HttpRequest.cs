@@ -62,7 +62,6 @@ namespace Coldairarrow.Util
 
             return token;
         }
-
         /// <summary>
         /// 获取Token中的Payload
         /// </summary>

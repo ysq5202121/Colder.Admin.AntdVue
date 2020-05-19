@@ -23,14 +23,25 @@
         <a-form-model-item label="菜品名称" prop="FoodName">
           <a-input v-model="entity.FoodName" autocomplete="off" />
         </a-form-model-item>
-        <a-form-item label="图片上传" >
+        <a-form-item label="图片上传">
           <!--v-model为图片连接地址(可传单个或数组),maxCount为最大上传数:默认为1-->
-          <c-upload-img ref="upload" v-model="entity.ImgUrl" :maxCount="1" ></c-upload-img>
+          <c-upload-img ref="upload" v-model="entity.ImgUrl" :maxCount="1"></c-upload-img>
         </a-form-item>
-        <a-form-model-item label="菜品描述" >
-          <a-input v-model="entity.FoodDesc" autocomplete="off" type="textarea" />
+        <a-form-model-item label="菜品描述">
+          <a-input
+            v-model="entity.FoodDesc"
+            autocomplete="off"
+            type="textarea"
+            placeholder="尽量描述下商品信息吧!"
+          />
         </a-form-model-item>
-        <a-form-model-item label="限购数量" >
+        <a-form-model-item>
+          <span slot="label">
+            限购数量
+            <a-tooltip title="每个订单限购单个商品数量">
+              <a-icon type="question-circle-o" />
+            </a-tooltip>
+          </span>
           <a-input-number v-model="entity.Limit" :min="1" :max="9999" />
         </a-form-model-item>
         <a-form-model-item label="价格" prop="Price">
@@ -72,7 +83,10 @@ export default {
   methods: {
     init() {
       this.visible = true
-      this.entity = {}
+      this.entity = {
+        Limit: 1,
+        Price: 0
+      }
       this.$http.post('/ServerFood/F_ShopInfo/GetDataListAll', {}).then(resJson => {
         if (resJson.Success) {
           this.ShopInfoList = resJson.Data

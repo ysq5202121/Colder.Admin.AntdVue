@@ -22,6 +22,8 @@ namespace Coldairarrow.Business.Dome
         public string RegionName { get; set; }
 
         public string CityName { get; set; }
+
+        public string StatusName { get; set; }
     }
 
     public class SupplierManagerStatusDto
@@ -31,5 +33,7 @@ namespace Coldairarrow.Business.Dome
         public List<SelectOption> Region { get; set; }
 
         public List<SelectOption> City { get; set; }
+
+        public List<SelectOption> Status { get; set; }
     }
 }

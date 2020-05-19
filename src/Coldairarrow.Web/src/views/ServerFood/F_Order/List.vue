@@ -8,7 +8,7 @@
         :defaultValue="defaultToDay"
         valueFormat="YYYY-MM-DD"
       />
-      <a-button type="primary" icon="download" @click="handleExcelExport()">导出</a-button>
+      <a-button type="primary" icon="download" @click="handleExcelExport()" :loading="ExLoading">导出</a-button>
     </div>
 
     <div class="table-page-search-wrapper">
@@ -109,6 +109,7 @@ export default {
       sorter: { field: 'CreateTime', order: 'desc' },
       loading: false,
       ChLoading: false,
+      ExLoading: false,
       columns,
       innerColumns,
       queryParam: {},
@@ -162,6 +163,7 @@ export default {
       if (this.toDay === null) {
         this.toDay = moment(new Date())
       }
+      this.ExLoading = true
       this.$http
         .post(
           '/ServerFood/F_Order/ExcelToExport',
@@ -172,6 +174,7 @@ export default {
           { responseType: 'arraybuffer' }
         )
         .then(resJson => {
+          this.ExLoading = false
           const blobs = new Blob([resJson], { type: 'application/json' })
           console.log(blobs)
           const blob = new Blob([resJson], { type: 'application/vnd.ms-excel' })
