@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Coldairarrow.Entity.Base_Manage;
 
 namespace Coldairarrow.Business.ServerFood
 {
@@ -71,7 +72,14 @@ namespace Coldairarrow.Business.ServerFood
            if (userInfo == null) throw new BusException("获取用户信息失败!");
             //筛选
            where = where.And(a=>a.UserInfoId== userInfo.Id);
-           return await q.Where(where).OrderByDescending(a => a.CreateTime).ToListAsync();
+           var queryDic = await Service.GetIQueryable<Base_Dictionary>().ToListAsync();
+
+           var listPage = await q.Where(where).OrderByDescending(a => a.CreateTime).ToListAsync();
+           listPage.ForEach(a =>
+           {
+               a.StatusName = queryDic.FirstOrDefault(b => b.DicKey == "OrderStatus" && b.DicValue == a.Status.ToString())?.DicDisplayValue;
+           });
+           return listPage;
         }
 
         public async Task PlaceOrderAsync(List<IF_OrderInputDTO> data)
@@ -121,8 +129,8 @@ namespace Coldairarrow.Business.ServerFood
             if (fShopInfoSet.UserOrderNum.HasValue)
             {
                 var toDay = DateTime.Now.Date; 
-                var taDayOrderNum= Service.GetIQueryable<F_Order>().Count(a=>a.UserInfoId==userInfo.Id &&  a.CreateTime > toDay && a.CreateTime < toDay.AddDays(1));
-                if(taDayOrderNum >= fShopInfoSet.UserOrderNum) throw new BusException("今天已下单"+ taDayOrderNum+"个,不能在下单");
+                var taDayOrderNum= Service.GetIQueryable<F_Order>().Count(a=>a.UserInfoId==userInfo.Id &&  a.CreateTime > toDay && a.CreateTime < toDay.AddDays(1) && a.Status!=4);
+                if(taDayOrderNum >= fShopInfoSet.UserOrderNum) throw new BusException("今天已下单"+ taDayOrderNum+"个,不能再下单");
             }
             //扣减商品数量
             fPublishFoodList.ForEach(a =>
@@ -144,10 +152,14 @@ namespace Coldairarrow.Business.ServerFood
                 UserInfoId = userInfo.Id,
                 Id= IdHelper.GetId(),
                 OrderCode = IdHelper.GetId(),
+                Status = 1,
                 Price = totalPrice,
                 OrderCount = totalNum,
                 CreateTime = DateTime.Now,
-                CreatorId= userInfo.Id,
+                CancellableTime = DateTime.Now.Add(fShopInfoSet.OrderBeginEnd.Value.TimeOfDay-DateTime.Now.TimeOfDay),
+                CanEvaluableTime = DateTime.Now.AddDays(1),
+                StartReceiveTime = DateTime.Now.Add(fShopInfoSet.OrderBeginEnd.Value.TimeOfDay - DateTime.Now.TimeOfDay),
+                CreatorId = userInfo.Id,
                 CreatorName= userInfo.UserName,
                 UpdateTime = DateTime.Now,
                 UpdateId = userInfo.Id,
@@ -179,9 +191,9 @@ namespace Coldairarrow.Business.ServerFood
                 UserName = b.UserName,
                 DepartmentName = b.Department,
                 FoodName = string.Join(",", (from c in Service.GetIQueryable<F_OrderInfo>()
-                                             join d in Service.GetIQueryable<F_PublishFood>() on c.PublishFoodId equals d.Id
-                                             where c.OrderCode == a.OrderCode
-                                             select d.FoodName)),
+                    join d in Service.GetIQueryable<F_PublishFood>() on c.PublishFoodId equals d.Id
+                    where c.OrderCode == a.OrderCode
+                    select d.FoodName)),
                 SupplierName = string.Join(",", (from c in Service.GetIQueryable<F_OrderInfo>()
                     join d in Service.GetIQueryable<F_PublishFood>() on c.PublishFoodId equals d.Id
                     where c.OrderCode == a.OrderCode
@@ -191,9 +203,9 @@ namespace Coldairarrow.Business.ServerFood
 
             select = select.BuildExtendSelectExpre();
             var q = from a in GetIQueryable().AsExpandable()
-                    join b in Service.GetIQueryable<F_UserInfo>() on a.UserInfoId equals b.Id into ab
-                    from b in ab.DefaultIfEmpty()
-                    select @select.Invoke(a, b);
+                join b in Service.GetIQueryable<F_UserInfo>() on a.UserInfoId equals b.Id into ab
+                from b in ab.DefaultIfEmpty()
+                select @select.Invoke(a, b);
 
             var where = LinqHelper.True<IF_OrderResultDTO>();
             var search = input;
@@ -201,11 +213,14 @@ namespace Coldairarrow.Business.ServerFood
             //筛选
             if (!search.Condition.IsNullOrEmpty() && !search.Keyword.IsNullOrEmpty())
             {
-    
-                where = where.And(a=>a.CreateTime>input.Keyword.ToDateTime() && a.CreateTime< input.Keyword.ToDateTime().AddDays(1));
+
+                where = where.And(a =>
+                    a.CreateTime > input.Keyword.ToDateTime() && a.CreateTime < input.Keyword.ToDateTime().AddDays(1)
+                                                              && a.Status != 4);
             }
+
             DataTable dt = q.Where(where).ToList().ToDataTable();
-            if(dt!=null && dt.Rows.Count==0) throw new BusException("无下载数据!");
+            if (dt != null && dt.Rows.Count == 0) throw new BusException("无下载数据!");
             if (dt.Columns.Contains("UserName"))
                 dt.Columns["UserName"].ColumnName = "用户名";
             if (dt.Columns.Contains("SupplierName"))
@@ -243,10 +258,28 @@ namespace Coldairarrow.Business.ServerFood
             await Task.CompletedTask;
             return AsposeOfficeHelper.DataTableToExcelBytes(dt);
         }
+
         public async Task AddDataAsync(List<F_Order> data)
         {
 
             await InsertAsync(data);
+        }
+
+        public async Task<bool> CancelOrderAsync(string orderCode)
+        {
+            //读取订单门店是否在取消时间内
+            var orderInfo= GetIQueryable().Where(a => a.OrderCode == orderCode)?.FirstOrDefault();
+            if(orderInfo==null) throw new BusException("取消异常!");
+            if(DateTime.Now>orderInfo.CancellableTime) throw new BusException("不再取消时间内!");
+            int result=  await  UpdateWhereAsync(a => a.OrderCode == orderCode, a =>
+            {
+                a.Status = 4;
+                a.UpdateTime=DateTime.Now;
+                a.UpdateName = oOperator.WeChatProperty.UserName;
+                a.UpdateId = oOperator.WeChatProperty.Id;
+
+            });
+         return result > 0;
         }
 
         public async Task<F_Order> GetTheDataAsync(string id)

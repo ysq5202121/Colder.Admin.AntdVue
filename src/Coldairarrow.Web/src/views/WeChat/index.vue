@@ -11,7 +11,7 @@ export default {
       defaultSettings.weChatAppId +
       '&redirect_uri=' +
       defaultSettings.WeChatUrl +
-      '/WeChat/Authorize?get=1&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect'
+      '/WeChat/Authorize?appid=1&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect'
   },
   data: function() {
     return {

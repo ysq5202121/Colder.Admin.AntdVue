@@ -50,6 +50,7 @@ namespace Coldairarrow.Api.Controllers.ServerFood
             }
             else
             {
+                InitUpdateEntity(data);
                 await _f_EvaluationBus.UpdateDataAsync(data);
             }
         }

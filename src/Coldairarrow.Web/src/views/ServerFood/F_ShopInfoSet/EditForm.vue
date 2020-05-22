@@ -31,6 +31,17 @@
             :mode="showTime1"
           />
         </a-form-model-item>
+        <a-form-model-item label="领餐时间" prop="OrderReceiveDate">
+          <a-date-picker
+            v-model="entity.OrderReceiveDate"
+            type="date"
+            showTime
+            format="HH:mm"
+            @openChange="handleOpenChange1"
+            @panelChange="handlePanelChange1"
+            :mode="showTime1"
+          />
+        </a-form-model-item>
         <a-form-model-item prop="UserOrderNum">
           <span slot="label">
             订单数量
@@ -77,6 +88,14 @@
             placeholder="为空则不会发送消息"
           />
         </a-form-model-item>
+        <a-form-model-item label="领餐提醒信息" prop="OrderReceiveRemind">
+          <a-input
+            v-model="entity.OrderReceiveRemind"
+            autocomplete="off"
+            type="textarea"
+            placeholder="为空则不会发送消息"
+          />
+        </a-form-model-item>
       </a-form-model>
     </a-spin>
   </a-modal>
@@ -107,6 +126,21 @@ export default {
         const OrderBeginEnd = moment(this.entity.OrderBeginEnd).format('HHmm')
         if (OrderBeginDate > OrderBeginEnd) {
           callback(new Error('结束时间不能大于起始时间'))
+        } else {
+          this.$refs.form.validateField('OrderReceiveDate')
+        }
+        callback()
+      }
+    }
+
+    const validateOrderReceiveDate = (rule, value, callback) => {
+      if (value === null || value === '') {
+        callback(new Error('请选择时间段'))
+      } else {
+        const OrderBeginEnd = moment(this.entity.OrderBeginEnd).format('HHmm')
+        const OrderReceiveDate = moment(this.entity.OrderReceiveDate).format('HHmm')
+        if (OrderBeginEnd > OrderReceiveDate) {
+          callback(new Error('结束时间不能大于领取时间'))
         }
         callback()
       }
@@ -129,6 +163,10 @@ export default {
         OrderBeginEnd: [
           { required: true, message: '请选择时间段', trigger: 'blur' },
           { validator: validateOrderBeginEnd, trigger: 'blur', type: Date }
+        ],
+        OrderReceiveDate: [
+          { required: true, message: '请选择时间段', trigger: 'blur' },
+          { validator: validateOrderReceiveDate, trigger: 'blur', type: Date }
         ]
       },
       title: ''
@@ -156,6 +194,9 @@ export default {
           }
           if (this.entity['OrderBeginEnd']) {
             this.entity['OrderBeginEnd'] = moment(this.entity['OrderBeginEnd'])
+          }
+          if (this.entity['OrderReceiveDate']) {
+            this.entity['OrderReceiveDate'] = moment(this.entity['OrderReceiveDate'])
           }
         })
       }

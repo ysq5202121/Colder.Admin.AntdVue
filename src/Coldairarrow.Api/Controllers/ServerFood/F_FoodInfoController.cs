@@ -50,6 +50,7 @@ namespace Coldairarrow.Api.Controllers.ServerFood
             }
             else
             {
+                InitUpdateEntity(data);
                 await _f_FoodInfoBus.UpdateDataAsync(data);
             }
         }
@@ -61,6 +62,7 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         }
 
         [HttpPost]
+        [ApiPermission("F_FoodInfo.Delete")]
         public async Task PublishFoodData(List<string> ids)
         {
             await _f_FoodInfoBus.PublishFoodDataAsync(ids);

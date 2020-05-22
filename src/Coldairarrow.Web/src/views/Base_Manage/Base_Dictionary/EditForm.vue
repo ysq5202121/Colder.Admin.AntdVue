@@ -22,7 +22,11 @@
           <a-input v-model="entity.DicDesc" autocomplete="off" type="textarea" />
         </a-form-model-item>
         <a-form-model-item label="字典类型" prop="STATUS">
-          <a-input v-model="entity.STATUS" autocomplete="off" />
+          <a-select v-model="entity.STATUS">
+            <a-select-option value="1">系统</a-select-option>
+            <a-select-option value="2">表状态</a-select-option>
+            <a-select-option value="3">配置</a-select-option>
+          </a-select>
         </a-form-model-item>
       </a-form-model>
     </a-spin>
@@ -70,6 +74,7 @@ export default {
           this.loading = false
 
           this.entity = resJson.Data
+          this.entity.STATUS = this.entity.STATUS.toString()
         })
       }
     },

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -82,17 +83,17 @@ namespace Coldairarrow.Entity.Base_Manage
         /// <summary>
         /// 系统
         /// </summary>
-        [Display(Name = "系统")]
+        [Description("系统")]
         System=1,
         /// <summary>
         /// 表状态
         /// </summary>
-        [Display(Name = "表状态")]
+        [Description("表状态")]
         TableStatus =2,
         /// <summary>
         /// 配置
         /// </summary>
-        [Display(Name = "配置")]
+        [Description("配置")]
         Config =3
     }
 }

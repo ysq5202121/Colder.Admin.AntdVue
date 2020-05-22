@@ -2,6 +2,14 @@
   <a-card :bordered="false">
     <div class="table-operator">
       <a-button type="primary" icon="plus" @click="hanldleAdd()">新建</a-button>
+      <a-button
+        type="primary"
+        icon="minus"
+        @click="handleDelete(selectedRowKeys)"
+        :disabled="!hasSelected()"
+        :loading="loading"
+        v-if="hasPerm('F_ShopInfo.Delete')"
+      >删除</a-button>
       <a-button type="primary" icon="redo" @click="getDataList()">刷新</a-button>
     </div>
 
@@ -46,8 +54,8 @@
       <span slot="action" slot-scope="text, record">
         <template>
           <a @click="handleEdit(record.Id)">编辑</a>
-          <a-divider type="vertical" />
-          <a @click="handleDelete([record.Id])">删除</a>
+          <a-divider type="vertical" v-if="hasPerm('F_ShopInfo.Delete')" />
+          <a @click="handleDelete([record.Id])" v-if="hasPerm('F_ShopInfo.Delete')">删除</a>
         </template>
       </span>
     </a-table>
@@ -66,7 +74,7 @@ const columns = [
   { title: '创建时间', dataIndex: 'CreateTime', width: 200 },
   { title: '修改人', dataIndex: 'UpdateName', width: 100 },
   { title: '修改时间', dataIndex: 'UpdateTime', width: 200 },
-  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' } ,fixed: 'right', width: 100 } 
+  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, fixed: 'right', width: 100 }
 ]
 
 export default {

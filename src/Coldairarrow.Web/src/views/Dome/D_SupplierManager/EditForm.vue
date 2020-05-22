@@ -73,85 +73,88 @@
       <a-tab-pane key="2" tab="联系人" force-render>
         <a-form-model ref="form1" :model="contacts" v-bind="layout">
           <div v-for="(item,index) in contacts.dataList" :key="item.key">
-            <div style="float:right;margin-right:30px">
-              <a-button
-                type="link"
-                @click="SetDefault(item,index)"
-                v-if="item.Id"
-              >{{ item.IsDefault==true?'取消默认':'设置默认' }}</a-button>
-              <a-button type="link" @click="addOrDelContacts(item,index)" v-if="index===0">新增</a-button>
-              <a-popconfirm
-                v-if="index>0"
-                title="确定要删除吗?"
-                ok-text="确定"
-                cancel-text="取消"
-                @confirm="addOrDelContacts(item,index)"
-              >
-                <a href="#">删除</a>
-              </a-popconfirm>
-            </div>
-            <a-divider orientation="left">联系信息</a-divider>
-            <a-row>
-              <a-col :span="12">
-                <a-form-model-item
-                  label="联系人地址"
-                  :prop="'dataList.' + index + '.Contacts'"
-                  :rules="contactsRules.Contacts"
+            <a-card size="small">
+              <template #title><a-icon type="heart" theme="twoTone" two-tone-color="#eb2f96" /> 联系信息</template>
+              <template slot="extra">
+                <a-button
+                  type="link"
+                  @click="SetDefault(item,index)"
+                  v-if="item.Id"
+                >{{ item.IsDefault==true?'取消默认':'设置默认' }}</a-button>
+                <a-button type="link" @click="addOrDelContacts(item,index)" v-if="index===0">新增</a-button>
+                <a-popconfirm
+                  v-if="index>0"
+                  title="确定要删除吗?"
+                  ok-text="确定"
+                  cancel-text="取消"
+                  @confirm="addOrDelContacts(item,index)"
                 >
-                  <a-input v-model="item.Contacts" autocomplete="off" />
-                </a-form-model-item>
-              </a-col>
-              <a-col :span="12">
-                <a-form-model-item
-                  label="部门"
-                  :prop="'dataList.' + index + '.POSITION'"
-                  :rules="contactsRules.Contacts"
-                >
-                  <a-input v-model="item.POSITION" autocomplete="off">
-                    <a-tooltip slot="suffix" title="注视下">
-                      <a-icon type="info-circle" style="color: rgba(0,0,0,.45)" />
-                    </a-tooltip>
-                  </a-input>
-                </a-form-model-item>
-              </a-col>
-            </a-row>
+                  <a href="#">删除</a>
+                </a-popconfirm>
+              </template>
+              <a-row>
+                <a-col :span="12">
+                  <a-form-model-item
+                    label="联系人地址"
+                    :prop="'dataList.' + index + '.Contacts'"
+                    :rules="contactsRules.Contacts"
+                  >
+                    <a-input v-model="item.Contacts" autocomplete="off" />
+                  </a-form-model-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-model-item
+                    label="部门"
+                    :prop="'dataList.' + index + '.POSITION'"
+                    :rules="contactsRules.Contacts"
+                  >
+                    <a-input v-model="item.POSITION" autocomplete="off">
+                      <a-tooltip slot="suffix" title="注视下">
+                        <a-icon type="info-circle" style="color: rgba(0,0,0,.45)" />
+                      </a-tooltip>
+                    </a-input>
+                  </a-form-model-item>
+                </a-col>
+              </a-row>
 
-            <a-row>
-              <a-col :span="12">
-                <a-form-model-item
-                  label="联系座机"
-                  :prop="'dataList.' + index + '.Landline'"
-                  :rules="contactsRules.Contacts"
-                >
-                  <a-input v-model="item.Landline" autocomplete="off" />
-                </a-form-model-item>
-              </a-col>
-              <a-col :span="12">
-                <a-form-model-item
-                  label="联系手机"
-                  :prop="'dataList.' + index + '.MobilePhone'"
-                  :rules="contactsRules.Contacts"
-                >
-                  <a-input v-model="item.MobilePhone" autocomplete="off">
-                    <a-select slot="addonBefore" default-value="+86" style="width: 90px">
-                      <a-select-option value="+86">+86</a-select-option>
-                      <a-select-option value="+87">+87</a-select-option>
-                    </a-select>
-                  </a-input>
-                </a-form-model-item>
-              </a-col>
-            </a-row>
-            <a-row>
-              <a-col :span="12">
-                <a-form-model-item
-                  label="联系人邮箱"
-                  :prop="'dataList.' + index + '.Email'"
-                  :rules="contactsRules.Email"
-                >
-                  <a-input v-model="item.Email" autocomplete="off" />
-                </a-form-model-item>
-              </a-col>
-            </a-row>
+              <a-row>
+                <a-col :span="12">
+                  <a-form-model-item
+                    label="联系座机"
+                    :prop="'dataList.' + index + '.Landline'"
+                    :rules="contactsRules.Contacts"
+                  >
+                    <a-input v-model="item.Landline" autocomplete="off" />
+                  </a-form-model-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-model-item
+                    label="联系手机"
+                    :prop="'dataList.' + index + '.MobilePhone'"
+                    :rules="contactsRules.Contacts"
+                  >
+                    <a-input v-model="item.MobilePhone" autocomplete="off">
+                      <a-select slot="addonBefore" default-value="+86" style="width: 90px">
+                        <a-select-option value="+86">+86</a-select-option>
+                        <a-select-option value="+87">+87</a-select-option>
+                      </a-select>
+                    </a-input>
+                  </a-form-model-item>
+                </a-col>
+              </a-row>
+              <a-row>
+                <a-col :span="12">
+                  <a-form-model-item
+                    label="联系人邮箱"
+                    :prop="'dataList.' + index + '.Email'"
+                    :rules="contactsRules.Email"
+                  >
+                    <a-input v-model="item.Email" autocomplete="off" />
+                  </a-form-model-item>
+                </a-col>
+              </a-row>
+            </a-card>
+            <p></p>
           </div>
         </a-form-model>
       </a-tab-pane>

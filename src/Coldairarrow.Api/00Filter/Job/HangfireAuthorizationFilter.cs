@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Coldairarrow.Util;
 using Hangfire.Annotations;
@@ -22,11 +24,8 @@ namespace Coldairarrow.Api
             string token = req.Query["token"].ToString();
             if (token.IsNullOrEmpty())
             {
-                token = req.GetToken();
-            }
-            if (req.Method == "POST")
-            {
-                return true;
+                // 获取cookie
+                token = req.Cookies["Authorization"];
             }
             try
             {
@@ -55,8 +54,16 @@ namespace Coldairarrow.Api
                 //context.Result = Error(ex.Message, _errorCode);
                 return false;
             }
-            //context.GetHttpContext().Response.Headers.Add(new KeyValuePair<string, StringValues>("Authorization", "Bearer "+ token));
+            //设置cookie
+            context.GetHttpContext().Response.Cookies.Append("Authorization", token);
             return true;
+        }
+
+        public static string GetPara(string url, string name)
+        {
+            Regex reg = new Regex(@"(?:^|\?|&)" + name + "=(?<VAL>.+?)(?:&|$)");
+            Match m = reg.Match(url);
+            return m.Groups["VAL"].ToString(); ;
         }
     }
 }

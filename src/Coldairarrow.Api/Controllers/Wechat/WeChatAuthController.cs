@@ -24,5 +24,13 @@ namespace Coldairarrow.Api.Controllers.Wechat
         { 
             return  await _f_UserInfoBus.Login(code);
         }
+
+        [HttpGet]
+        [NoCheckJWT]
+        public async Task<bool> CheckLogin(string code)
+        {
+            return await _f_UserInfoBus.CheckLogin(code);
+        }
+
     }
 }

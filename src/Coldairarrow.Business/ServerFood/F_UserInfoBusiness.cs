@@ -159,7 +159,17 @@ namespace Coldairarrow.Business.ServerFood
            return tk;
         }
 
-      #endregion
+        public async Task<bool> CheckLogin(string code)
+        {
+            string token = WeChatOperation.GetToken(EnumWeChatAppType.Food);
+            if (token == null) throw new BusException("获取授权token失败!");
+            string userId = WeChatOperation.GetUserId(code, token);
+            if (userId == null) throw new BusException("获取授权userId失败");
+            var userInfo = await GetIQueryable().Where(a => a.WeCharUserId == userId)?.FirstOrDefaultAsync();
+            return userInfo==null;
+        }
+
+        #endregion
 
         #region 私有成员
 

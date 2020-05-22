@@ -113,13 +113,13 @@ namespace Coldairarrow.Api
                 endpoints.MapControllers();
             });
             ApiLog();
-            app.UseHangfireServer();
+           // app.UseHangfireServer();
             app.UseHangfireDashboard("/hangfire", new DashboardOptions
             {
                 Authorization = new[] { new HangfireAuthorizationFilter() }
 
             });
-            app.UseHangfireAddServer();
+            //app.UseHangfireAddServer();
         }
 
         private void ApiLog()

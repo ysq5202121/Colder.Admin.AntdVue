@@ -43,6 +43,11 @@ namespace Coldairarrow.Entity.ServerFood
         public DateTime? OrderBeginEnd { get; set; }
 
         /// <summary>
+        /// 领餐时间
+        /// </summary>
+        public DateTime? OrderReceiveDate { get; set; }
+
+        /// <summary>
         /// 开始点餐提醒信息
         /// </summary>
         public String OrderBeginRemind { get; set; }
@@ -51,6 +56,11 @@ namespace Coldairarrow.Entity.ServerFood
         /// 结束点餐提醒信息
         /// </summary>
         public String OrderEndRemind { get; set; }
+
+        /// <summary>
+        /// 领餐时间提醒信息
+        /// </summary>
+        public String OrderReceiveRemind { get; set; }
 
         /// <summary>
         /// 创建人编号

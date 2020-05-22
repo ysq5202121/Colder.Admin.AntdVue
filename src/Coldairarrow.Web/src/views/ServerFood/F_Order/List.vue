@@ -51,7 +51,7 @@
     >
       <span slot="action" slot-scope="text, record">
         <template>
-          <a @click="handleDelete([record.Id])">删除</a>
+          <a @click="handleDelete([record.Id])" v-if="hasPerm('F_Order.Delete')" >删除</a>
         </template>
       </span>
 

@@ -12,6 +12,8 @@ namespace Coldairarrow.Business.ServerFood
         Task<F_UserInfo> GetTheDataByWeChatIdAsync(string id);
         Task<IF_UserInfoResultDto> GetUserInfoToMoblieAsync();
         Task<string> Login(string code);
+        Task<bool> CheckLogin(string code);
+
         Task AddDataAsync(F_UserInfo data);
         Task UpdateShopNameAsync(F_UserInfo data);
         Task UpdateDataAsync(F_UserInfo data);

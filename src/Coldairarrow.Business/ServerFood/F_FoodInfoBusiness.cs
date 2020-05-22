@@ -118,11 +118,11 @@ namespace Coldairarrow.Business.ServerFood
             {
                 //发送开始点餐信息
                 var beginTimeSpan = shopInfo.OrderBeginDate.Value.TimeOfDay - DateTime.Now.TimeOfDay;
-                //如果当前时间已经过了点餐时间不在发送小
+                //如果当前时间已经过了点餐时间不在发送
                 if (shopInfo.OrderBeginEnd.HasValue && DateTime.Now.TimeOfDay < shopInfo.OrderBeginEnd.Value.TimeOfDay)
                 {
                     //添加发送消息
-                    BackgroundJob.Schedule(() => PublishFoodSendToWeChat(shopInfoId, shopInfo.OrderBeginRemind),
+                    BackgroundJob.Schedule(() => PublishFoodSendToWeChat(shopInfoId, shopInfo.OrderBeginRemind,0),
                         beginTimeSpan);
                 }
             }
@@ -131,11 +131,24 @@ namespace Coldairarrow.Business.ServerFood
             {
                 //发送结束点餐信息
                 var endTimeSpan = shopInfo.OrderBeginEnd.Value.TimeOfDay - DateTime.Now.TimeOfDay;
-                //如果当前时间已经过了点餐时间不在发送
+                //如果当前时间已经过了点餐时间不发送
                 if (DateTime.Now.TimeOfDay < shopInfo.OrderBeginEnd.Value.TimeOfDay)
                 {
                     //添加发送消息
-                    BackgroundJob.Schedule(() => PublishFoodSendToWeChat(shopInfoId, shopInfo.OrderEndRemind),
+                    BackgroundJob.Schedule(() => PublishFoodSendToWeChat(shopInfoId, shopInfo.OrderEndRemind,0),
+                        endTimeSpan);
+                }
+            }
+            //如果今天有发布的菜品则不再发送消息
+            if (shopInfo != null && !string.IsNullOrEmpty(shopInfo.OrderReceiveRemind) && shopInfo.OrderReceiveDate.HasValue && toDayFoodsCount <= 0)
+            {
+                //发送结束点餐信息
+                var endTimeSpan = shopInfo.OrderReceiveDate.Value.TimeOfDay - DateTime.Now.TimeOfDay;
+                //如果当前时间已经过了领取时间不发送
+                if (DateTime.Now.TimeOfDay < shopInfo.OrderReceiveDate.Value.TimeOfDay)
+                {
+                    //添加发送消息
+                    BackgroundJob.Schedule(() => PublishFoodSendToWeChat(shopInfoId, shopInfo.OrderReceiveRemind,1),
                         endTimeSpan);
                 }
             }
@@ -145,10 +158,26 @@ namespace Coldairarrow.Business.ServerFood
         /// <summary>
         /// 发布消息到微信
         /// </summary>
-        public void PublishFoodSendToWeChat(string shopId,string msg)
+        public void PublishFoodSendToWeChat(string shopId,string msg,int type)
         {
-            //查询门店需要发送时间
-            var userList = Service.GetIQueryable<F_UserInfo>().Where(a => a.ShopInfoId == shopId).Select(a=>a.WeCharUserId).ToList();
+            List<string> userList = null;
+            if (type == 0)
+            {
+                //查询门店需要发送时间
+                userList = Service.GetIQueryable<F_UserInfo>().Where(a => a.ShopInfoId == shopId).Select(a => a.WeCharUserId).ToList();
+            }
+            else
+            {
+                var q = from a in Service.GetIQueryable<F_Order>()
+                    join b in Service.GetIQueryable<F_OrderInfo>() on a.OrderCode equals b.OrderCode
+                        join c in Service.GetIQueryable<F_PublishFood>() on b.PublishFoodId equals c.Id
+                    join d in Service.GetIQueryable<F_UserInfo>() on a.UserInfoId equals d.Id
+                    where c.ShopInfoId == shopId  && a.CreateTime>DateTime.Now.Date && a.CreateTime<DateTime.Now.Date.AddDays(1)
+                    select d.WeCharUserId;
+                userList = q.ToList();
+            }
+            if(userList.Count==0) return;
+            //查询当前门店今天的订单用户发送
             var joinUser = string.Join("|", userList);
             LogHelper.WriteLog_LocalTxt(joinUser);
             //查询是否已经发送消息

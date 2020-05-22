@@ -62,11 +62,13 @@ namespace Coldairarrow.Api.Controllers.ServerFood
             }
             else
             {
+                InitUpdateEntity(data);
                 await _f_OrderInfoBus.UpdateDataAsync(data);
             }
         }
 
         [HttpPost]
+        [ApiPermission("F_OrderInfo.Delete")]
         public async Task DeleteData(List<string> ids)
         {
             await _f_OrderInfoBus.DeleteDataAsync(ids);

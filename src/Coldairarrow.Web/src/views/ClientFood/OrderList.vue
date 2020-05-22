@@ -10,7 +10,7 @@
             <div style="font-size: 12px;">下单时间:{{ item.CreateTime }}</div>
           </template>
           <template #price-top>
-            <div>订单状态：待评价</div>
+            <div>订单状态：{{ item.StatusName }}</div>
           </template>
           <template #price>
             <div style="color:red;font-size: 13px;">
@@ -20,6 +20,11 @@
           </template>
           <template #num>总数量:{{ item.OrderCount }}</template>
           <template #footer>
+            <van-button
+              size="mini"
+              v-if="item.Status==1 && moment(new Date())<moment(item.CancellableTime)"
+              @click="cancelOrder(item.OrderCode)"
+            >取消</van-button>
             <van-button size="mini" @click="getDetials(item.OrderCode)">详情</van-button>
           </template>
         </van-card>
@@ -55,6 +60,7 @@
 
 <script>
 import FoodTabbar from './FoodTabbar'
+import moment from 'moment'
 export default {
   mounted() {
     this.getDataList()
@@ -67,7 +73,8 @@ export default {
       isempt: false,
       loading: false,
       avatar: require('@/assets/image/shop.jpg'),
-      show: false
+      show: false,
+      moment
     }
   },
   components: {
@@ -94,6 +101,40 @@ export default {
         .then(resJson => {
           this.dataDetail = resJson.Data
         })
+    },
+    cancelOrder(orderCode) {
+      this.$dialog.alert({
+        message: '确定取消吗?',
+        showConfirmButton: true,
+        showCancelButton: true,
+        beforeClose: (action, done) => {
+          if (action === 'confirm') {
+            this.$http.get('/ServerFood/F_Order/CancelOrder?orderCode=' + orderCode).then(resJson => {
+              if (resJson.Success) {
+                if (resJson.Data) {
+                  this.$message.success('操作成功!')
+                  this.getDataList()
+                } else {
+                  this.$message.error('操作失败!')
+                }
+              } else {
+                this.$message.error(resJson.Msg)
+              }
+              done()
+            })
+          } else {
+            done()
+          }
+        }
+      })
+    },
+    confirm(e) {
+      console.log(e)
+      this.$message.success('Click on Yes')
+    },
+    cancel(e) {
+      console.log(e)
+      this.$message.error('Click on No')
     }
   }
 }

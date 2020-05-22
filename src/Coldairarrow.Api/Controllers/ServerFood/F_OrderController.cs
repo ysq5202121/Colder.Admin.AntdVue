@@ -66,6 +66,7 @@ namespace Coldairarrow.Api.Controllers.ServerFood
             }
             else
             {
+                InitUpdateEntity(data);
                 await _f_OrderBus.UpdateDataAsync(data);
             }
         }
@@ -79,10 +80,20 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         }
 
         [HttpPost]
+        [ApiPermission("F_Order.Delete")]
         public async Task DeleteData(List<string> ids)
         {
             await _f_OrderBus.DeleteDataAsync(ids);
         }
+
+        [HttpGet]
+        [NoCheckJWT]
+        [CheckJWTClient]
+        public async Task<bool> CancelOrder(string orderCode)
+        {
+           return await _f_OrderBus.CancelOrderAsync(orderCode);
+        }
+
 
         #endregion
     }

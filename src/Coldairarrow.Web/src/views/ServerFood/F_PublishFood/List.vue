@@ -8,6 +8,7 @@
         @click="handleDelete(selectedRowKeys)"
         :disabled="!hasSelected()"
         :loading="loading"
+        v-if="hasPerm('F_PublishFood.Delete')"
       >删除</a-button>
     </div>
 
@@ -52,6 +53,8 @@
       <span slot="action" slot-scope="text, record">
         <template>
           <a @click="handleEdit(record.Id)">编辑</a>
+          <a-divider type="vertical" v-if="hasPerm('F_PublishFood.Delete')"/>
+          <a @click="handleDelete([record.Id])" v-if="hasPerm('F_PublishFood.Delete')">删除</a>
         </template>
       </span>
       <span slot="ImgUrl" slot-scope="image">

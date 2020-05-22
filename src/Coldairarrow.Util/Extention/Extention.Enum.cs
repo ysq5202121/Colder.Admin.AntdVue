@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection;
 
 namespace Coldairarrow.Util
 {
@@ -30,6 +33,25 @@ namespace Coldairarrow.Util
                 return value.ToString();
             }
             
+        }
+
+        /// <summary>
+        /// 获取枚举DisplayName
+        /// </summary>
+        public static string ToDisplayName(this Enum obj)
+        {
+            try
+            {
+                if (obj == null) return null;
+                var field = obj.GetType().GetField(obj.ToString());//通过这个类型获取到值
+                if (field == null) return null;
+                return ((DisplayAttribute)field.GetCustomAttribute(typeof(DisplayAttribute))).Name;//得到特性
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+
         }
     }
 }

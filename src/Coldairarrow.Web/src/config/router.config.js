@@ -68,7 +68,15 @@ export const constantRouterMap = [
   {
     path: '/WeChat/index',
     name: 'index',
-    component: () => import('@/views/WeChat/index')
+    component: () => import('@/views/WeChat/index'),
+    beforeEnter: (to, from, next) => {
+      // 路由导航拦截 modify by ysq 2020-04-29
+      if (localStorage.getItem('jwtToken')) {
+        next({ path: '/ClientFood/Order' })
+      } else {
+        next()
+      }
+    }
   },
   {
     path: '/WeChat/Authorize',

@@ -72,5 +72,18 @@ namespace Coldairarrow.Entity.ServerFood
         /// </summary>
         public DateTime? UpdateTime { get; set; }
 
+        /// <summary>
+        /// 可取消时间
+        /// </summary>
+        public DateTime? CancellableTime { get; set; }
+        /// <summary>
+        /// 可评价时间
+        /// </summary>
+        public DateTime? CanEvaluableTime { get; set; }
+        /// <summary>
+        /// 可领取时间
+        /// </summary>
+        public DateTime? StartReceiveTime { get; set; }
+
     }
 }

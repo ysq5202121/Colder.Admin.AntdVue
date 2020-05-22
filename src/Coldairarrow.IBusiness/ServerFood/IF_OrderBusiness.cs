@@ -9,6 +9,8 @@ namespace Coldairarrow.Business.ServerFood
     {
         Task<PageResult<IF_OrderResultDTO>> GetDataListAsync(PageInput<ConditionDTO> input);
         Task<List<IF_OrderResultDTO>> GetDataListToMoblieAsync();
+
+        Task<bool> CancelOrderAsync(string id);
         Task PlaceOrderAsync(List<IF_OrderInputDTO> data);
         Task<byte[]> ExcelToExport(ConditionDTO input);
         Task<F_Order> GetTheDataAsync(string id);
@@ -36,6 +38,8 @@ namespace Coldairarrow.Business.ServerFood
         public string SupplierName { get; set; }
 
         public string ImageUrl { get; set; }
+
+        public string StatusName { get; set; }
 
     }
 }
