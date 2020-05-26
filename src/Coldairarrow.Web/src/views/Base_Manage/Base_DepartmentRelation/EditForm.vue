@@ -9,11 +9,16 @@
   >
     <a-spin :spinning="loading">
       <a-form-model ref="form" :model="entity" :rules="rules" v-bind="layout">
-        <a-form-model-item label="门店名称" prop="ShopName">
-          <a-input v-model="entity.ShopName" autocomplete="off" />
+        <a-form-model-item label="新部门" prop="Department">
+          <a-select v-model="entity.Department" mode="tags">
+            <a-select-option v-for="item in DepartmentList" :key="item">{{ item }}</a-select-option>
+          </a-select>
         </a-form-model-item>
-        <a-form-model-item label="门店描述" prop="ShopDesc">
-          <a-input v-model="entity.ShopDesc" autocomplete="off" />
+        <a-form-model-item label="旧部门" prop="OldDepartment">
+          <a-input v-model="entity.OldDepartment" autocomplete="off" />
+        </a-form-model-item>
+        <a-form-model-item label="备注" prop="Remark">
+          <a-input v-model="entity.Remark" autocomplete="off" />
         </a-form-model-item>
       </a-form-model>
     </a-spin>
@@ -23,10 +28,16 @@
 <script>
 export default {
   props: {
-    // eslint-disable-next-line vue/require-default-prop
     parentObj: Object
   },
   data() {
+    const validateDepartment = (rule, value, callback) => {
+      if (value.length > 1) {
+        callback(new Error('不能选择多个'))
+      } else {
+        callback()
+      }
+    }
     return {
       layout: {
         labelCol: { span: 5 },
@@ -35,14 +46,24 @@ export default {
       visible: false,
       loading: false,
       entity: {},
-      rules: { ShopName: [{ required: true, message: '必填' }] },
-      title: ''
+      DepartmentList: {},
+      rules: {
+        Department: [
+          { required: true, message: '必填', trigger: 'change' },
+          { validator: validateDepartment, trigger: 'change' }
+        ],
+        OldDepartment: [{ required: true, message: '必填' }]
+      },
+      title: '编辑'
     }
   },
   methods: {
     init() {
       this.visible = true
       this.entity = {}
+      this.$http.post('/Base_Manage/Base_DepartmentRelation/GetNewDepartmentList').then(resJson => {
+        this.DepartmentList = resJson.Data
+      })
       this.$nextTick(() => {
         this.$refs['form'].clearValidate()
       })
@@ -52,7 +73,7 @@ export default {
 
       if (id) {
         this.loading = true
-        this.$http.post('/ServerFood/F_ShopInfo/GetTheData', { id: id }).then(resJson => {
+        this.$http.post('/Base_Manage/Base_DepartmentRelation/GetTheData', { id: id }).then(resJson => {
           this.loading = false
 
           this.entity = resJson.Data
@@ -65,7 +86,8 @@ export default {
           return
         }
         this.loading = true
-        this.$http.post('/ServerFood/F_ShopInfo/SaveData', this.entity).then(resJson => {
+        this.entity.Department = this.entity.Department[0]
+        this.$http.post('/Base_Manage/Base_DepartmentRelation/SaveData', this.entity).then(resJson => {
           this.loading = false
 
           if (resJson.Success) {

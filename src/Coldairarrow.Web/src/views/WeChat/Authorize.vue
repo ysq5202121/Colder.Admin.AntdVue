@@ -1,6 +1,5 @@
 <template>
   <div>
-    <p>{{this.$route.query}}</p>
     <a-spin :spinning="loading">
       <van-dialog v-model="show" confirm-button-text="授权登录" :before-close="closeDiag">
         <a-card hoverable>
@@ -18,14 +17,14 @@
 export default {
   mounted() {
     this.code = this.$route.query.code
-    //this.CheckLogin(this.code)
+    // this.CheckLogin(this.code)
   },
   data: function() {
     return {
       data: {},
       code: '',
       loading: false,
-      show: false,
+      show: true,
       logoUrl: require('@/assets/logo.png'),
       dinnerUrl: require('@/assets/image/dinner.jpg')
     }

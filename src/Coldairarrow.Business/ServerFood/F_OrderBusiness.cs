@@ -197,7 +197,9 @@ namespace Coldairarrow.Business.ServerFood
                 SupplierName = string.Join(",", (from c in Service.GetIQueryable<F_OrderInfo>()
                     join d in Service.GetIQueryable<F_PublishFood>() on c.PublishFoodId equals d.Id
                     where c.OrderCode == a.OrderCode
-                    select d.SupplierName))
+                    select d.SupplierName)),
+                OldDepartmentName = Service.GetIQueryable<Base_DepartmentRelation>().FirstOrDefault(c =>c.Department==b.Department).OldDepartment
+
 
             };
 
@@ -229,6 +231,8 @@ namespace Coldairarrow.Business.ServerFood
                 dt.Columns["FoodName"].ColumnName = "菜品名称";
             if (dt.Columns.Contains("DepartmentName"))
                 dt.Columns["DepartmentName"].ColumnName = "部门名称";
+            if (dt.Columns.Contains("OldDepartmentName"))
+                dt.Columns["OldDepartmentName"].ColumnName = "旧部门";
             if (dt.Columns.Contains("OrderCount"))
                 dt.Columns["OrderCount"].ColumnName = "数量";
             if (dt.Columns.Contains("Price"))
@@ -255,6 +259,14 @@ namespace Coldairarrow.Business.ServerFood
                 dt.Columns.Remove(dt.Columns["ImageUrl"]);
             if (dt.Columns.Contains("Status"))
                 dt.Columns.Remove(dt.Columns["Status"]);
+            if (dt.Columns.Contains("StatusName"))
+                dt.Columns.Remove(dt.Columns["StatusName"]);
+            if (dt.Columns.Contains("CancellableTime"))
+                dt.Columns.Remove(dt.Columns["CancellableTime"]);
+            if (dt.Columns.Contains("CanEvaluableTime"))
+                dt.Columns.Remove(dt.Columns["CanEvaluableTime"]);
+            if (dt.Columns.Contains("StartReceiveTime"))
+                dt.Columns.Remove(dt.Columns["StartReceiveTime"]);
             await Task.CompletedTask;
             return AsposeOfficeHelper.DataTableToExcelBytes(dt);
         }

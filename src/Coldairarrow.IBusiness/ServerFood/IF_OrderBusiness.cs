@@ -41,5 +41,7 @@ namespace Coldairarrow.Business.ServerFood
 
         public string StatusName { get; set; }
 
+        public string OldDepartmentName { get; set; }
+
     }
 }

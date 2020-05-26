@@ -50,6 +50,7 @@ namespace Coldairarrow.Api.Controllers.ServerRoom
             }
             else
             {
+                InitUpdateEntity(data);
                 await _c_MakeConferenceRoomBus.UpdateDataAsync(data);
             }
         }

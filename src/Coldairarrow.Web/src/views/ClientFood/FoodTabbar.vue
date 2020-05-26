@@ -12,6 +12,7 @@
 export default {
   date: {},
   props: {
+    // eslint-disable-next-line vue/require-default-prop
     badge: Number
   }
 }

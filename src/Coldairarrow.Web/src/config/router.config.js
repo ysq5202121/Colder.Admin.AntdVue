@@ -92,6 +92,26 @@ export const constantRouterMap = [
     }
   },
   {
+    path: '/ClientRoom/ConferenceRoom',
+    name: 'ConferenceRoom',
+    component: () => import('@/views/ClientRoom/ConferenceRoom')
+  },
+  {
+    path: '/ClientRoom/MyMeeting',
+    name: 'MyMeeting',
+    component: () => import('@/views/ClientRoom/MyMeeting')
+  },
+  {
+    path: '/ClientRoom/More',
+    name: 'More',
+    component: () => import('@/views/ClientRoom/More')
+  },
+  {
+    path: '/ClientRoom/AppointmentMeetingRoom',
+    name: 'AppointmentMeetingRoom',
+    component: () => import('@/views/ClientRoom/AppointmentMeetingRoom')
+  },
+  {
     path: '/404',
     component: () => import('@/views/exception/404')
   }
