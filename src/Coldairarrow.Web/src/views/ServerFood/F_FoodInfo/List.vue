@@ -58,11 +58,12 @@
       :rowSelection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
       :bordered="true"
       size="small"
+      :scroll="{ x: 'calc(750px + 50%)'}"
     >
       <span slot="action" slot-scope="text, record">
         <template>
           <a @click="handleEdit(record.Id)">编辑</a>
-          <a-divider type="vertical" v-if="hasPerm('F_FoodInfo.Delete')"/>
+          <a-divider type="vertical" v-if="hasPerm('F_FoodInfo.Delete')" />
           <a @click="handleDelete([record.Id])" v-if="hasPerm('F_FoodInfo.Delete')">删除</a>
         </template>
       </span>
@@ -73,7 +74,8 @@
           size="large"
           shape="square"
           style="cursor:pointer"
-          @click="handleOpenImg(image)" />
+          @click="handleOpenImg(image)"
+        />
       </span>
     </a-table>
 
@@ -90,7 +92,7 @@ import EditForm from './EditForm'
 const columns = [
   { title: '门店名称', dataIndex: 'ShopName', width: 150 },
   { title: '商家名称', dataIndex: 'SupplierName', width: 100 },
-  { title: '菜品名称', dataIndex: 'FoodName' },
+  { title: '菜品名称', dataIndex: 'FoodName', width: 300 },
   { title: '综合评分', dataIndex: 'Score', width: 110 },
   { title: '评价人数', dataIndex: 'EvaluatorsNumber', width: 100 },
   { title: '价格', dataIndex: 'Price', width: 100 },
@@ -98,7 +100,7 @@ const columns = [
   { title: '创建时间', dataIndex: 'CreateTime', width: 150 },
   { title: '创建人', dataIndex: 'CreatorName', width: 100 },
   { title: '修改人', dataIndex: 'UpdateName', width: 100 },
-  { title: '修改时间', dataIndex: 'UpdateTime', width: 150 },
+  { title: '修改时间', dataIndex: 'UpdateTime', width: 200 },
   { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, fixed: 'right', width: 100 }
 ]
 
@@ -209,10 +211,10 @@ export default {
         }
       })
     },
-    handleCancel () {
+    handleCancel() {
       this.previewVisible = false
     },
-    handleOpenImg (image) {
+    handleOpenImg(image) {
       this.previewVisible = true
       this.previewImage = image
     }

@@ -9,14 +9,18 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Coldairarrow.Entity.Base_Manage;
+using Quartz.Impl.Matchers;
 
 namespace Coldairarrow.Business.ServerFood
 {
     public class F_OrderInfoBusiness : BaseBusiness<F_OrderInfo>, IF_OrderInfoBusiness, ITransientDependency
     {
-        public F_OrderInfoBusiness(IRepository repository)
+        public IOperator oOperator;
+        public F_OrderInfoBusiness(IRepository repository, IOperator op)
             : base(repository)
         {
+            oOperator = op;
         }
 
         #region 外部接口
@@ -83,6 +87,56 @@ namespace Coldairarrow.Business.ServerFood
             where = where.And(a=>a.OrderCode==input.Keyword);
 
             return await q.Where(where).ToListAsync();
+        }
+
+        /// <summary>
+        /// 扫描取同一个部门餐
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<IF_OrderInfoResultDto>> ScanCodeAsyns()
+        {
+            Expression<Func<F_OrderInfo, F_PublishFood, Base_DepartmentRelation, IF_OrderInfoResultDto>> select = (a, b,c) => new IF_OrderInfoResultDto
+            {
+                FoodName = b.FoodName,
+                Price = b.Price,
+                ImageUrl = b.ImgUrl,
+                FoodDesc = b.FoodDesc,
+                SupplierName = b.SupplierName,
+                OldDepartment = c.OldDepartment
+            };
+            var toDay = DateTime.Now.Date;
+            select = select.BuildExtendSelectExpre();
+            var q = from a in GetIQueryable().AsExpandable()
+                join b in Service.GetIQueryable<F_PublishFood>() on a.PublishFoodId equals b.Id into ab
+                from b in ab.DefaultIfEmpty()
+                join e in Service.GetIQueryable<F_Order>() on a.OrderCode equals e.OrderCode
+                join c in Service.GetIQueryable<F_UserInfo>() on a.CreatorId equals c.Id
+                join d in Service.GetIQueryable<Base_DepartmentRelation>() on c.Department equals d.Department into cd
+                from d in cd.DefaultIfEmpty()
+                where a.CreateTime > toDay && a.CreateTime < toDay.AddDays(1) && e.Status!=4
+                select @select.Invoke(a, b,d);
+            var where = LinqHelper.True<IF_OrderInfoResultDto>();
+
+            var userInfo = Service.GetIQueryable<F_UserInfo>().Where(a => a.WeCharUserId == oOperator.UserId)?.FirstOrDefault();
+            if (userInfo == null) throw new BusException("获取用户信息失败!");
+           
+            //根据部门获取所有成员信息
+            var oldDepartment =  (from a in Service.GetIQueryable<Base_DepartmentRelation>()
+                join b in Service.GetIQueryable<F_UserInfo>() on a.Department equals b.Department
+                select a.OldDepartment).FirstOrDefault();
+           
+            if (!oldDepartment.IsNullOrEmpty())
+            {
+                where.And(a =>
+                    a.OldDepartment == oldDepartment);
+            }
+            else
+            {
+                where.And(a =>
+                    a.CreatorId == userInfo.Id);
+            }
+            return await q.Where(where).ToListAsync();
+
         }
 
         public async Task<F_OrderInfo> GetTheDataAsync(string id)

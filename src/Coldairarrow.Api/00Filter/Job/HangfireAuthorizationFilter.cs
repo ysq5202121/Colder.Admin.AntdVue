@@ -15,8 +15,7 @@ namespace Coldairarrow.Api
 {
     public class HangfireAuthorizationFilter : IDashboardAuthorizationFilter
     {
-        private static readonly int _errorCode = 401;
-        public string JwtKey = JWTHelper.JWTSecret;
+        public string _jwtKey = JWTHelper.JWTSecret;
         public bool Authorize([NotNull] DashboardContext context)
         {
 
@@ -27,35 +26,33 @@ namespace Coldairarrow.Api
                 // 获取cookie
                 token = req.Cookies["Authorization"];
             }
-            try
+            else
             {
-
+                //设置cookie
+                context.GetHttpContext().Response.Cookies.Append("Authorization", token);
+            }
+            try
+            { 
                 if (token.IsNullOrEmpty())
                 {
-                    //context.Result = Error("缺少token", _errorCode);
                     return false;
                 }
 
-                if (!JWTHelper.CheckToken(token, JwtKey))
+                if (!JWTHelper.CheckToken(token, _jwtKey))
                 {
-                    //context.Result = Error("token校验失败!", _errorCode);
                     return false;
                 }
 
                 var payload = JWTHelper.GetPayload<JWTPayload>(token);
                 if (payload.Expire < DateTime.Now)
                 {
-                    //context.Result = Error("token过期!", _errorCode);
                     return false;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                //context.Result = Error(ex.Message, _errorCode);
                 return false;
             }
-            //设置cookie
-            context.GetHttpContext().Response.Cookies.Append("Authorization", token);
             return true;
         }
 

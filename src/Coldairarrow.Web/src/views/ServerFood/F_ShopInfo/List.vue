@@ -53,6 +53,8 @@
     >
       <span slot="action" slot-scope="text, record">
         <template>
+          <a download="true" :href="getBarCodeUrl+'&id='+record.Id">二维码</a>
+          <a-divider type="vertical" v-if="hasPerm('F_ShopInfo.Delete')" />
           <a @click="handleEdit(record.Id)">编辑</a>
           <a-divider type="vertical" v-if="hasPerm('F_ShopInfo.Delete')" />
           <a @click="handleDelete([record.Id])" v-if="hasPerm('F_ShopInfo.Delete')">删除</a>
@@ -66,7 +68,8 @@
 
 <script>
 import EditForm from './EditForm'
-
+import defaultSettings from '@/config/defaultSettings'
+import ProcessHelper from '@/utils/helper/ProcessHelper'
 const columns = [
   { title: '门店名称', dataIndex: 'ShopName', width: 200 },
   { title: '门店描述', dataIndex: 'ShopDesc' },
@@ -74,7 +77,7 @@ const columns = [
   { title: '创建时间', dataIndex: 'CreateTime', width: 200 },
   { title: '修改人', dataIndex: 'UpdateName', width: 100 },
   { title: '修改时间', dataIndex: 'UpdateTime', width: 200 },
-  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, fixed: 'right', width: 100 }
+  { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, fixed: 'right', width: 150 }
 ]
 
 export default {
@@ -83,6 +86,17 @@ export default {
   },
   mounted() {
     this.getDataList()
+  },
+  computed: {
+    getBarCodeUrl() {
+      if (ProcessHelper.isProduction() || ProcessHelper.isPreview()) {
+        return (
+          defaultSettings.publishRootUrl + '/ServerFood/F_ShopInfo/GetBarCode?url=' + defaultSettings.publishRootUrl
+        )
+      } else {
+        return defaultSettings.localRootUrl + '/ServerFood/F_ShopInfo/GetBarCode?url=' + defaultSettings.localRootUrl
+      }
+    }
   },
   data() {
     return {

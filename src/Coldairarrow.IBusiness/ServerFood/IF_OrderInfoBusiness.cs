@@ -12,6 +12,7 @@ namespace Coldairarrow.Business.ServerFood
         Task<List<IF_OrderInfoResultDto>> GetDataListNoPageAsync(ConditionDTO input);
 
         Task<List<IF_OrderInfoResultDto>> GetDataListToMoblieAsync(ConditionDTO input);
+        Task<List<IF_OrderInfoResultDto>> ScanCodeAsyns();
 
         Task<F_OrderInfo> GetTheDataAsync(string id);
         Task AddDataAsync(F_OrderInfo data);
@@ -29,6 +30,8 @@ namespace Coldairarrow.Business.ServerFood
         public string FoodDesc { get; set; }
 
         public string SupplierName { get; set; }
+
+        public string OldDepartment { get; set; }
 
 
     }

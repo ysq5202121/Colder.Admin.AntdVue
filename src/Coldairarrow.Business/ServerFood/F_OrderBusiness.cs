@@ -283,6 +283,21 @@ namespace Coldairarrow.Business.ServerFood
             var orderInfo= GetIQueryable().Where(a => a.OrderCode == orderCode)?.FirstOrDefault();
             if(orderInfo==null) throw new BusException("取消异常!");
             if(DateTime.Now>orderInfo.CancellableTime) throw new BusException("不再取消时间内!");
+            if (orderInfo.Status == 4) throw new BusException("已经取消!");
+            //增加商品数量
+            var query =await Service.GetIQueryable<F_OrderInfo>().Where(a => a.OrderCode == orderCode).ToListAsync();
+            query.ForEach(a =>
+                {
+                     Service.UpdateWhere<F_PublishFood>(b => b.Id == a.PublishFoodId,
+                        b =>
+                        {
+                            b.FoodQty = b.FoodQty + a.OrderInfoQty;
+                            b.UpdateTime = DateTime.Now;
+                            b.UpdateName = oOperator.WeChatProperty.UserName;
+                            b.UpdateId = oOperator.WeChatProperty.Id;
+
+                        });
+                });
             int result=  await  UpdateWhereAsync(a => a.OrderCode == orderCode, a =>
             {
                 a.Status = 4;

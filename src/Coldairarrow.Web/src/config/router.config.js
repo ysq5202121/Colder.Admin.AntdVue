@@ -66,6 +66,11 @@ export const constantRouterMap = [
     component: () => import('@/views/ClientFood/FoodTabbar')
   },
   {
+    path: '/ClientFood/ScanCode',
+    name: 'ScanCode',
+    component: () => import('@/views/ClientFood/ScanCode')
+  },
+  {
     path: '/WeChat/index',
     name: 'index',
     component: () => import('@/views/WeChat/index'),

@@ -32,5 +32,6 @@ namespace Coldairarrow.Api.Controllers.Wechat
             return await _f_UserInfoBus.CheckLogin(code);
         }
 
+
     }
 }

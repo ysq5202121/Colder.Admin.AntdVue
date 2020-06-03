@@ -24,7 +24,7 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         #region 获取
 
         [HttpPost]
-        public async Task<PageResult<F_PublishFoodResultDto>> GetDataList(PageInput<ConditionDTO> input)
+        public async Task<PageResult<F_PublishFoodResultDto>> GetDataList(PageInput<F_PublishFoodInputDto> input)
         {
             return await _f_PublishFoodBus.GetDataListAsync(input);
         }

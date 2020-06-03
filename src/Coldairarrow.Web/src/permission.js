@@ -9,8 +9,8 @@ import defaultSettings from '@/config/defaultSettings'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const whiteList = ['Login', 'FoodCenter', 'index', 'Authorize', 'Order', 'OrderList', 'UserInfo', 'OrderOk', 'ConferenceRoom', 'MyMeeting', 'More', 'AppointmentMeetingRoom'] // no redirect whitelist
-const noProgress = ['FoodCenter', 'index', 'Authorize', 'Order', 'OrderList', 'UserInfo', 'OrderOk'] // no NProgress
+const whiteList = ['Login', 'FoodCenter', 'index', 'Authorize', 'Order', 'OrderList', 'UserInfo', 'OrderOk', 'ConferenceRoom', 'MyMeeting', 'More', 'AppointmentMeetingRoom','ScanCode'] // no redirect whitelist
+const noProgress = ['FoodCenter', 'index', 'Authorize', 'Order', 'OrderList', 'UserInfo', 'OrderOk','ScanCode'] // no NProgress
 router.beforeEach((to, from, next) => {
   if (!noProgress.includes(to.name)) {
     NProgress.start() // start progress bar

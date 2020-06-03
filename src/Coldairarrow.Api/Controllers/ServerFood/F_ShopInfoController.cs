@@ -3,6 +3,9 @@ using Coldairarrow.Entity.ServerFood;
 using Coldairarrow.Util;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Coldairarrow.Api.Controllers.ServerFood
@@ -74,6 +77,17 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         public async Task DeleteData(List<string> ids)
         {
             await _f_ShopInfoBus.DeleteDataAsync(ids);
+        }
+
+        [HttpGet]
+        [NoCheckJWT]
+        public async Task GetBarCode(string url,string id)
+        {
+            Response.ContentType = "image/jpeg";
+            MemoryStream tempStream = new MemoryStream();
+            QRCodeHelper.BuildQRCode(url + "/clientfood/scancode?id="+ id).Save(tempStream, ImageFormat.Png);
+            await Response.Body.WriteAsync(tempStream.ToArray());
+             ;
         }
 
         #endregion

@@ -23,7 +23,7 @@ namespace Coldairarrow.Business.ServerFood
 
         #region 外部接口
 
-        public async Task<PageResult<F_PublishFoodResultDto>> GetDataListAsync(PageInput<ConditionDTO> input)
+        public async Task<PageResult<F_PublishFoodResultDto>> GetDataListAsync(PageInput<F_PublishFoodInputDto> input)
         {
             Expression<Func<F_PublishFood, F_ShopInfo, F_PublishFoodResultDto>> select = (a, b) => new F_PublishFoodResultDto
             {
@@ -46,6 +46,11 @@ namespace Coldairarrow.Business.ServerFood
                 where = where.And(newWhere);
             }
 
+            if (!search.PublishFoodTime.IsNullOrEmpty())
+            {
+                where=where.And(a =>
+                    a.CreateTime > search.PublishFoodTime.ToDateTime() && a.CreateTime < search.PublishFoodTime.ToDateTime().AddDays(1));
+            }
             return await q.Where(where).GetPageResultAsync(input);
         }
 

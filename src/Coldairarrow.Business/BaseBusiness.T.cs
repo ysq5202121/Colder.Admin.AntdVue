@@ -26,6 +26,7 @@ namespace Coldairarrow.Business
         public BaseBusiness(IRepository repository)
         {
             Service = repository;
+            //Service.HandleSqlLog();
         }
 
         #endregion

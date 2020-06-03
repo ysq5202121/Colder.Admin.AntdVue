@@ -30,6 +30,16 @@
               <a-input v-model="queryParam.keyword" placeholder="关键字" />
             </a-form-item>
           </a-col>
+          <a-col :md="4" :sm="24">
+            <a-form-item label="查询时间">
+              <a-date-picker
+                placeholder="发布时间"
+                v-model="queryParam.PublishFoodTime"
+                :defaultValue="defaultToDay"
+                valueFormat="YYYY-MM-DD"
+              />
+            </a-form-item>
+          </a-col>
           <a-col :md="6" :sm="24">
             <a-button type="primary" @click="getDataList">查询</a-button>
             <a-button style="margin-left: 8px" @click="() => (queryParam = {})">重置</a-button>
@@ -48,12 +58,13 @@
       @change="handleTableChange"
       :rowSelection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
       :bordered="true"
+      :scroll="{ x: 'calc(750px + 50%)'}"
       size="small"
     >
       <span slot="action" slot-scope="text, record">
         <template>
           <a @click="handleEdit(record.Id)">编辑</a>
-          <a-divider type="vertical" v-if="hasPerm('F_PublishFood.Delete')"/>
+          <a-divider type="vertical" v-if="hasPerm('F_PublishFood.Delete')" />
           <a @click="handleDelete([record.Id])" v-if="hasPerm('F_PublishFood.Delete')">删除</a>
         </template>
       </span>
@@ -78,11 +89,12 @@
 
 <script>
 import EditForm from './EditForm'
+import moment from 'moment'
 
 const columns = [
   { title: '门店名称', dataIndex: 'ShopName', width: 100 },
   { title: '商家名称', dataIndex: 'SupplierName', width: 100 },
-  { title: '菜品名称', dataIndex: 'FoodName' },
+  { title: '菜品名称', dataIndex: 'FoodName', width: 280 },
   { title: '菜品数量', dataIndex: 'FoodQty', width: 100 },
   { title: '价格', dataIndex: 'Price', width: 100 },
   { title: '图片', dataIndex: 'ImgUrl', width: 50, scopedSlots: { customRender: 'ImgUrl' } },
@@ -90,7 +102,7 @@ const columns = [
   { title: '创建人', dataIndex: 'CreatorName', width: 100 },
   { title: '创建时间', dataIndex: 'CreateTime', width: 150, sorter: true },
   { title: '修改人', dataIndex: 'UpdateName', width: 100 },
-  { title: '修改时间', dataIndex: 'UpdateTime', width: 150 },
+  { title: '修改时间', dataIndex: 'UpdateTime', width: 200 },
   { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, fixed: 'right', width: 100 }
 ]
 
@@ -116,7 +128,8 @@ export default {
       queryParam: {},
       selectedRowKeys: [],
       previewVisible: false,
-      previewImage: ''
+      previewImage: '',
+      defaultToDay: moment(new Date())
     }
   },
   methods: {
@@ -127,6 +140,10 @@ export default {
       this.getDataList()
     },
     getDataList() {
+      console.log(this.queryParam.PublishFoodTime)
+      if (this.queryParam.PublishFoodTime === undefined) {
+        this.queryParam.PublishFoodTime = this.defaultToDay
+      }
       this.selectedRowKeys = []
       this.loading = true
       this.$http

@@ -104,59 +104,74 @@ namespace Coldairarrow.Business.ServerFood
 
         public async Task<string> Login(string code)
         {
-           string token= WeChatOperation.GetToken(EnumWeChatAppType.Food);
-           if(token==null) throw new BusException("获取授权token失败!");
-           string userId = WeChatOperation.GetUserId(code,token);
-           if (userId == null) throw new BusException("获取授权userId失败");
-           //缓存token,不重复获取
-           //查询用户信息
-           var userInfo = GetIQueryable().Where(a => a.WeCharUserId == userId)?.FirstOrDefault();
-           if (userInfo == null || string.IsNullOrEmpty(userInfo.Department))
-           {
-               WeChatUserInfo weChatUserInfo = WeChatOperation.GetUserInfo(token, userId);
-               WeChatDepartmentList weChatDepartmentList = null;
-               if (weChatUserInfo == null) throw new BusException("获取用户信息失败,登录失败!");
-               if (!string.IsNullOrEmpty(weChatUserInfo.main_department))
-               {
-                   weChatDepartmentList = WeChatOperation.GetDepartment(token, weChatUserInfo.main_department);
-                   if (weChatDepartmentList == null) throw new BusException("应用未对部门授权!");
-               }
-               if (userInfo == null)
-               {
-                   F_UserInfo fUserInfo = new F_UserInfo()
-                   {
-                       Id = IdHelper.GetId(),
-                       IsAdmin = false,
-                       ShopInfoId = "",
-                       UserName = weChatUserInfo.name,
-                       UserImgUrl = weChatUserInfo.avatar,
-                       WeCharUserId = weChatUserInfo.userid,
-                       Department = weChatDepartmentList?.department?.FirstOrDefault()?.name,
-                       CreateTime = DateTime.Now,
-                       CreatorId = "system",
-                       CreatorName = weChatUserInfo.name,
-                   };
-                   await InsertAsync(fUserInfo);
-               }
-               else if (string.IsNullOrEmpty(userInfo.Department))
-               {
-                   //更新部门
-                   userInfo.Department = weChatDepartmentList?.department?.FirstOrDefault()?.name;
-                   userInfo.UpdateTime = DateTime.Now;
-                   userInfo.UpdateName = userInfo.UserName;
-                   userInfo.UpdateId = userInfo.UpdateId;
-                   await Service.UpdateAnyAsync(userInfo,
-                       new List<string>() {"Department", "UpdateTime", "UpdateName", "UpdateId"});
-               }
-           }
-           //生成token,有效期一个星期
-           JWTPayload jWTPayload = new JWTPayload
-           {
-               UserId = userId,
-               Expire = DateTime.Now.AddDays(7)
-           };
-           string tk = JWTHelper.GetToken(jWTPayload.ToJson(), JWTHelper.JWTClient);
-           return tk;
+            string token = WeChatOperation.GetToken(EnumWeChatAppType.Food);
+            if (token == null) throw new BusException("获取授权token失败!");
+            string userId = WeChatOperation.GetUserId(code, token);
+            if (userId == null) throw new BusException("获取授权userId失败");
+            //缓存token,不重复获取
+            //查询用户信息
+            var userInfo = GetIQueryable().Where(a => a.WeCharUserId == userId)?.FirstOrDefault();
+            if (userInfo == null || string.IsNullOrEmpty(userInfo.Department))
+            {
+                WeChatUserInfo weChatUserInfo = WeChatOperation.GetUserInfo(token, userId);
+                WeChatDepartmentList weChatDepartmentList = null;
+                WeChatDepartmentList lastWeChatDepartmentList = null;
+                string departmentPath = string.Empty;
+                if (weChatUserInfo == null) throw new BusException("获取用户信息失败,登录失败!");
+                if (!string.IsNullOrEmpty(weChatUserInfo.main_department))
+                {
+                    weChatDepartmentList = WeChatOperation.GetDepartment(token, weChatUserInfo.main_department);
+                    if (weChatDepartmentList == null) throw new BusException("应用未对部门授权!");
+                    lastWeChatDepartmentList = WeChatOperation.GetDepartment(token,
+                        weChatDepartmentList?.department.FirstOrDefault()?.parentid);
+                    if (lastWeChatDepartmentList == null)
+                    {
+                        departmentPath = weChatDepartmentList?.department?.FirstOrDefault()?.name;
+                    }
+                    else
+                    {
+                        departmentPath = lastWeChatDepartmentList?.department?.FirstOrDefault()?.name + "/" +
+                                         weChatDepartmentList?.department?.FirstOrDefault()?.name;
+                    }
+                }
+                if (userInfo == null)
+                {
+                    F_UserInfo fUserInfo = new F_UserInfo()
+                    {
+                        Id = IdHelper.GetId(),
+                        IsAdmin = false,
+                        ShopInfoId = "",
+                        UserName = weChatUserInfo.name,
+                        UserImgUrl = weChatUserInfo.avatar,
+                        WeCharUserId = weChatUserInfo.userid,
+                        Department = departmentPath,
+                        CreateTime = DateTime.Now,
+                        CreatorId = "system",
+                        CreatorName = weChatUserInfo.name,
+                    };
+                    await InsertAsync(fUserInfo);
+                }
+                else if (string.IsNullOrEmpty(userInfo.Department))
+                {
+                    //更新部门//组合倒数第二级部门
+
+                    userInfo.Department = departmentPath;
+                    userInfo.UpdateTime = DateTime.Now;
+                    userInfo.UpdateName = userInfo.UserName;
+                    userInfo.UpdateId = userInfo.UpdateId;
+                    await Service.UpdateAnyAsync(userInfo,
+                        new List<string>() {"Department", "UpdateTime", "UpdateName", "UpdateId"});
+                }
+            }
+
+            //生成token,有效期一个星期
+            JWTPayload jWTPayload = new JWTPayload
+            {
+                UserId = userId,
+                Expire = DateTime.Now.AddDays(7)
+            };
+            string tk = JWTHelper.GetToken(jWTPayload.ToJson(), JWTHelper.JWTClient);
+            return tk;
         }
 
         public async Task<bool> CheckLogin(string code)
