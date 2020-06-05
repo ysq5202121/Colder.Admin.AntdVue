@@ -34,9 +34,11 @@
             <a-form-item label="查询时间">
               <a-date-picker
                 placeholder="发布时间"
+                type="date"
                 v-model="queryParam.PublishFoodTime"
                 :defaultValue="defaultToDay"
                 valueFormat="YYYY-MM-DD"
+                ref="PublishFoodTime"
               />
             </a-form-item>
           </a-col>
@@ -47,7 +49,6 @@
         </a-row>
       </a-form>
     </div>
-
     <a-table
       ref="table"
       :columns="columns"
@@ -111,6 +112,7 @@ export default {
     EditForm
   },
   mounted() {
+    //this.$refs.PublishFoodTime.blur()
     this.getDataList()
   },
   data() {
@@ -125,7 +127,9 @@ export default {
       sorter: { field: 'CreateTime', order: 'desc' },
       loading: false,
       columns,
-      queryParam: {},
+      queryParam: {
+        PublishFoodTime: moment(new Date())
+      },
       selectedRowKeys: [],
       previewVisible: false,
       previewImage: '',
@@ -140,10 +144,7 @@ export default {
       this.getDataList()
     },
     getDataList() {
-      console.log(this.queryParam.PublishFoodTime)
-      if (this.queryParam.PublishFoodTime === undefined) {
-        this.queryParam.PublishFoodTime = this.defaultToDay
-      }
+
       this.selectedRowKeys = []
       this.loading = true
       this.$http
@@ -152,7 +153,9 @@ export default {
           PageRows: this.pagination.pageSize,
           SortField: this.sorter.field || 'Id',
           SortType: this.sorter.order,
-          Search: this.queryParam,
+          Search: this.queryParam || {
+            PublishFoodTime: this.defaultToDay
+          },
           ...this.filters
         })
         .then(resJson => {

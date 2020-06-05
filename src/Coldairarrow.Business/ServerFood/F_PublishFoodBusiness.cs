@@ -49,7 +49,7 @@ namespace Coldairarrow.Business.ServerFood
             if (!search.PublishFoodTime.IsNullOrEmpty())
             {
                 where=where.And(a =>
-                    a.CreateTime > search.PublishFoodTime.ToDateTime() && a.CreateTime < search.PublishFoodTime.ToDateTime().AddDays(1));
+                    a.PublishDate > search.PublishFoodTime.ToDateTime().Date && a.PublishDate < search.PublishFoodTime.ToDateTime().Date.AddDays(1));
             }
             return await q.Where(where).GetPageResultAsync(input);
         }

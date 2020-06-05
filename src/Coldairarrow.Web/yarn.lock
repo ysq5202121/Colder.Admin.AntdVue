@@ -1563,10 +1563,10 @@ ansi-styles@^3.2.0, ansi-styles@^3.2.1:
   dependencies:
     color-convert "^1.9.0"
 
-ant-design-vue@1.5.3:
-  version "1.5.3"
-  resolved "https://registry.yarnpkg.com/ant-design-vue/-/ant-design-vue-1.5.3.tgz#777a43a76dd233efc72abe9704103dbb2a95c558"
-  integrity sha512-wphTfLb5AzdUVSxgYr19BH9cPegZvaHBHayrIp8JVTYCnCpzu8R9Qzvdobflq7XkU1W/W8uep8uIElG5bdHa1Q==
+ant-design-vue@^1.6.2:
+  version "1.6.2"
+  resolved "https://registry.npm.taobao.org/ant-design-vue/download/ant-design-vue-1.6.2.tgz#983634caac9cdaca0b3a095b540105b4f76da29f"
+  integrity sha1-mDY0yqyc2soLOglbVAEFtPdtop8=
   dependencies:
     "@ant-design/icons" "^2.1.1"
     "@ant-design/icons-vue" "^2.0.0"

@@ -217,7 +217,7 @@ namespace Coldairarrow.Business.ServerFood
             {
 
                 where = where.And(a =>
-                    a.CreateTime > input.Keyword.ToDateTime() && a.CreateTime < input.Keyword.ToDateTime().AddDays(1)
+                    a.CreateTime > input.Keyword.ToDateTime().Date && a.CreateTime < input.Keyword.ToDateTime().Date.AddDays(1)
                                                               && a.Status != 4);
             }
 
