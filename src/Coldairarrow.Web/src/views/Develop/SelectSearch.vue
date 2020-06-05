@@ -36,6 +36,41 @@
           searchMode="server"
         ></c-select>
       </a-form-item>
+      <a-form-item label="远程搜索多选下拉" :labelCol="labelCol" :wrapperCol="wrapperCol">
+        <!--
+    value: null,
+    url: {
+      //远程获取选项接口地址,接口返回数据结构:[{value:'',text:''}]
+      type: String,
+      default: null
+    },
+    allowClear: {
+      //允许清空
+      type: Boolean,
+      default: true
+    },
+    searchMode: {
+      //搜索模式,'':关闭搜索,'local':本地搜索,'server':服务端搜索
+      type: String,
+      default: ''
+    },
+    options: {
+      //下拉项配置,若无url则必选,结构:[{value:'',text:''}]
+      type: Array,
+      default: () => []
+    },
+    multiple: {
+      type: Boolean,
+      default: false
+    }
+        -->
+        <c-select
+          v-model="entity.UserList2"
+          multiple
+          url="/Base_Manage/Base_Role/GetOptionList"
+          searchMode="server"
+        ></c-select>
+      </a-form-item>
       <a-form-item label="本地搜索下拉" :labelCol="labelCol" :wrapperCol="wrapperCol">
         <c-select v-model="entity.UserList1" multiple searchMode="local" :options="options"></c-select>
       </a-form-item>
@@ -80,14 +115,20 @@ export default {
     handleSubmit() {
       console.log('当前值:', this.entity)
       this.form.validateFields((errors, values) => {
-        //c-select组件若需要校验则必须手动校验
-        if (!this.entity.UserList || this.entity.UserList.length == 0) {
+        // c-select组件若需要校验则必须手动校验
+        if (!this.entity.UserList || this.entity.UserList.length === 0) {
           this.$message.error('请选择用户')
+          return
+        }
+        if (!this.entity.UserList2 || this.entity.UserList2.length === 0) {
+          this.$message.error('请选择角色')
           return
         }
         if (!errors) {
           //校验成功
           console.log('校验通过')
+          this.$message.success('校验成功')
+          return
         }
       })
     }

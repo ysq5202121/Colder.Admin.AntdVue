@@ -90,11 +90,9 @@ export default {
   computed: {
     getBarCodeUrl() {
       if (ProcessHelper.isProduction() || ProcessHelper.isPreview()) {
-        return (
-          defaultSettings.publishRootUrl + '/ServerFood/F_ShopInfo/GetBarCode?url=' + defaultSettings.publishRootUrl
-        )
+        return defaultSettings.publishRootUrl + '/ServerFood/F_ShopInfo/GetBarCode?url=' + defaultSettings.WeChatUrl
       } else {
-        return defaultSettings.localRootUrl + '/ServerFood/F_ShopInfo/GetBarCode?url=' + defaultSettings.localRootUrl
+        return defaultSettings.localRootUrl + '/ServerFood/F_ShopInfo/GetBarCode?url=' + defaultSettings.WeChatUrl
       }
     }
   },

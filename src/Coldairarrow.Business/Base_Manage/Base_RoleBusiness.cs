@@ -19,7 +19,7 @@ namespace Coldairarrow.Business.Base_Manage
         {
             _mapper = mapper;
         }
-
+        protected override string _textField => "RoleName";
         #region 外部接口
 
         public async Task<PageResult<Base_RoleOutputDTO>> GetDataListAsync(PageInput<RolesInputDTO> input)

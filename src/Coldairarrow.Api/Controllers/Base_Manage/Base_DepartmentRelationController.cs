@@ -39,6 +39,7 @@ namespace Coldairarrow.Api.Controllers.Base_Manage
         {
             return await _base_DepartmentRelationBus.GetTheDataAsync(input.id);
         }
+      
 
         #endregion
 
@@ -56,6 +57,18 @@ namespace Coldairarrow.Api.Controllers.Base_Manage
             else
             {
                 await _base_DepartmentRelationBus.UpdateDataAsync(data);
+            }
+        }
+        [HttpPost]
+        public async Task SaveDataList(DepartmentRelationInputDto data)
+        {
+            if (data.Id.IsNullOrEmpty())
+            {
+                await _base_DepartmentRelationBus.AddDataListAsync(data);
+            }
+            else
+            {
+                await _base_DepartmentRelationBus.UpdateDataListAsync(data);
             }
         }
 

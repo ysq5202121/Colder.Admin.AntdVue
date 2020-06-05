@@ -9,6 +9,8 @@ namespace Coldairarrow.Business.Base_Manage
     {
         Task<PageResult<Base_RoleOutputDTO>> GetDataListAsync(PageInput<RolesInputDTO> input);
         Task<Base_RoleOutputDTO> GetTheDataAsync(string id);
+
+        Task<List<SelectOption>> GetOptionListAsync(OptionListInputDTO input);
         Task AddDataAsync(RoleEditInputDTO input);
         Task UpdateDataAsync(RoleEditInputDTO input);
         Task DeleteDataAsync(List<string> ids);

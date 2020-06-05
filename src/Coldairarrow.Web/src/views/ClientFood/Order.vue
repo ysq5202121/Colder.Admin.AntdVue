@@ -125,7 +125,9 @@ export default {
           this.isCommitEmpt = true
           this.BeginTime = moment(newData[0].BeginTime).format('HH:mm')
           this.EndTime = moment(newData[0].EndTime).format('HH:mm')
-          this.time = moment(newData[0].EndTime) - moment(new Date())
+          var nowtime = moment(new Date()).format('HH:mm')
+          this.time =
+            moment('1900-01-01 ' + this.EndTime, moment.ISO_8601) - moment('1900-01-01 ' + nowtime, moment.ISO_8601)
         }
         if (this.data !== undefined && this.data.length === 0) {
           this.isempt = true

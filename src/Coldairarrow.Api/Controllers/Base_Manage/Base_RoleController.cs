@@ -56,7 +56,11 @@ namespace Coldairarrow.Api.Controllers.Base_Manage
                 await _roleBus.UpdateDataAsync(input);
             }
         }
-
+        [HttpPost]
+        public async Task<List<SelectOption>> GetOptionList(OptionListInputDTO input)
+        {
+            return await _roleBus.GetOptionListAsync(input);
+        }
         [HttpPost]
         public async Task DeleteData(List<string> ids)
         {

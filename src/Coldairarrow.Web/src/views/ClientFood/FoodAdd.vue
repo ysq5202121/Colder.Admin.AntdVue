@@ -1,19 +1,15 @@
 <template>
-    <div>
-         添加菜品
-    
-  </div>
+  <div>添加菜品</div>
 </template>
 
 <script>
 module.exports = {
   data: function() {
     return {
-      greeting: "Hello"
-    };
+      greeting: 'Hello'
+    }
   }
-};
+}
 </script>
 <style scoped>
-     
 </style>

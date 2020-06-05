@@ -1,6 +1,6 @@
 <template>
   <div>
-    <van-list v-model="loading" :finished="finished"  finished-text="没有更多了" @load="getDataList">
+    <van-list v-model="loading" :finished="finished" finished-text="没有更多了" @load="getDataList">
       <van-cell
         v-for="item in data"
         :key="item.Id"

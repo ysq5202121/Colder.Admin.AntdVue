@@ -1,4 +1,5 @@
-﻿using Coldairarrow.Entity.Base_Manage;
+﻿using System;
+using Coldairarrow.Entity.Base_Manage;
 using Coldairarrow.Util;
 using EFCore.Sharding;
 using LinqKit;
@@ -13,9 +14,11 @@ namespace Coldairarrow.Business.Base_Manage
 {
     public class Base_DepartmentRelationBusiness : BaseBusiness<Base_DepartmentRelation>, IBase_DepartmentRelationBusiness, ITransientDependency
     {
-        public Base_DepartmentRelationBusiness(IRepository repository)
+        readonly IOperator _operator;
+        public Base_DepartmentRelationBusiness(IRepository repository ,IOperator @operator)
             : base(repository)
         {
+            _operator = @operator;
         }
 
         #region 外部接口
@@ -57,6 +60,40 @@ namespace Coldairarrow.Business.Base_Manage
         public async Task UpdateDataAsync(Base_DepartmentRelation data)
         {
             await UpdateAsync(data);
+        }
+
+        public async Task AddDataListAsync(DepartmentRelationInputDto data)
+        {
+            data.Department.ForEach(a =>
+            {
+                Base_DepartmentRelation base_DepartmentRelation = new Base_DepartmentRelation();
+                base_DepartmentRelation.Id = IdHelper.GetId();
+                base_DepartmentRelation.OldDepartment = data.OldDepartment;
+                base_DepartmentRelation.Department = a;
+                base_DepartmentRelation.CreateTime=DateTime.Now;
+                base_DepartmentRelation.CreatorName = _operator.Property.UserName;
+                base_DepartmentRelation.CreatorId = _operator.UserId;
+                Insert(base_DepartmentRelation);
+            });
+            await Task.CompletedTask;
+        }
+
+        public async Task UpdateDataListAsync(DepartmentRelationInputDto data)
+        {
+          
+            data.Department.ForEach(a =>
+            {
+                Base_DepartmentRelation base_DepartmentRelation = new Base_DepartmentRelation();
+                base_DepartmentRelation.Id = data.Id;
+                base_DepartmentRelation.OldDepartment = data.OldDepartment;
+                base_DepartmentRelation.Department = a;
+                base_DepartmentRelation.UpdateTime = DateTime.Now;
+                base_DepartmentRelation.UpdateName = _operator.Property.UserName;
+                base_DepartmentRelation.UpdateId = _operator.UserId;
+
+                Service.UpdateAny<Base_DepartmentRelation>(base_DepartmentRelation, new List<string>() { "OldDepartment", "Department", "UpdateTime", "UpdateName", "UpdateId" });
+            });
+            await Task.CompletedTask;
         }
 
         public async Task DeleteDataAsync(List<string> ids)

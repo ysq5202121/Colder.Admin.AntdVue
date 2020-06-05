@@ -95,6 +95,9 @@ namespace Coldairarrow.Business.ServerFood
         /// <returns></returns>
         public async Task<List<IF_OrderInfoResultDto>> ScanCodeAsyns()
         {
+            var userInfo = Service.GetIQueryable<F_UserInfo>().Where(a => a.WeCharUserId == oOperator.UserId)?.FirstOrDefault();
+            if (userInfo == null) throw new BusException("获取用户信息失败!");
+
             Expression<Func<F_OrderInfo, F_PublishFood, Base_DepartmentRelation, IF_OrderInfoResultDto>> select = (a, b,c) => new IF_OrderInfoResultDto
             {
                 FoodName = b.FoodName,
@@ -102,24 +105,22 @@ namespace Coldairarrow.Business.ServerFood
                 ImageUrl = b.ImgUrl,
                 FoodDesc = b.FoodDesc,
                 SupplierName = b.SupplierName,
-                OldDepartment = c.OldDepartment
+                OldDepartment = c.OldDepartment,
+                order = a.CreatorId== userInfo.Id ? 1:0
             };
             var toDay = DateTime.Now.Date;
             select = select.BuildExtendSelectExpre();
             var q = from a in GetIQueryable().AsExpandable()
-                join b in Service.GetIQueryable<F_PublishFood>() on a.PublishFoodId equals b.Id into ab
-                from b in ab.DefaultIfEmpty()
+                join b in Service.GetIQueryable<F_PublishFood>() on a.PublishFoodId equals b.Id 
                 join e in Service.GetIQueryable<F_Order>() on a.OrderCode equals e.OrderCode
                 join c in Service.GetIQueryable<F_UserInfo>() on a.CreatorId equals c.Id
                 join d in Service.GetIQueryable<Base_DepartmentRelation>() on c.Department equals d.Department into cd
                 from d in cd.DefaultIfEmpty()
                 where a.CreateTime > toDay && a.CreateTime < toDay.AddDays(1) && e.Status!=4
                 select @select.Invoke(a, b,d);
+                
             var where = LinqHelper.True<IF_OrderInfoResultDto>();
 
-            var userInfo = Service.GetIQueryable<F_UserInfo>().Where(a => a.WeCharUserId == oOperator.UserId)?.FirstOrDefault();
-            if (userInfo == null) throw new BusException("获取用户信息失败!");
-           
             //根据部门获取所有成员信息
             var oldDepartment =  (from a in Service.GetIQueryable<Base_DepartmentRelation>()
                 join b in Service.GetIQueryable<F_UserInfo>() on a.Department equals b.Department
@@ -127,15 +128,16 @@ namespace Coldairarrow.Business.ServerFood
            
             if (!oldDepartment.IsNullOrEmpty())
             {
-                where.And(a =>
+                where= where.And(a =>
                     a.OldDepartment == oldDepartment);
             }
             else
             {
-                where.And(a =>
+                where = where.And(a =>
                     a.CreatorId == userInfo.Id);
             }
-            return await q.Where(where).ToListAsync();
+
+            return await q.Where(where).OrderByDescending(a=>a.order).ToListAsync();
 
         }
 

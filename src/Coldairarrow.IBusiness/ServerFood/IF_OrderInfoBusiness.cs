@@ -33,6 +33,8 @@ namespace Coldairarrow.Business.ServerFood
 
         public string OldDepartment { get; set; }
 
+        public int order { get; set; }
+
 
     }
 }

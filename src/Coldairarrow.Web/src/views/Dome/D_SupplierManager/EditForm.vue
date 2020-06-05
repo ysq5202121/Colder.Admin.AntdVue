@@ -10,71 +10,71 @@
     <a-tabs :default-active-key="1" v-model="selectTabKey">
       <a-tab-pane key="1" tab="基础信息">
         <a-spin :spinning="loading">
-          <a-form-model ref="form" :model="entity" :rules="rules" v-bind="layout">
-            <a-row>
-              <a-col :span="12">
-                <a-form-model-item label="供应商全称" prop="SupplierName">
-                  <a-input v-model="entity.SupplierName" autocomplete="off" />
-                </a-form-model-item>
-              </a-col>
-              <a-col :span="12">
-                <a-form-model-item label="供应商英文名称" prop="SupplierEnName">
-                  <a-input v-model="entity.SupplierEnName" autocomplete="off" />
-                </a-form-model-item>
-              </a-col>
-            </a-row>
-            <a-row>
-              <a-col :span="12">
-                <a-form-model-item label="供应商状态" prop="STATUS">
-                  <a-select v-model="entity.STATUS" :options="AllStatusList.Status"></a-select>
-                </a-form-model-item>
-              </a-col>
-              <a-col :span="12">
-                <a-form-model-item label="供应商类型" prop="SupplierType">
-                  <a-select v-model="entity.SupplierType" :options="AllStatusList.SupplierType"></a-select>
-                </a-form-model-item>
-              </a-col>
-            </a-row>
-            <a-row>
-              <a-col :span="12">
-                <a-form-model-item label="所属区域" prop="Region">
-                  <a-select v-model="entity.Region" :options="AllStatusList.Region"></a-select>
-                </a-form-model-item>
-              </a-col>
-              <a-col :span="12">
-                <a-form-model-item label="城市" prop="City">
-                  <a-select v-model="entity.City" :options="AllStatusList.City"></a-select>
-                </a-form-model-item>
-              </a-col>
-            </a-row>
-            <a-row>
-              <a-col :span="12">
-                <a-form-model-item prop="SupplierCode">
-                  <span slot="label">
-                    供应商代码
-                    <a-tooltip title="显示什么好啊?">
-                      <a-icon type="question-circle-o" />
-                    </a-tooltip>
-                  </span>
-                  <a-input v-model="entity.SupplierCode" autocomplete="off" />
-                </a-form-model-item>
-              </a-col>
-            </a-row>
-            <a-row>
-              <a-col :span="12">
-                <a-form-model-item prop="SupplierAddress" label="供应商地址">
-                  <a-input v-model="entity.SupplierAddress" autocomplete="off" type="textarea" />
-                </a-form-model-item>
-              </a-col>
-            </a-row>
-          </a-form-model>
+          <div class="table-page-search-wrapper">
+            <a-form-model ref="form" :model="entity" :rules="rules" v-bind="layout" layout="inline">
+              <a-row :gutter="48">
+                <a-col :span="12">
+                  <a-form-model-item label="供应商全称" prop="SupplierName">
+                    <a-input v-model="entity.SupplierName" autocomplete="off" />
+                  </a-form-model-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-model-item label="供英文名称" prop="SupplierEnName">
+                    <a-input v-model="entity.SupplierEnName" autocomplete="off" />
+                  </a-form-model-item>
+                </a-col>
+
+                <a-col :span="12">
+                  <a-form-model-item label="供应商状态" prop="STATUS">
+                    <a-select v-model="entity.STATUS" :options="AllStatusList.Status"></a-select>
+                  </a-form-model-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-model-item label="供应商类型" prop="SupplierType">
+                    <a-select v-model="entity.SupplierType" :options="AllStatusList.SupplierType"></a-select>
+                  </a-form-model-item>
+                </a-col>
+
+                <a-col :span="12">
+                  <a-form-model-item label="所属区域" prop="Region">
+                    <a-select v-model="entity.Region" :options="AllStatusList.Region"></a-select>
+                  </a-form-model-item>
+                </a-col>
+                <a-col :span="12">
+                  <a-form-model-item label="城市" prop="City">
+                    <a-select v-model="entity.City" :options="AllStatusList.City"></a-select>
+                  </a-form-model-item>
+                </a-col>
+
+                <a-col :span="24">
+                  <a-form-model-item prop="SupplierCode">
+                    <span slot="label">
+                      供应商代码
+                      <a-tooltip title="显示什么好啊?">
+                        <a-icon type="question-circle-o" />
+                      </a-tooltip>
+                    </span>
+                    <a-input v-model="entity.SupplierCode" autocomplete="off" />
+                  </a-form-model-item>
+                </a-col>
+
+                <a-col :span="24">
+                  <a-form-model-item prop="SupplierAddress" label="供应商地址">
+                    <a-input v-model="entity.SupplierAddress" autocomplete="off" type="textarea" />
+                  </a-form-model-item>
+                </a-col>
+              </a-row>
+            </a-form-model>
+          </div>
         </a-spin>
       </a-tab-pane>
       <a-tab-pane key="2" tab="联系人" force-render>
         <a-form-model ref="form1" :model="contacts" v-bind="layout">
           <div v-for="(item,index) in contacts.dataList" :key="item.key">
             <a-card size="small">
-              <template #title><a-icon type="heart" theme="twoTone" two-tone-color="#eb2f96" /> 联系信息</template>
+              <template #title>
+                <a-icon type="heart" theme="twoTone" two-tone-color="#eb2f96" />联系信息
+              </template>
               <template slot="extra">
                 <a-button
                   type="link"
@@ -170,8 +170,7 @@ export default {
   data() {
     return {
       layout: {
-        labelCol: { span: 7 },
-        wrapperCol: { span: 16 }
+        labelCol: { span: 7 }
       },
       layoutContacts: {
         labelCol: { span: 7 },

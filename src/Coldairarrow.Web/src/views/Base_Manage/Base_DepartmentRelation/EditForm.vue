@@ -49,8 +49,8 @@ export default {
       DepartmentList: {},
       rules: {
         Department: [
-          { required: true, message: '必填', trigger: 'change' },
-          { validator: validateDepartment, trigger: 'change' }
+          { required: true, message: '必填', trigger: 'change' }
+          // { validator: validateDepartment, trigger: 'change' }
         ],
         OldDepartment: [{ required: true, message: '必填' }]
       },
@@ -86,8 +86,10 @@ export default {
           return
         }
         this.loading = true
-        this.entity.Department = this.entity.Department[0]
-        this.$http.post('/Base_Manage/Base_DepartmentRelation/SaveData', this.entity).then(resJson => {
+        if (!(this.entity.Department instanceof Array)) {
+          this.entity.Department = Array.of(this.entity.Department)
+        }
+        this.$http.post('/Base_Manage/Base_DepartmentRelation/SaveDataList', this.entity).then(resJson => {
           this.loading = false
 
           if (resJson.Success) {
