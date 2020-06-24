@@ -121,11 +121,10 @@ namespace Coldairarrow.Business.ServerFood
                 
             var where = LinqHelper.True<IF_OrderInfoResultDto>();
 
-            //根据部门获取所有成员信息
-            var oldDepartment =  (from a in Service.GetIQueryable<Base_DepartmentRelation>()
-                join b in Service.GetIQueryable<F_UserInfo>() on a.Department equals b.Department
-                select a.OldDepartment).FirstOrDefault();
-           
+            //读取旧部门
+            var oldDepartment = Service.GetIQueryable<Base_DepartmentRelation>()
+                .FirstOrDefault(a => a.Department == userInfo.FullDepartment)?.OldDepartment;
+            
             if (!oldDepartment.IsNullOrEmpty())
             {
                 where= where.And(a =>

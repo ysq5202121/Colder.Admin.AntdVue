@@ -38,6 +38,11 @@ namespace Coldairarrow.Entity.ServerFood
         public String Department { get; set; }
 
         /// <summary>
+        /// 部门全称
+        /// </summary>
+        public String FullDepartment { get; set; }
+
+        /// <summary>
         /// 微信用户ID
         /// </summary>
         public String WeCharUserId { get; set; }

@@ -180,10 +180,7 @@ namespace Coldairarrow.Util.ApiHelper.WeChat
             try
             {
                 WeChatSendMsg weChatSendMsg=new WeChatSendMsg();
-                if (string.IsNullOrEmpty(weChatSendMsgContext.url))
-                {
-                    weChatSendMsgContext.url = autoInfoList.FirstOrDefault(a => a.AppId == (int) app)?.Url;
-                }
+                weChatSendMsgContext.url = autoInfoList.FirstOrDefault(a => a.AppId == (int) app)?.Url + weChatSendMsgContext.url;
                 Dictionary<string, object> dic = new Dictionary<string, object>
                 {
                     { "touser", userList },

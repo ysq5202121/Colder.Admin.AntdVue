@@ -66,8 +66,8 @@
 import EditForm from './EditForm'
 
 const columns = [
-  { title: '新部门', dataIndex: 'Department', width: 150 },
-  { title: '旧部门', dataIndex: 'OldDepartment', width: 150 },
+  { title: '新部门', dataIndex: 'Department', width: 500 },
+  { title: '旧部门', dataIndex: 'OldDepartment', width: 300 },
   { title: '备注', dataIndex: 'Remark' },
   { title: '创建人', dataIndex: 'CreatorName', width: 150 },
   { title: '修改人', dataIndex: 'UpdateName', width: 150 },

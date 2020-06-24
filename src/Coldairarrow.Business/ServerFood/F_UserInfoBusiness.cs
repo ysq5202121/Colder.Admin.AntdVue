@@ -130,7 +130,8 @@ namespace Coldairarrow.Business.ServerFood
                     }
                     else
                     {
-                        departmentPath = lastWeChatDepartmentList?.department?.FirstOrDefault()?.name + "/" +
+                        departmentPath = lastWeChatDepartmentList?.department?.Where(a=>a.id== weChatDepartmentList?.department.FirstOrDefault()?.parentid)?.FirstOrDefault()?.name 
+                                         + "/" +
                                          weChatDepartmentList?.department?.FirstOrDefault()?.name;
                     }
                 }
@@ -182,6 +183,49 @@ namespace Coldairarrow.Business.ServerFood
             if (userId == null) throw new BusException("获取授权userId失败");
             var userInfo = await GetIQueryable().Where(a => a.WeCharUserId == userId)?.FirstOrDefaultAsync();
             return userInfo==null;
+        }
+
+        public async Task TimedRefreshDepartment()
+        {
+            string token = WeChatOperation.GetToken(EnumWeChatAppType.Food);
+            if (token == null) throw new BusException("获取授权token失败!");
+            var query = GetList();
+            foreach (var item in query)
+            {
+
+
+                WeChatUserInfo weChatUserInfo = WeChatOperation.GetUserInfo(token, item.WeCharUserId);
+                WeChatDepartmentList weChatDepartmentList = null;
+                string departmentPath = string.Empty;
+                string departmentId = string.Empty;
+                string department = string.Empty;
+                if (weChatUserInfo == null) continue;
+                //底层部门
+                weChatDepartmentList = WeChatOperation.GetDepartment(token, weChatUserInfo.main_department);
+                if (weChatDepartmentList == null) continue;
+                departmentId= weChatDepartmentList?.department?.FirstOrDefault()?.parentid;
+                departmentPath = weChatDepartmentList?.department?.FirstOrDefault()?.name;
+                department = weChatDepartmentList?.department?.FirstOrDefault()?.name;
+
+                //倒数第二
+                weChatDepartmentList = WeChatOperation.GetDepartment(token, departmentId);
+                if (weChatDepartmentList == null) continue;
+                departmentPath = weChatDepartmentList?.department?.Where(a => a.id == departmentId)?.FirstOrDefault()?.name + "/" + departmentPath;
+                departmentId = weChatDepartmentList?.department?.Where(a => a.id == departmentId)?.FirstOrDefault()
+                    ?.parentid;
+                //倒数第三
+                weChatDepartmentList = WeChatOperation.GetDepartment(token, departmentId);
+
+                if (weChatDepartmentList == null) continue;
+                departmentPath = weChatDepartmentList?.department?.Where(a => a.id == departmentId)?.FirstOrDefault()?.name + "/" + departmentPath;
+                item.FullDepartment = departmentPath;
+                item.Department = department;
+                item.UpdateTime = DateTime.Now;
+                item.UpdateName = "Job";
+                item.UpdateId = "Job";
+                await Service.UpdateAnyAsync(item,
+                    new List<string>() { "Department", "FullDepartment", "UpdateTime", "UpdateName", "UpdateId"});
+            }
         }
 
         #endregion

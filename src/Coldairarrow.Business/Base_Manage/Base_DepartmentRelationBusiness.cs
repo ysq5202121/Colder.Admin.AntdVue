@@ -42,10 +42,10 @@ namespace Coldairarrow.Business.Base_Manage
         public async Task<List<string>> GetNewDepartmentListAsync()
         {
             var query = from a in Service.GetIQueryable<F_UserInfo>()
-                where !GetIQueryable().Select(b => b.Department).Contains(a.Department)
-                select a.Department;
+                where !GetIQueryable().Select(b => b.Department).Contains(a.FullDepartment)
+                select a.FullDepartment;
 
-            return await query.Distinct().ToListAsync();
+            return await query.Where(a=>a!=null).Distinct().ToListAsync();
         }
         public async Task<Base_DepartmentRelation> GetTheDataAsync(string id)
         {

@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Hangfire;
 
 namespace Coldairarrow.Util
 {
@@ -121,9 +122,42 @@ namespace Coldairarrow.Util
             return hostBuilder;
         }
 
+
+        /// <summary>
+        /// 使用Job
+        /// </summary>
+        /// <param name="hostBuilder">建造者</param>
+        /// <returns></returns>
+        public static IHostBuilder UseJob(this IHostBuilder hostBuilder)
+        {
+            hostBuilder.ConfigureServices((buidlerContext, services) =>
+            {
+                var jobOption = buidlerContext.Configuration.GetSection("Job").Get<JobOption>();
+                var conn = buidlerContext.Configuration["ConnectionName"];
+                switch (jobOption?.JobType)
+                {
+                    case "Redis":
+                        services.AddHangfire(a => a.UseRedisStorage(jobOption.RedisEndpoint));
+                        break;
+                    case "SQLServer":
+                    default:
+                    {
+                        services.AddHangfire(a => a.UseSqlServerStorage(buidlerContext.Configuration.GetConnectionString(conn)));
+                    }; break;
+                }
+            });
+
+            return hostBuilder;
+        }
         class CacheOption
         {
             public CacheType CacheType { get; set; }
+            public string RedisEndpoint { get; set; }
+        }
+
+        class JobOption
+        {
+            public string JobType { get; set; }
             public string RedisEndpoint { get; set; }
         }
 

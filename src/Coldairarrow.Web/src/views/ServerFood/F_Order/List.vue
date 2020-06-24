@@ -51,7 +51,7 @@
     >
       <span slot="action" slot-scope="text, record">
         <template>
-          <a @click="handleDelete([record.Id])" v-if="hasPerm('F_Order.Delete')" >删除</a>
+          <a @click="handleDelete([record.Id])" v-if="hasPerm('F_Order.Delete')">删除</a>
         </template>
       </span>
 
@@ -72,7 +72,7 @@
 
 <script>
 import EditForm from './EditForm'
-import moment from 'moment'
+import moment, { isMoment } from 'moment'
 
 const columns = [
   { title: '订单编号', dataIndex: 'OrderCode' },
@@ -163,13 +163,16 @@ export default {
       if (this.toDay === null) {
         this.toDay = moment(new Date())
       }
+      if (!moment.isMoment(this.toDay)) {
+        this.toDay = moment(this.toDay)
+      }
       this.ExLoading = true
       this.$http
         .post(
           '/ServerFood/F_Order/ExcelToExport',
           {
             Condition: 'CreateTime',
-            Keyword: this.toDay.format('YYYY-MM-DD')
+            Keyword: this.toDay
           },
           { responseType: 'arraybuffer' }
         )

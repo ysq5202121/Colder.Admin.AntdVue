@@ -17,6 +17,7 @@ namespace Coldairarrow.Business.ServerFood
     public class F_OrderBusiness : BaseBusiness<F_Order>, IF_OrderBusiness, ITransientDependency
     {
         public IOperator oOperator;
+        private static readonly object SequenceLock = new object();
         public F_OrderBusiness(IRepository repository, IOperator op)
             : base(repository)
         {
@@ -84,104 +85,122 @@ namespace Coldairarrow.Business.ServerFood
 
         public async Task PlaceOrderAsync(List<IF_OrderInputDTO> data)
         {
-            if (data == null || data.Count==0)
+            if (data == null || data.Count == 0)
             {
                 throw new BusException("数据不正常请检查!");
             }
-            var userInfo = Service.GetIQueryable<F_UserInfo>().Where(a => a.WeCharUserId == oOperator.UserId)?.FirstOrDefault();
-            if(userInfo==null) throw new BusException("获取用户信息失败!");
-            if(string.IsNullOrEmpty(userInfo.ShopInfoId)) throw new BusException("请先到[我的]绑定门店!");
-            //查询发布菜品信息
-            var fPublishFoodList = Service.GetIQueryable<F_PublishFood>().Where(a => data.Select(b => b.Id).Contains(a.Id)).ToList();
-            if(fPublishFoodList.Count==0) throw new BusException("数据查询错误!");
-            var fShopInfoSet= Service.GetIQueryable<F_ShopInfoSet>().Where(a => a.ShopInfoId == fPublishFoodList.FirstOrDefault().ShopInfoId).FirstOrDefault();
-            if(fShopInfoSet==null) throw new BusException("门店设置异常!");
-            if (fShopInfoSet != null && fShopInfoSet.OrderBeginDate.HasValue && fShopInfoSet.OrderBeginEnd.HasValue)
-            {
-                var BeginDate = fShopInfoSet.OrderBeginDate.Value.ToString("HHmm").ToInt();
-                var BeginEnd = fShopInfoSet.OrderBeginEnd.Value.ToString("HHmm").ToInt();
-                var toDay = DateTime.Now.ToString("HHmm").ToInt();
-                if (toDay < BeginDate || toDay > BeginEnd) throw new BusException("目前不是点餐时间!");
-            }
-            if (fPublishFoodList.Any(a => a.FoodQty <= 0))
-            {
-                throw new BusException("商品已经售罄请重新选择!");
-            }
-            //检查限购
-            fPublishFoodList.ForEach(a =>
-            {
-                if (a.Limit.HasValue)
+            var userInfo = Service.GetIQueryable<F_UserInfo>().Where(a => a.WeCharUserId == oOperator.UserId)
+                ?.FirstOrDefault();
+            if (userInfo == null) throw new BusException("获取用户信息失败!");
+            if (string.IsNullOrEmpty(userInfo.ShopInfoId)) throw new BusException("请先到[我的]绑定门店!");
+            //加锁防止并发
+            lock (SequenceLock)
+            {   
+                //查询发布菜品信息
+                var fPublishFoodList = Service.GetIQueryable<F_PublishFood>()
+                    .Where(a => data.Select(b => b.Id).Contains(a.Id)).ToList();
+                if (fPublishFoodList.Count == 0) throw new BusException("数据查询错误!");
+                var fShopInfoSet = Service.GetIQueryable<F_ShopInfoSet>()
+                    .Where(a => a.ShopInfoId == fPublishFoodList.FirstOrDefault().ShopInfoId).FirstOrDefault();
+                if (fShopInfoSet == null) throw new BusException("门店设置异常!");
+                if (fShopInfoSet != null && fShopInfoSet.OrderBeginDate.HasValue && fShopInfoSet.OrderBeginEnd.HasValue)
                 {
-                    if (data.Any(b => b.Id == a.Id && b.Num > a.Limit))
+                    var BeginDate = fShopInfoSet.OrderBeginDate.Value.ToString("HHmm").ToInt();
+                    var BeginEnd = fShopInfoSet.OrderBeginEnd.Value.ToString("HHmm").ToInt();
+                    var toDay = DateTime.Now.ToString("HHmm").ToInt();
+                    if (toDay < BeginDate || toDay > BeginEnd) throw new BusException("目前不是点餐时间!");
+                }
+
+                if (fPublishFoodList.Any(a => a.FoodQty <= 0))
+                {
+                    throw new BusException("商品已经售罄请重新选择!");
+                }
+
+                //检查限购
+                fPublishFoodList.ForEach(a =>
+                {
+                    if (a.Limit.HasValue)
                     {
-                        throw new BusException("商品["+a.FoodName+"]限购"+a.Limit+"件");
+                        if (data.Any(b => b.Id == a.Id && b.Num > a.Limit))
+                        {
+                            throw new BusException("商品[" + a.FoodName + "]限购" + a.Limit + "件");
+                        }
                     }
-                }
-            });
-            //检查订单SKU数量
-            if (fShopInfoSet.OrderFoodTypeNum.HasValue)
-            {
-                if (data.Count > fShopInfoSet.OrderFoodTypeNum)
+                });
+                //检查订单SKU数量
+                if (fShopInfoSet.OrderFoodTypeNum.HasValue)
                 {
-                    throw new BusException("订单只能选择"+ fShopInfoSet.OrderFoodTypeNum+"种商品");
+                    if (data.Count > fShopInfoSet.OrderFoodTypeNum)
+                    {
+                        throw new BusException("订单只能选择" + fShopInfoSet.OrderFoodTypeNum + "种商品");
+                    }
+                } //检查当天订单数量
+
+                if (fShopInfoSet.UserOrderNum.HasValue)
+                {
+                    var toDay = DateTime.Now.Date;
+                    var taDayOrderNum = Service.GetIQueryable<F_Order>().Count(a =>
+                        a.UserInfoId == userInfo.Id && a.CreateTime > toDay && a.CreateTime < toDay.AddDays(1) &&
+                        a.Status != 4);
+                    if (taDayOrderNum >= fShopInfoSet.UserOrderNum)
+                        throw new BusException("今天已下单" + taDayOrderNum + "个,不能再下单");
                 }
-            }//检查当天订单数量
-            if (fShopInfoSet.UserOrderNum.HasValue)
-            {
-                var toDay = DateTime.Now.Date; 
-                var taDayOrderNum= Service.GetIQueryable<F_Order>().Count(a=>a.UserInfoId==userInfo.Id &&  a.CreateTime > toDay && a.CreateTime < toDay.AddDays(1) && a.Status!=4);
-                if(taDayOrderNum >= fShopInfoSet.UserOrderNum) throw new BusException("今天已下单"+ taDayOrderNum+"个,不能再下单");
+
+                //扣减商品数量
+                fPublishFoodList.ForEach(a =>
+                {
+
+                    a.FoodQty = a.FoodQty - data.First(b => b.Id == a.Id).Num;
+                    if (a.FoodQty < 0)
+                    {
+                        throw new BusException("商品数量不足请刷新页面重试!");
+                    }
+                });
+                Service.UpdateAny<F_PublishFood>(fPublishFoodList, new List<string>() {"FoodQty"});
+                //计算总价
+                var totalPrice = data.Sum(a => a.Price * a.Num);
+                var totalNum = data.Sum(a => a.Num);
+                //添加主表
+                F_Order order = new F_Order()
+                {
+                    UserInfoId = userInfo.Id,
+                    Id = IdHelper.GetId(),
+                    OrderCode = IdHelper.GetId(),
+                    Status = 1,
+                    Price = totalPrice,
+                    OrderCount = totalNum,
+                    CreateTime = DateTime.Now,
+                    CancellableTime =
+                        DateTime.Now.Add(fShopInfoSet.OrderBeginEnd.Value.TimeOfDay - DateTime.Now.TimeOfDay),
+                    CanEvaluableTime = DateTime.Now.AddDays(1),
+                    StartReceiveTime =
+                        DateTime.Now.Add(fShopInfoSet.OrderBeginEnd.Value.TimeOfDay - DateTime.Now.TimeOfDay),
+                    CreatorId = userInfo.Id,
+                    CreatorName = userInfo.UserName,
+                    UpdateTime = DateTime.Now,
+                    UpdateId = userInfo.Id,
+                    UpdateName = userInfo.UserName,
+                };
+                Insert(order);
+                //添加明细
+                var orderInfoList = data.Select(a => new F_OrderInfo
+                {
+                    OrderCode = order.OrderCode,
+                    Id = IdHelper.GetId(),
+                    OrderInfoQty = a.Num,
+                    PublishFoodId = a.Id,
+                    CreateTime = DateTime.Now,
+                    CreatorId = userInfo.Id,
+                    CreatorName = userInfo.UserName,
+                    UpdateTime = DateTime.Now,
+                    UpdateId = userInfo.Id,
+                    UpdateName = userInfo.UserName,
+                }).ToList();
+                Service.Insert<F_OrderInfo>(orderInfoList);
+
             }
-            //扣减商品数量
-            fPublishFoodList.ForEach(a =>
-            {
-                
-                a.FoodQty = a.FoodQty - data.First(b => b.Id == a.Id).Num;
-                if (a.FoodQty < 0)
-                {
-                    throw new BusException("商品数量不足请刷新页面重试!");
-                }
-            });
-            await Service.UpdateAnyAsync<F_PublishFood>(fPublishFoodList,new List<string>(){ "FoodQty" });
-            //计算总价
-            var totalPrice = data.Sum(a => a.Price * a.Num);
-            var totalNum = data.Sum(a => a.Num);
-            //添加主表
-            F_Order order= new F_Order()
-            {
-                UserInfoId = userInfo.Id,
-                Id= IdHelper.GetId(),
-                OrderCode = IdHelper.GetId(),
-                Status = 1,
-                Price = totalPrice,
-                OrderCount = totalNum,
-                CreateTime = DateTime.Now,
-                CancellableTime = DateTime.Now.Add(fShopInfoSet.OrderBeginEnd.Value.TimeOfDay-DateTime.Now.TimeOfDay),
-                CanEvaluableTime = DateTime.Now.AddDays(1),
-                StartReceiveTime = DateTime.Now.Add(fShopInfoSet.OrderBeginEnd.Value.TimeOfDay - DateTime.Now.TimeOfDay),
-                CreatorId = userInfo.Id,
-                CreatorName= userInfo.UserName,
-                UpdateTime = DateTime.Now,
-                UpdateId = userInfo.Id,
-                UpdateName = userInfo.UserName,
-            };
-           await InsertAsync(order);
-            //添加明细
-           var orderInfoList=data.Select(a => new F_OrderInfo 
-            {
-               OrderCode= order.OrderCode,
-               Id= IdHelper.GetId(),
-               OrderInfoQty=a.Num,
-               PublishFoodId=a.Id,
-               CreateTime = DateTime.Now,
-               CreatorId = userInfo.Id,
-               CreatorName = userInfo.UserName,
-               UpdateTime = DateTime.Now,
-               UpdateId = userInfo.Id,
-               UpdateName = userInfo.UserName,
-           }).ToList();
-           await  Service.InsertAsync<F_OrderInfo>(orderInfoList);
-           await Task.CompletedTask;
+
+            await Task.CompletedTask;
         }
 
         public async Task<byte[]> ExcelToExport(ConditionDTO input)
@@ -198,7 +217,7 @@ namespace Coldairarrow.Business.ServerFood
                     join d in Service.GetIQueryable<F_PublishFood>() on c.PublishFoodId equals d.Id
                     where c.OrderCode == a.OrderCode
                     select d.SupplierName)),
-                OldDepartmentName = Service.GetIQueryable<Base_DepartmentRelation>().FirstOrDefault(c =>c.Department==b.Department).OldDepartment
+                OldDepartmentName = Service.GetIQueryable<Base_DepartmentRelation>().FirstOrDefault(c =>c.Department==b.FullDepartment).OldDepartment
 
 
             };
@@ -220,8 +239,8 @@ namespace Coldairarrow.Business.ServerFood
                     a.CreateTime > input.Keyword.ToDateTime().Date && a.CreateTime < input.Keyword.ToDateTime().Date.AddDays(1)
                                                               && a.Status != 4);
             }
-
-            DataTable dt = q.Where(where).ToList().ToDataTable();
+            //增加按照部门排序
+            DataTable dt = q.Where(where).OrderBy(a=>a.OldDepartmentName).ToList().ToDataTable();
             if (dt != null && dt.Rows.Count == 0) throw new BusException("无下载数据!");
             if (dt.Columns.Contains("UserName"))
                 dt.Columns["UserName"].ColumnName = "用户名";

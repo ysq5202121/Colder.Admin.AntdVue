@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
 using System.IO;
+using Coldairarrow.Business.ServerFood;
 using Hangfire;
 using Hangfire.Dashboard;
 
@@ -46,49 +47,46 @@ namespace Coldairarrow.Api
                 options.SerializerSettings.ContractResolver = new DefaultContractResolver();
             });
             services.AddHttpContextAccessor()
-            .AddLogging()
-            .AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo
+                .AddLogging()
+                .AddSwaggerGen(c =>
                 {
-                    Version = "v1.0.0",
-                    Title = "接口文档"
-                });
-                // JWT认证                                                 
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Scheme = "bearer",
-                    BearerFormat = "JWT",
-                    Type = SecuritySchemeType.Http,
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Description = "Authorization:Bearer {your JWT token}<br/><b>授权地址:/Base_Manage/Home/SubmitLogin</b>",
-                });
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
+                    c.SwaggerDoc("v1", new OpenApiInfo
                     {
-                        new OpenApiSecurityScheme
+                        Version = "v1.0.0",
+                        Title = "接口文档"
+                    });
+                    // JWT认证                                                 
+                    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                    {
+                        Scheme = "bearer",
+                        BearerFormat = "JWT",
+                        Type = SecuritySchemeType.Http,
+                        Name = "Authorization",
+                        In = ParameterLocation.Header,
+                        Description =
+                            "Authorization:Bearer {your JWT token}<br/><b>授权地址:/Base_Manage/Home/SubmitLogin</b>",
+                    });
+                    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                    {
                         {
-                            Reference = new OpenApiReference
+                            new OpenApiSecurityScheme
                             {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        new string[] { }
-                    }
-                });
-                // 为 Swagger JSON and UI设置xml文档注释路径
-                //获取应用程序所在目录（绝对，不受工作目录影响，建议采用此方法获取路径）
-                var basePath = Path.GetDirectoryName(typeof(Program).Assembly.Location);
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            new string[] { }
+                        }
+                    });
+                    // 为 Swagger JSON and UI设置xml文档注释路径
+                    //获取应用程序所在目录（绝对，不受工作目录影响，建议采用此方法获取路径）
+                    var basePath = Path.GetDirectoryName(typeof(Program).Assembly.Location);
 
-                var xmls = Directory.GetFiles(basePath, "*.xml");
-                xmls.ForEach(aXml =>
-                {
-                    c.IncludeXmlComments(aXml);
+                    var xmls = Directory.GetFiles(basePath, "*.xml");
+                    xmls.ForEach(aXml => { c.IncludeXmlComments(aXml); });
                 });
-            }); 
-            services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString(conName)));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

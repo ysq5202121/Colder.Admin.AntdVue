@@ -30,7 +30,7 @@
               <a-input v-model="queryParam.keyword" placeholder="关键字" />
             </a-form-item>
           </a-col>
-          <a-col :md="4" :sm="24">
+          <a-col :sm="24" :md="24" :lg="6" :xl="5">
             <a-form-item label="查询时间">
               <a-date-picker
                 placeholder="发布时间"
@@ -144,7 +144,6 @@ export default {
       this.getDataList()
     },
     getDataList() {
-
       this.selectedRowKeys = []
       this.loading = true
       this.$http

@@ -18,6 +18,8 @@ namespace Coldairarrow.Business.ServerFood
         Task UpdateShopNameAsync(F_UserInfo data);
         Task UpdateDataAsync(F_UserInfo data);
         Task DeleteDataAsync(List<string> ids);
+        Task TimedRefreshDepartment();
+
     }
 
     public class IF_UserInfoResultDto : F_UserInfo

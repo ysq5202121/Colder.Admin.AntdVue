@@ -13,6 +13,7 @@ namespace Coldairarrow.Api
                 .UseIdHelper()
                 .UseLog()
                 .UseCache()
+                .UseJob()
                 .UseDynamicProxy()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {

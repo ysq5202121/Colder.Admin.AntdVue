@@ -72,6 +72,15 @@
             style="width:200px"
           />
         </a-form-model-item>
+        <a-form-model-item prop="IsRandomSendReceiveMsg">
+          <span slot="label">
+            随机发送领餐信息
+            <a-tooltip title="如果开启则设置的领餐信息无效">
+              <a-icon type="question-circle-o" />
+            </a-tooltip>
+          </span>
+          <a-switch v-model="entity.IsRandomSendReceiveMsg" />
+        </a-form-model-item>
         <a-form-model-item label="开始点餐提醒" prop="OrderBeginRemind">
           <a-input
             v-model="entity.OrderBeginRemind"

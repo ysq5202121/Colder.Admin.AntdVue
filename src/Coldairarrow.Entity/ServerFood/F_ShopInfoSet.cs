@@ -63,6 +63,11 @@ namespace Coldairarrow.Entity.ServerFood
         public String OrderReceiveRemind { get; set; }
 
         /// <summary>
+        /// 随机取餐提醒
+        /// </summary>
+        public bool IsRandomSendReceiveMsg { get; set; }
+
+        /// <summary>
         /// 创建人编号
         /// </summary>
         public String CreatorId { get; set; }

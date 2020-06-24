@@ -18,7 +18,7 @@
           </a-select>
         </a-form-model-item>
         <a-form-model-item label="商家名称" prop="SupplierName">
-          <a-input v-model="entity.SupplierName" autocomplete="off" />
+          <a-select v-model="entity.SupplierName" mode="tags" :options="supplierNameLocal"></a-select>
         </a-form-model-item>
         <a-form-model-item label="菜品名称" prop="FoodName">
           <a-input v-model="entity.FoodName" autocomplete="off" />
@@ -55,6 +55,14 @@
 <script>
 import CUploadImg from '@/components/CUploadImg/CUploadImg'
 export default {
+  mounted() {
+    // 加载缓存数据咯
+    const tempSupplierNameLocal = localStorage.getItem('supplierNameLocal')
+    //localStorage.removeItem('supplierNameLocal')
+    if (tempSupplierNameLocal !== undefined && tempSupplierNameLocal !== null) {
+      this.supplierNameLocal = JSON.parse(tempSupplierNameLocal)
+    }
+  },
   props: {
     parentObj: Object
   },
@@ -77,7 +85,8 @@ export default {
         Price: [{ required: true, message: '必填' }]
       },
       title: '',
-      ShopInfoList: []
+      ShopInfoList: [],
+      supplierNameLocal: []
     }
   },
   methods: {
@@ -113,12 +122,17 @@ export default {
           return
         }
         this.loading = true
+        this.entity.SupplierName = this.entity.SupplierName[0]
         this.$http.post('/ServerFood/F_FoodInfo/SaveData', this.entity).then(resJson => {
           this.loading = false
 
           if (resJson.Success) {
             this.$message.success('操作成功!')
             this.visible = false
+            if (this.supplierNameLocal.filter(a => a.value === this.entity.SupplierName).length === 0) {
+              this.supplierNameLocal.push({ value: this.entity.SupplierName, title: this.entity.SupplierName })
+              localStorage.setItem('supplierNameLocal', JSON.stringify(this.supplierNameLocal))
+            }
 
             this.parentObj.getDataList()
           } else {
