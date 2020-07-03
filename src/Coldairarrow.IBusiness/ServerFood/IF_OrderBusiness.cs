@@ -13,6 +13,7 @@ namespace Coldairarrow.Business.ServerFood
         Task<bool> CancelOrderAsync(string id);
         Task PlaceOrderAsync(List<IF_OrderInputDTO> data);
         Task<byte[]> ExcelToExport(ConditionDTO input);
+        Task<byte[]> SumExcelToExport(ConditionDTO input);
         Task<F_Order> GetTheDataAsync(string id);
         Task AddDataAsync(F_Order data);
         Task UpdateDataAsync(F_Order data);
@@ -42,6 +43,10 @@ namespace Coldairarrow.Business.ServerFood
         public string StatusName { get; set; }
 
         public string OldDepartmentName { get; set; }
+
+        public string TakeFoodCode { get; set; }
+
+        public string TakeFoodName { get; set; }
 
     }
 }

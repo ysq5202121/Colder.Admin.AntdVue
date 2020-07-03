@@ -7,8 +7,9 @@
         v-model="toDay"
         :defaultValue="defaultToDay"
         valueFormat="YYYY-MM-DD"
-      />
-      <a-button type="primary" icon="download" @click="handleExcelExport()" :loading="ExLoading">导出</a-button>
+      />&nbsp;
+      <a-button type="primary" icon="download" @click="handleExcelExport()" :loading="ExLoading">详情导出</a-button>
+      <a-button type="primary" icon="download" @click="handleSumExcelExport()" :loading="ExLoading">汇总导出</a-button>
     </div>
 
     <div class="table-page-search-wrapper">
@@ -170,6 +171,39 @@ export default {
       this.$http
         .post(
           '/ServerFood/F_Order/ExcelToExport',
+          {
+            Condition: 'CreateTime',
+            Keyword: this.toDay
+          },
+          { responseType: 'arraybuffer' }
+        )
+        .then(resJson => {
+          this.ExLoading = false
+          const blobs = new Blob([resJson], { type: 'application/json' })
+          console.log(blobs)
+          const blob = new Blob([resJson], { type: 'application/vnd.ms-excel' })
+          const downloadElement = document.createElement('a')
+          const href = window.URL.createObjectURL(blob) // 创建下载的链接
+          downloadElement.href = href
+          // downloadElement.download = fileName; //下载后文件名
+          downloadElement.download = '下载订单' + this.toDay.format('YYYY年MM月DD日') // 下载后文件名
+          document.body.appendChild(downloadElement)
+          downloadElement.click() // 点击下载
+          document.body.removeChild(downloadElement) // 下载完成移除元素
+          window.URL.revokeObjectURL(href) // 释放掉blob对象
+        })
+    },
+    handleSumExcelExport() {
+      if (this.toDay === null) {
+        this.toDay = moment(new Date())
+      }
+      if (!moment.isMoment(this.toDay)) {
+        this.toDay = moment(this.toDay)
+      }
+      this.ExLoading = true
+      this.$http
+        .post(
+          '/ServerFood/F_Order/SumExcelToExport',
           {
             Condition: 'CreateTime',
             Keyword: this.toDay

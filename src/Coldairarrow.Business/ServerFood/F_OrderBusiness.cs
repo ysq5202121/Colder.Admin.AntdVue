@@ -11,6 +11,8 @@ using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Coldairarrow.Entity.Base_Manage;
+using CSRedis;
+using StackExchange.Redis;
 
 namespace Coldairarrow.Business.ServerFood
 {
@@ -89,8 +91,18 @@ namespace Coldairarrow.Business.ServerFood
             {
                 throw new BusException("数据不正常请检查!");
             }
-            var userInfo = Service.GetIQueryable<F_UserInfo>().Where(a => a.WeCharUserId == oOperator.UserId)
-                ?.FirstOrDefault();
+            var userInfo = (from a in Service.GetIQueryable<F_UserInfo>()
+                join b in Service.GetIQueryable<Base_DepartmentRelation>() on a.FullDepartment equals b.Department into ab
+                from b in ab.DefaultIfEmpty()
+                where a.WeCharUserId == oOperator.UserId
+                select new
+                {
+                    ShopInfoId=a.ShopInfoId,
+                    Id=a.Id,
+                    UserName=a.UserName,
+                    OldDepartment = b.OldDepartment,
+                    FullDepartment= a.FullDepartment
+                }).FirstOrDefault();
             if (userInfo == null) throw new BusException("获取用户信息失败!");
             if (string.IsNullOrEmpty(userInfo.ShopInfoId)) throw new BusException("请先到[我的]绑定门店!");
             //加锁防止并发
@@ -160,6 +172,32 @@ namespace Coldairarrow.Business.ServerFood
                 //计算总价
                 var totalPrice = data.Sum(a => a.Price * a.Num);
                 var totalNum = data.Sum(a => a.Num);
+
+                //根据旧部门查询出是否生成取餐码,如果没有生成则生成一个，有则取.
+                var takeFoodCode = (from a in Service.GetIQueryable<F_Order>()
+                    join b in Service.GetIQueryable<F_UserInfo>() on a.UserInfoId equals b.Id
+                    join c in Service.GetIQueryable<Base_DepartmentRelation>() on b.FullDepartment equals c.Department
+                        into bc
+                    from c in bc.DefaultIfEmpty()
+                    where a.CreateTime > DateTime.Now.Date && a.CreateTime < DateTime.Now.Date.AddDays(1) &&
+                          c.OldDepartment == userInfo.OldDepartment
+                          && a.TakeFoodCode != null
+                    select a.TakeFoodCode).FirstOrDefault();
+                if (string.IsNullOrEmpty(takeFoodCode))
+                {
+                    string maxTakeFoodCode = Service.GetIQueryable<F_Order>()
+                        .Where(a => a.CreateTime > DateTime.Now.Date && a.CreateTime < DateTime.Now.Date.AddDays(1))
+                        .Max(a => a.TakeFoodCode);
+                    if (string.IsNullOrEmpty(maxTakeFoodCode))
+                    {
+                        takeFoodCode = "1";
+                    }
+                    else
+                    {
+                        takeFoodCode = (maxTakeFoodCode.ToInt() + 1).ToString();
+                    }
+                }
+
                 //添加主表
                 F_Order order = new F_Order()
                 {
@@ -170,6 +208,8 @@ namespace Coldairarrow.Business.ServerFood
                     Price = totalPrice,
                     OrderCount = totalNum,
                     CreateTime = DateTime.Now,
+                    TakeFoodCode = takeFoodCode,
+                    TakeFoodName = userInfo.UserName,
                     CancellableTime =
                         DateTime.Now.Add(fShopInfoSet.OrderBeginEnd.Value.TimeOfDay - DateTime.Now.TimeOfDay),
                     CanEvaluableTime = DateTime.Now.AddDays(1),
@@ -198,9 +238,93 @@ namespace Coldairarrow.Business.ServerFood
                 }).ToList();
                 Service.Insert<F_OrderInfo>(orderInfoList);
 
+                //生成一个取餐码，然后随机一个取餐人
+                var RandMan = (from a in Service.GetIQueryable<F_Order>()
+                    join b in Service.GetIQueryable<F_UserInfo>() on a.UserInfoId equals b.Id
+                    join c in Service.GetIQueryable<Base_DepartmentRelation>() on b.FullDepartment equals c.Department
+                        into bc
+                    from c in bc.DefaultIfEmpty()
+                    where a.CreateTime > DateTime.Now.Date && a.CreateTime < DateTime.Now.Date.AddDays(1) && c.OldDepartment == userInfo.OldDepartment
+                    orderby Guid.NewGuid()
+                    select b.UserName).FirstOrDefault();
+
+                //更新取餐人
+                var orderList = (from a in Service.GetIQueryable<F_Order>()
+                    join b in Service.GetIQueryable<F_UserInfo>() on a.UserInfoId equals b.Id
+                    join c in Service.GetIQueryable<Base_DepartmentRelation>() on b.FullDepartment equals c.Department
+                        into bc
+                    from c in bc.DefaultIfEmpty()
+                    where a.CreateTime > DateTime.Now.Date && a.CreateTime < DateTime.Now.Date.AddDays(1) &&
+                          c.OldDepartment == userInfo.OldDepartment
+                    select a).ToList();
+                orderList.ForEach(a => { a.TakeFoodName = RandMan; });
+
+                if(orderList.Count>0)
+                 Service.UpdateAny(orderList, new List<string>() {"TakeFoodName"});
             }
 
             await Task.CompletedTask;
+        }
+
+        public async Task<byte[]> SumExcelToExport(ConditionDTO input)
+        {
+            Expression<Func<F_Order, F_UserInfo, F_PublishFood, IF_OrderResultDTO>> select = (a, b, c) =>
+                new IF_OrderResultDTO
+                {
+                    UserName = b.UserName,
+                    DepartmentName = b.FullDepartment,
+                    FoodName = c.FoodName,
+                    TakeFoodCode = a.TakeFoodCode,
+                    TakeFoodName = a.TakeFoodName,
+                    OldDepartmentName = Service.GetIQueryable<Base_DepartmentRelation>()
+                        .FirstOrDefault(d => d.Department == b.FullDepartment).OldDepartment
+                };
+
+            select = select.BuildExtendSelectExpre();
+            var q = from a in GetIQueryable().AsExpandable()
+                join b in Service.GetIQueryable<F_UserInfo>() on a.UserInfoId equals b.Id into ab
+                from b in ab.DefaultIfEmpty()
+                join c in Service.GetIQueryable<F_OrderInfo>() on a.OrderCode equals c.OrderCode
+                join d in Service.GetIQueryable<F_PublishFood>() on c.PublishFoodId equals d.Id
+                select @select.Invoke(a, b, d);
+
+            var where = LinqHelper.True<IF_OrderResultDTO>();
+            var search = input;
+
+            //筛选
+            if (!search.Condition.IsNullOrEmpty() && !search.Keyword.IsNullOrEmpty())
+            {
+
+                where = where.And(a =>
+                    a.CreateTime > input.Keyword.ToDateTime().Date && a.CreateTime <
+                                                                   input.Keyword.ToDateTime().Date.AddDays(1)
+                                                                   && a.Status != 4);
+            }
+            //增加按照部门排序
+            var orderResultList = q.Where(where).OrderBy(a => a.OldDepartmentName).ToList();
+            DataTable dt = orderResultList.GroupBy(a => new { DepartmentName=a.OldDepartmentName??a.DepartmentName, a.FoodName}).
+            Select(a => new
+            {
+                TakeFoodCode = "A"+a.FirstOrDefault().TakeFoodCode,
+                DepartmentName = a.Key.DepartmentName,
+                FoodName = a.Key.FoodName,
+                Count = a.Count(),
+                TakeFoodName = a.FirstOrDefault().TakeFoodName,
+            }
+            ).ToDataTable();
+            if (dt != null && dt.Rows.Count == 0) throw new BusException("无下载数据!");
+            if (dt.Columns.Contains("TakeFoodCode"))
+                dt.Columns["TakeFoodCode"].ColumnName = "取餐码";
+            if (dt.Columns.Contains("DepartmentName"))
+                dt.Columns["DepartmentName"].ColumnName = "部门名称";
+            if (dt.Columns.Contains("FoodName"))
+                dt.Columns["FoodName"].ColumnName = "菜品";
+            if (dt.Columns.Contains("Count"))
+                dt.Columns["Count"].ColumnName = "数量";
+            if (dt.Columns.Contains("TakeFoodName"))
+                dt.Columns["TakeFoodName"].ColumnName = "领餐人";
+            await Task.CompletedTask;
+            return AsposeOfficeHelper.DataTableToExcelBytes(dt);
         }
 
         public async Task<byte[]> ExcelToExport(ConditionDTO input)
@@ -210,23 +334,23 @@ namespace Coldairarrow.Business.ServerFood
                 UserName = b.UserName,
                 DepartmentName = b.Department,
                 FoodName = string.Join(",", (from c in Service.GetIQueryable<F_OrderInfo>()
-                    join d in Service.GetIQueryable<F_PublishFood>() on c.PublishFoodId equals d.Id
-                    where c.OrderCode == a.OrderCode
-                    select d.FoodName)),
+                                             join d in Service.GetIQueryable<F_PublishFood>() on c.PublishFoodId equals d.Id
+                                             where c.OrderCode == a.OrderCode
+                                             select d.FoodName)),
                 SupplierName = string.Join(",", (from c in Service.GetIQueryable<F_OrderInfo>()
-                    join d in Service.GetIQueryable<F_PublishFood>() on c.PublishFoodId equals d.Id
-                    where c.OrderCode == a.OrderCode
-                    select d.SupplierName)),
-                OldDepartmentName = Service.GetIQueryable<Base_DepartmentRelation>().FirstOrDefault(c =>c.Department==b.FullDepartment).OldDepartment
+                                                 join d in Service.GetIQueryable<F_PublishFood>() on c.PublishFoodId equals d.Id
+                                                 where c.OrderCode == a.OrderCode
+                                                 select d.SupplierName)),
+                OldDepartmentName = Service.GetIQueryable<Base_DepartmentRelation>().FirstOrDefault(c => c.Department == b.FullDepartment).OldDepartment
 
 
             };
 
             select = select.BuildExtendSelectExpre();
             var q = from a in GetIQueryable().AsExpandable()
-                join b in Service.GetIQueryable<F_UserInfo>() on a.UserInfoId equals b.Id into ab
-                from b in ab.DefaultIfEmpty()
-                select @select.Invoke(a, b);
+                    join b in Service.GetIQueryable<F_UserInfo>() on a.UserInfoId equals b.Id into ab
+                    from b in ab.DefaultIfEmpty()
+                    select @select.Invoke(a, b);
 
             var where = LinqHelper.True<IF_OrderResultDTO>();
             var search = input;
@@ -240,7 +364,17 @@ namespace Coldairarrow.Business.ServerFood
                                                               && a.Status != 4);
             }
             //增加按照部门排序
-            DataTable dt = q.Where(where).OrderBy(a=>a.OldDepartmentName).ToList().ToDataTable();
+            DataTable dt = q.Where(where).OrderBy(a => a.OldDepartmentName).Select(a=>new
+            {
+                UserName=a.UserName,
+                SupplierName=a.SupplierName,
+                FoodName=a.FoodName,
+                OldDepartmentName=a.OldDepartmentName,
+                OrderCount=a.OrderCount,
+                Price=a.Price,
+                OrderCode=a.OrderCode,
+                CreateTime=a.CreateTime
+            }).ToList().ToDataTable();
             if (dt != null && dt.Rows.Count == 0) throw new BusException("无下载数据!");
             if (dt.Columns.Contains("UserName"))
                 dt.Columns["UserName"].ColumnName = "用户名";
@@ -260,32 +394,6 @@ namespace Coldairarrow.Business.ServerFood
                 dt.Columns["OrderCode"].ColumnName = "订单编号";
             if (dt.Columns.Contains("CreateTime"))
                 dt.Columns["CreateTime"].ColumnName = "下单时间";
-            if (dt.Columns.Contains("CreatorId"))
-                dt.Columns.Remove(dt.Columns["CreatorId"]);
-            if (dt.Columns.Contains("Id"))
-                dt.Columns.Remove(dt.Columns["Id"]);
-            if (dt.Columns.Contains("UserInfoId"))
-                dt.Columns.Remove(dt.Columns["UserInfoId"]);
-            if (dt.Columns.Contains("CreatorName"))
-                dt.Columns.Remove(dt.Columns["CreatorName"]);
-            if (dt.Columns.Contains("UpdateId"))
-                dt.Columns.Remove(dt.Columns["UpdateId"]);
-            if (dt.Columns.Contains("UpdateName"))
-                dt.Columns.Remove(dt.Columns["UpdateName"]);
-            if (dt.Columns.Contains("UpdateTime"))
-                dt.Columns.Remove(dt.Columns["UpdateTime"]);
-            if (dt.Columns.Contains("ImageUrl"))
-                dt.Columns.Remove(dt.Columns["ImageUrl"]);
-            if (dt.Columns.Contains("Status"))
-                dt.Columns.Remove(dt.Columns["Status"]);
-            if (dt.Columns.Contains("StatusName"))
-                dt.Columns.Remove(dt.Columns["StatusName"]);
-            if (dt.Columns.Contains("CancellableTime"))
-                dt.Columns.Remove(dt.Columns["CancellableTime"]);
-            if (dt.Columns.Contains("CanEvaluableTime"))
-                dt.Columns.Remove(dt.Columns["CanEvaluableTime"]);
-            if (dt.Columns.Contains("StartReceiveTime"))
-                dt.Columns.Remove(dt.Columns["StartReceiveTime"]);
             await Task.CompletedTask;
             return AsposeOfficeHelper.DataTableToExcelBytes(dt);
         }

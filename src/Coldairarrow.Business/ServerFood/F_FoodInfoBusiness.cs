@@ -14,6 +14,7 @@ using Coldairarrow.Business.Job;
 using Coldairarrow.Entity.Base_Manage;
 using Coldairarrow.Util.ApiHelper.WeChat;
 using Hangfire;
+using Microsoft.Extensions.Logging;
 
 namespace Coldairarrow.Business.ServerFood
 {
@@ -21,11 +22,14 @@ namespace Coldairarrow.Business.ServerFood
     {
         public IOperator oOperator;
         public IJobServer Job;
-        public F_FoodInfoBusiness(IRepository repository, IOperator op, IJobServer _job)
+        public ILogger loger;
+
+        public F_FoodInfoBusiness(IRepository repository, IOperator op, IJobServer _job,ILogger<F_FoodInfoBusiness> _loger)
             : base(repository)
         {
             oOperator = op;
             Job = _job;
+            loger = _loger;
         }
 
         #region 外部接口
@@ -161,15 +165,17 @@ namespace Coldairarrow.Business.ServerFood
         /// 发布消息到微信
         /// type:0-发送点餐提醒,1-发送取餐通用提醒,2-发送随机取餐提醒
         /// </summary>
-        public void PublishFoodSendToWeChat(string shopId,string msg,int type)
+        [JobDisplayName("发送点餐消息 type:0-点餐提醒,1-取餐提醒,2-随机取餐提醒")]
+        public void PublishFoodSendToWeChat(string shopId, string msg, int type)
         {
             List<string> userList = null;
             WeChatSendMsgContext weChatSendMsgContext = new WeChatSendMsgContext();
-           
+
             if (type == 0)
             {
                 //查询门店需要发送时间
-                userList = Service.GetIQueryable<F_UserInfo>().Where(a => a.ShopInfoId == shopId).Select(a => a.WeCharUserId).ToList();
+                userList = Service.GetIQueryable<F_UserInfo>().Where(a => a.ShopInfoId == shopId)
+                    .Select(a => a.WeCharUserId).ToList();
                 if (userList.Count == 0) return;
                 var token = WeChatOperation.GetToken(EnumWeChatAppType.Food);
                 //查询当前门店今天的订单用户发送
@@ -177,18 +183,27 @@ namespace Coldairarrow.Business.ServerFood
                 weChatSendMsgContext.title = "点餐提醒";
                 weChatSendMsgContext.btntxt = "点餐";
                 weChatSendMsgContext.url = "/ClientFood/Order";
-                weChatSendMsgContext.description = "<div class=\"gray\">" + DateTime.Now.ToString("yyyy-MM-dd") + "</div> <div class=\"normal\">" + msg + "</div>";
-                WeChatOperation.SendMsg(token, joinUser, EnumWeChatAppType.Food, weChatSendMsgContext);
+                weChatSendMsgContext.description = "<div class=\"gray\">" + DateTime.Now.ToString("yyyy-MM-dd") +
+                                                   "</div> <div class=\"normal\">" + msg + "</div>";
+                if (WeChatOperation.SendMsg(token, joinUser, EnumWeChatAppType.Food, weChatSendMsgContext))
+                {
+                    loger.LogInformation("发送成功!");
+                }
+                else
+                {
+                    loger.LogInformation("发送失败!");
+                }
             }
-            else if(type == 1)
+            else if (type == 1)
             {
                 //查询点过餐品的成员信息
                 var q = from a in Service.GetIQueryable<F_Order>()
                     join b in Service.GetIQueryable<F_OrderInfo>() on a.OrderCode equals b.OrderCode
-                        join c in Service.GetIQueryable<F_PublishFood>() on b.PublishFoodId equals c.Id
+                    join c in Service.GetIQueryable<F_PublishFood>() on b.PublishFoodId equals c.Id
                     join d in Service.GetIQueryable<F_UserInfo>() on a.UserInfoId equals d.Id
-                    where c.ShopInfoId == shopId  && a.CreateTime>DateTime.Now.Date && a.CreateTime<DateTime.Now.Date.AddDays(1) && a.Status != 4
-                        select d.WeCharUserId;
+                    where c.ShopInfoId == shopId && a.CreateTime > DateTime.Now.Date &&
+                          a.CreateTime < DateTime.Now.Date.AddDays(1) && a.Status != 4
+                    select d.WeCharUserId;
                 userList = q.ToList();
                 if (userList.Count == 0) return;
                 var token = WeChatOperation.GetToken(EnumWeChatAppType.Food);
@@ -196,8 +211,16 @@ namespace Coldairarrow.Business.ServerFood
                 weChatSendMsgContext.title = "取餐提醒";
                 weChatSendMsgContext.btntxt = "取餐详情";
                 weChatSendMsgContext.url = "/ClientFood/ScanCode";
-                weChatSendMsgContext.description = "<div class=\"gray\">" + DateTime.Now.ToString("yyyy-MM-dd") + "</div> <div class=\"normal\">" + msg + "</div>";
-                WeChatOperation.SendMsg(token, joinUser, EnumWeChatAppType.Food, weChatSendMsgContext);
+                weChatSendMsgContext.description = "<div class=\"gray\">" + DateTime.Now.ToString("yyyy-MM-dd") +
+                                                   "</div> <div class=\"normal\">" + msg + "</div>";
+                if (WeChatOperation.SendMsg(token, joinUser, EnumWeChatAppType.Food, weChatSendMsgContext))
+                {
+                    loger.LogInformation("发送成功!");
+                }
+                else
+                {
+                    loger.LogInformation("发送失败!");
+                }
             }
             else if (type == 2)
             {
@@ -210,14 +233,16 @@ namespace Coldairarrow.Business.ServerFood
                         into de
                     from e in de.DefaultIfEmpty()
                     where c.ShopInfoId == shopId && a.CreateTime > DateTime.Now.Date &&
-                          a.CreateTime < DateTime.Now.Date.AddDays(1) && a.Status!=4
+                          a.CreateTime < DateTime.Now.Date.AddDays(1) && a.Status != 4
                     select new
                     {
                         d.WeCharUserId,
                         e.OldDepartment,
                         d.FullDepartment,
                         d.UserName,
-                        c.FoodName
+                        c.FoodName,
+                        a.TakeFoodName,
+                        a.TakeFoodCode
                     };
                 var queryList = q.ToList();
                 if (queryList.Count == 0) return;
@@ -226,31 +251,50 @@ namespace Coldairarrow.Business.ServerFood
                 queryList.GroupBy(a => a.OldDepartment ?? a.FullDepartment).ForEach(a =>
                 {
                     //随机抽取一个,哈哈哈
-                   var randMan=  a.OrderBy(b => Guid.NewGuid()).First().WeCharUserId;
-                   weChatSendMsgContext.title = "取餐提醒";
-                   weChatSendMsgContext.btntxt = "取餐详情";
-                   weChatSendMsgContext.url = "/ClientFood/ScanCode";
-                   //var foodList = a.Select(c => c.UserName + "-" + c.FoodName).ToList();
-                   //var foodName = string.Join(",", foodList);
-                   var foodList= a.GroupBy(c => c.FoodName).Select(c => c.Key +"*"+c.Count());
-                   var foodName = string.Join(",", foodList);
-                    weChatSendMsgContext.description = "<div class=\"gray\">" + DateTime.Now.ToString("yyyy-MM-dd") + "</div>"+
-                                                      "<div>您已被随机抽取为本部门领餐:</div>" +
-                                                      "<div class=\"normal\">部门名称："+a.Key+"</div>" +
-                                                      "<div class=\"highlight\">共 "+a.ToList().Count+" 份</div>" +
-                                                      "<div>菜品名称："+ foodName + "</div>";
-                   WeChatOperation.SendMsg(token, randMan, EnumWeChatAppType.Food, weChatSendMsgContext);
+                    var randMan = a.FirstOrDefault()?.TakeFoodName;
+                    weChatSendMsgContext.title = "取餐提醒";
+                    weChatSendMsgContext.btntxt = "取餐详情";
+                    weChatSendMsgContext.url = "/ClientFood/ScanCode";
+                    //var foodList = a.Select(c => c.UserName + "-" + c.FoodName).ToList();
+                    //var foodName = string.Join(",", foodList);
+                    var foodList = a.GroupBy(c => c.FoodName).Select(c => c.Key + "*" + c.Count());
+                    var foodName = string.Join(",", foodList);
+                    weChatSendMsgContext.description =
+                        "<div class=\"gray\">" + DateTime.Now.ToString("yyyy-MM-dd") + "</div>" +
+                        "<div>您已被随机抽取为本部门领餐:</div>" +
+                        "<div class=\"normal\">部门名称：" + a.Key + "</div>" +
+                        "<div class=\"normal\">取餐码： A" + a.FirstOrDefault()?.TakeFoodCode + " </div>" +
+                        "<div class=\"highlight\">共 " + a.ToList().Count + " 份</div>" +
+                        "<div>菜品名称：" + foodName + "</div>";
+                    if (WeChatOperation.SendMsg(token, a.FirstOrDefault(b => b.UserName == randMan)?.WeCharUserId,
+                        EnumWeChatAppType.Food, weChatSendMsgContext))
+                    {
+                        loger.LogInformation("发送成功!");
+                    }
+                    else
+                    {
+                        loger.LogInformation("发送失败!");
+                    }
 
-                   //发送部门其他人员
-                   var joinList = a.Where(c => c.WeCharUserId != randMan).Select(c => c.WeCharUserId).ToList();
-                   if (joinList.Count > 0)
-                   {
-                       var joinUser = string.Join("|", joinList);
-                       weChatSendMsgContext.description = "<div class=\"gray\">" + DateTime.Now.ToString("yyyy-MM-dd") +
-                                                          "</div> <div class=\"normal\">已随机抽取您部门的 " + randMan +
-                                                          " 取餐</div>";
-                       WeChatOperation.SendMsg(token, joinUser, EnumWeChatAppType.Food, weChatSendMsgContext);
-                   }
+                    //发送部门其他人员
+                    var joinList = a.Where(c => c.UserName != randMan).Select(c => c.WeCharUserId).ToList();
+                    if (joinList.Count > 0)
+                    {
+                        var joinUser = string.Join("|", joinList);
+                        weChatSendMsgContext.url = "/ClientFood/ScanCode";
+                        weChatSendMsgContext.description =
+                            "<div class=\"gray\">" + DateTime.Now.ToString("yyyy-MM-dd") +
+                            "</div> <div class=\"normal\">已随机抽取您部门的 " + randMan +
+                            " 取餐</div>";
+                        if (WeChatOperation.SendMsg(token, joinUser, EnumWeChatAppType.Food, weChatSendMsgContext))
+                        {
+                            loger.LogInformation("发送成功!");
+                        }
+                        else
+                        {
+                            loger.LogInformation("发送失败!");
+                        }
+                    }
 
                 });
             }

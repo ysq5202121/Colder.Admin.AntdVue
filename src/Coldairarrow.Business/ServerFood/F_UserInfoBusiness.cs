@@ -10,6 +10,7 @@ using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Coldairarrow.Util.ApiHelper.WeChat;
+using Hangfire;
 
 namespace Coldairarrow.Business.ServerFood
 {
@@ -115,24 +116,40 @@ namespace Coldairarrow.Business.ServerFood
             {
                 WeChatUserInfo weChatUserInfo = WeChatOperation.GetUserInfo(token, userId);
                 WeChatDepartmentList weChatDepartmentList = null;
-                WeChatDepartmentList lastWeChatDepartmentList = null;
                 string departmentPath = string.Empty;
+                string departmentId = string.Empty;
+                string department = string.Empty;
                 if (weChatUserInfo == null) throw new BusException("获取用户信息失败,登录失败!");
                 if (!string.IsNullOrEmpty(weChatUserInfo.main_department))
                 {
+                    //底层部门
                     weChatDepartmentList = WeChatOperation.GetDepartment(token, weChatUserInfo.main_department);
-                    if (weChatDepartmentList == null) throw new BusException("应用未对部门授权!");
-                    lastWeChatDepartmentList = WeChatOperation.GetDepartment(token,
-                        weChatDepartmentList?.department.FirstOrDefault()?.parentid);
-                    if (lastWeChatDepartmentList == null)
+                    if (weChatDepartmentList != null)
                     {
+                        departmentId = weChatDepartmentList?.department?.FirstOrDefault()?.parentid;
                         departmentPath = weChatDepartmentList?.department?.FirstOrDefault()?.name;
+                        department = weChatDepartmentList?.department?.FirstOrDefault()?.name;
                     }
-                    else
+                    //倒数第二
+                    weChatDepartmentList = WeChatOperation.GetDepartment(token, departmentId);
+                    if (weChatDepartmentList != null)
+                    {   
+                       
+                        departmentPath =
+                            weChatDepartmentList?.department?.Where(a => a.id == departmentId)?.FirstOrDefault()?.name +
+                            "/" + departmentPath;
+                        departmentId = weChatDepartmentList?.department?.Where(a => a.id == departmentId)
+                            ?.FirstOrDefault()
+                            ?.parentid;
+                    }
+                    //倒数第三
+                    weChatDepartmentList = WeChatOperation.GetDepartment(token, departmentId);
+                    if (weChatDepartmentList != null)
                     {
-                        departmentPath = lastWeChatDepartmentList?.department?.Where(a=>a.id== weChatDepartmentList?.department.FirstOrDefault()?.parentid)?.FirstOrDefault()?.name 
-                                         + "/" +
-                                         weChatDepartmentList?.department?.FirstOrDefault()?.name;
+                      
+                        departmentPath =
+                            weChatDepartmentList?.department?.Where(a => a.id == departmentId)?.FirstOrDefault()?.name +
+                            "/" + departmentPath;
                     }
                 }
                 if (userInfo == null)
@@ -145,18 +162,19 @@ namespace Coldairarrow.Business.ServerFood
                         UserName = weChatUserInfo.name,
                         UserImgUrl = weChatUserInfo.avatar,
                         WeCharUserId = weChatUserInfo.userid,
-                        Department = departmentPath,
+                        Department = department,
+                        FullDepartment = departmentPath,
                         CreateTime = DateTime.Now,
                         CreatorId = "system",
                         CreatorName = weChatUserInfo.name,
                     };
                     await InsertAsync(fUserInfo);
                 }
-                else if (string.IsNullOrEmpty(userInfo.Department))
+                else if (string.IsNullOrEmpty(userInfo.Department) || string.IsNullOrEmpty(userInfo.FullDepartment))
                 {
                     //更新部门//组合倒数第二级部门
-
-                    userInfo.Department = departmentPath;
+                    userInfo.Department = department;
+                    userInfo.FullDepartment = departmentPath;
                     userInfo.UpdateTime = DateTime.Now;
                     userInfo.UpdateName = userInfo.UserName;
                     userInfo.UpdateId = userInfo.UpdateId;
@@ -165,11 +183,11 @@ namespace Coldairarrow.Business.ServerFood
                 }
             }
 
-            //生成token,有效期一个星期
+            //生成token,有效期一个月
             JWTPayload jWTPayload = new JWTPayload
             {
                 UserId = userId,
-                Expire = DateTime.Now.AddDays(7)
+                Expire = DateTime.Now.AddDays(30)
             };
             string tk = JWTHelper.GetToken(jWTPayload.ToJson(), JWTHelper.JWTClient);
             return tk;
@@ -185,6 +203,7 @@ namespace Coldairarrow.Business.ServerFood
             return userInfo==null;
         }
 
+        [JobDisplayName("自动更新部门 每周日执行一次")]
         public async Task TimedRefreshDepartment()
         {
             string token = WeChatOperation.GetToken(EnumWeChatAppType.Food);
@@ -192,8 +211,6 @@ namespace Coldairarrow.Business.ServerFood
             var query = GetList();
             foreach (var item in query)
             {
-
-
                 WeChatUserInfo weChatUserInfo = WeChatOperation.GetUserInfo(token, item.WeCharUserId);
                 WeChatDepartmentList weChatDepartmentList = null;
                 string departmentPath = string.Empty;
@@ -215,9 +232,9 @@ namespace Coldairarrow.Business.ServerFood
                     ?.parentid;
                 //倒数第三
                 weChatDepartmentList = WeChatOperation.GetDepartment(token, departmentId);
-
                 if (weChatDepartmentList == null) continue;
                 departmentPath = weChatDepartmentList?.department?.Where(a => a.id == departmentId)?.FirstOrDefault()?.name + "/" + departmentPath;
+
                 item.FullDepartment = departmentPath;
                 item.Department = department;
                 item.UpdateTime = DateTime.Now;

@@ -5,6 +5,7 @@ using System.Text;
 using EFCore.Sharding.Util;
 using Elasticsearch.Net;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Coldairarrow.Util.ApiHelper.WeChat
 {
@@ -17,6 +18,23 @@ namespace Coldairarrow.Util.ApiHelper.WeChat
        const string GetDepartmentUrl = "https://qyapi.weixin.qq.com/cgi-bin/department/list";
        const string SendMssage = " https://qyapi.weixin.qq.com/cgi-bin/message/send";//发送消息接口
        public static List<WeChatAuthInfo> autoInfoList = ConfigHelper.Configuration.GetSection("WeChatAuth").Get<List<WeChatAuthInfo>>();
+       public static ILogger logger;
+
+       /// <summary>
+       /// 获取配置信息
+       /// </summary>
+       /// <param name="app"></param>
+       /// <returns></returns>
+       public static WeChatAuthInfo GetWeChatAuthInfo(EnumWeChatAppType app)
+       {
+           return autoInfoList.FirstOrDefault(a => a.AppId == (int) app);
+       }
+
+       public WeChatOperation(ILogger<WeChatOperation> _logger)
+       {
+           logger = _logger;
+       }
+
         /// <summary>
         /// 获取token
         /// </summary>
@@ -36,6 +54,7 @@ namespace Coldairarrow.Util.ApiHelper.WeChat
                 if (token.errcode != "0")
                 {
                     LogHelper.WriteLog_LocalTxt(resultJson);
+                    logger?.LogWarning(resultJson);
                     return null;
                 }
                 return token.access_token;
@@ -66,6 +85,7 @@ namespace Coldairarrow.Util.ApiHelper.WeChat
                 if (userIdInfo.errcode != "0")
                 {
                     LogHelper.WriteLog_LocalTxt(resultJson);
+                    logger?.LogWarning(resultJson);
                     return null;
                 }
                 return userIdInfo.UserId;
@@ -96,6 +116,7 @@ namespace Coldairarrow.Util.ApiHelper.WeChat
                 if (userIdInfo.errcode != "0")
                 {
                     LogHelper.WriteLog_LocalTxt(resultJson);
+                    logger?.LogWarning(resultJson);
                     return null;
                 }
                 return userIdInfo;
@@ -125,6 +146,7 @@ namespace Coldairarrow.Util.ApiHelper.WeChat
                 if (userIdInfo.errcode != "0")
                 {
                     LogHelper.WriteLog_LocalTxt(resultJson);
+                    logger?.LogWarning(resultJson);
                     return null;
                 }
                 return userIdInfo;
@@ -156,6 +178,7 @@ namespace Coldairarrow.Util.ApiHelper.WeChat
                 if (departmentList.errcode != "0")
                 {
                     LogHelper.WriteLog_LocalTxt(resultJson);
+                    logger?.LogWarning(resultJson);
                     return null;
                 }
                 return departmentList;
@@ -194,6 +217,7 @@ namespace Coldairarrow.Util.ApiHelper.WeChat
                 if (weChatSendMsgResult.errcode != "0")
                 {
                     LogHelper.WriteLog_LocalTxt(resultJson);
+                    logger?.LogWarning(resultJson);
                     return false;
                 }
                 return true;

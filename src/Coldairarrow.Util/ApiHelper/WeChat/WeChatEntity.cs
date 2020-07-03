@@ -18,6 +18,11 @@ namespace Coldairarrow.Util
     {
         public int AppId { get; set; }
         public string CorpId { get; set; }
+
+        public string Token { get; set; }
+
+        public string EncodingAESKey { get; set; }
+
         public string CorpSecret { get; set; }
         public string AgentId { get; set; }
         public string Url { get; set; }

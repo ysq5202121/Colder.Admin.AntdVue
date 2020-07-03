@@ -9,6 +9,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Hangfire;
 
 namespace Coldairarrow.Business.ServerFood
 {
@@ -54,6 +55,7 @@ namespace Coldairarrow.Business.ServerFood
             return await q.Where(where).GetPageResultAsync(input);
         }
 
+        
         public async Task<List<F_PublishFoodResultDto>> GetDataListToMoblieAsync(ConditionDTO input)
         {
             Expression<Func<F_PublishFood, F_FoodInfo,F_ShopInfoSet, F_PublishFoodResultDto>> select = (a, b,c) => new F_PublishFoodResultDto

@@ -114,7 +114,7 @@ namespace Coldairarrow.Business.ServerFood
                 join b in Service.GetIQueryable<F_PublishFood>() on a.PublishFoodId equals b.Id 
                 join e in Service.GetIQueryable<F_Order>() on a.OrderCode equals e.OrderCode
                 join c in Service.GetIQueryable<F_UserInfo>() on a.CreatorId equals c.Id
-                join d in Service.GetIQueryable<Base_DepartmentRelation>() on c.Department equals d.Department into cd
+                join d in Service.GetIQueryable<Base_DepartmentRelation>() on c.FullDepartment equals d.Department into cd
                 from d in cd.DefaultIfEmpty()
                 where a.CreateTime > toDay && a.CreateTime < toDay.AddDays(1) && e.Status!=4
                 select @select.Invoke(a, b,d);

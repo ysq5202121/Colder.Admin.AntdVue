@@ -42,6 +42,7 @@ namespace Coldairarrow.Api
                 options.Filters.Add<GlobalExceptionFilter>();
             })
             .AddControllersAsServices()
+            .AddXmlSerializerFormatters()
             .AddNewtonsoftJson(options =>
             {
                 options.SerializerSettings.ContractResolver = new DefaultContractResolver();

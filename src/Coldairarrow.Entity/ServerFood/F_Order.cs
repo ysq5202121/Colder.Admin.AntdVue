@@ -43,6 +43,16 @@ namespace Coldairarrow.Entity.ServerFood
         public decimal? Price { get; set; }
 
         /// <summary>
+        /// 取餐编码
+        /// </summary>
+        public string TakeFoodCode { get; set; }
+
+        /// <summary>
+        /// 取餐人
+        /// </summary>
+        public string TakeFoodName { get; set; }
+
+        /// <summary>
         /// 创建人编号 当前用户ID
         /// </summary>
         public String CreatorId { get; set; }

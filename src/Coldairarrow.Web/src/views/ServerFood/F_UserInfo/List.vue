@@ -62,10 +62,11 @@
 import EditForm from './EditForm'
 
 const columns = [
-  { title: '用户名称', dataIndex: 'UserName' },
+  { title: '用户名称', dataIndex: 'UserName',width: 150 },
   { title: '是否管理员', dataIndex: 'IsAdmin', width: 100, scopedSlots: { customRender: 'IsAdmin' } },
   { title: '归属门店', dataIndex: 'ShopName', width: 150 },
   { title: '部门名称', dataIndex: 'Department', width: 150 },
+  { title: '全路径', dataIndex: 'FullDepartment' },
   { title: '创建人', dataIndex: 'CreatorName', width: 100 },
   { title: '创建时间', dataIndex: 'CreateTime', width: 150 },
   { title: '修改人', dataIndex: 'UpdateName', width: 100 },

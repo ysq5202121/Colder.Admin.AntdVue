@@ -69,8 +69,9 @@ const columns = [
   { title: '新部门', dataIndex: 'Department', width: 500 },
   { title: '旧部门', dataIndex: 'OldDepartment', width: 300 },
   { title: '备注', dataIndex: 'Remark' },
-  { title: '创建人', dataIndex: 'CreatorName', width: 150 },
-  { title: '修改人', dataIndex: 'UpdateName', width: 150 },
+  { title: '创建人', dataIndex: 'CreatorName', width: 100 },
+  { title: '创建时间', dataIndex: 'CreateTime', width: 150 },
+  { title: '修改人', dataIndex: 'UpdateName', width: 100 },
   { title: '修改时间', dataIndex: 'UpdateTime', width: 150 },
   { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, width: 100 }
 ]

@@ -50,6 +50,13 @@ namespace Coldairarrow.Api.Controllers.ServerFood
              Response.ContentType = "application/vnd.ms-excel";
              await Response.Body.WriteAsync(bytes);
         }
+        [HttpPost]
+        public async Task SumExcelToExport(ConditionDTO input)
+        {
+            var bytes = await _f_OrderBus.SumExcelToExport(input);
+            Response.ContentType = "application/vnd.ms-excel";
+            await Response.Body.WriteAsync(bytes);
+        }
 
         #endregion
 
