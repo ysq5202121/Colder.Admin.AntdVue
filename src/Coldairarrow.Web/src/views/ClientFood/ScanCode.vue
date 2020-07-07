@@ -29,7 +29,7 @@ export default {
   methods: {
     getDataList() {
       this.loading = true
-      this.$http.post('/ServerFood/F_OrderInfo/ScanCode', {}).then(resJson => {
+      this.$http.post('/ServerFood/F_OrderInfo/ScanCode?day=' + this.$route.query.day, {}).then(resJson => {
         this.loading = false
         this.data = resJson.Data
         this.finished = true

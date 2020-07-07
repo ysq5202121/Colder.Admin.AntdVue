@@ -210,7 +210,7 @@ namespace Coldairarrow.Business.ServerFood
                 var joinUser = string.Join("|", userList);
                 weChatSendMsgContext.title = "取餐提醒";
                 weChatSendMsgContext.btntxt = "取餐详情";
-                weChatSendMsgContext.url = "/ClientFood/ScanCode";
+                weChatSendMsgContext.url = "/ClientFood/ScanCode?day=" + DateTime.Now.ToString("yyyy-MM-dd");
                 weChatSendMsgContext.description = "<div class=\"gray\">" + DateTime.Now.ToString("yyyy-MM-dd") +
                                                    "</div> <div class=\"normal\">" + msg + "</div>";
                 if (WeChatOperation.SendMsg(token, joinUser, EnumWeChatAppType.Food, weChatSendMsgContext))
@@ -254,7 +254,7 @@ namespace Coldairarrow.Business.ServerFood
                     var randMan = a.FirstOrDefault()?.TakeFoodName;
                     weChatSendMsgContext.title = "取餐提醒";
                     weChatSendMsgContext.btntxt = "取餐详情";
-                    weChatSendMsgContext.url = "/ClientFood/ScanCode";
+                    weChatSendMsgContext.url = "/ClientFood/ScanCode?day=" + DateTime.Now.ToString("yyyy-MM-dd");
                     //var foodList = a.Select(c => c.UserName + "-" + c.FoodName).ToList();
                     //var foodName = string.Join(",", foodList);
                     var foodList = a.GroupBy(c => c.FoodName).Select(c => c.Key + "*" + c.Count());
@@ -281,7 +281,7 @@ namespace Coldairarrow.Business.ServerFood
                     if (joinList.Count > 0)
                     {
                         var joinUser = string.Join("|", joinList);
-                        weChatSendMsgContext.url = "/ClientFood/ScanCode";
+                        weChatSendMsgContext.url = "/ClientFood/ScanCode?day=" + DateTime.Now.ToString("yyyy-MM-dd");
                         weChatSendMsgContext.description =
                             "<div class=\"gray\">" + DateTime.Now.ToString("yyyy-MM-dd") +
                             "</div> <div class=\"normal\">已随机抽取您部门的 " + randMan +

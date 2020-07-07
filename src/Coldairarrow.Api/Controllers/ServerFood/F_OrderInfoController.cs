@@ -1,4 +1,5 @@
-﻿using Coldairarrow.Business.ServerFood;
+﻿using System;
+using Coldairarrow.Business.ServerFood;
 using Coldairarrow.Entity.ServerFood;
 using Coldairarrow.Util;
 using Microsoft.AspNetCore.Mvc;
@@ -50,9 +51,9 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         [HttpPost]
         [NoCheckJWT]
         [CheckJWTClient]
-        public async Task<List<IF_OrderInfoResultDto>> ScanCode()
+        public async Task<List<IF_OrderInfoResultDto>> ScanCode(DateTime? day)
         {
-            return await _f_OrderInfoBus.ScanCodeAsyns();
+            return await _f_OrderInfoBus.ScanCodeAsyns(day);
         }
 
         #endregion

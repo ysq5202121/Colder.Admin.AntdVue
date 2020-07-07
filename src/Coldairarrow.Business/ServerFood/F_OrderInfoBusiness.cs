@@ -93,11 +93,11 @@ namespace Coldairarrow.Business.ServerFood
         /// 扫描取同一个部门餐
         /// </summary>
         /// <returns></returns>
-        public async Task<List<IF_OrderInfoResultDto>> ScanCodeAsyns()
+        public async Task<List<IF_OrderInfoResultDto>> ScanCodeAsyns(DateTime? day)
         {
             var userInfo = Service.GetIQueryable<F_UserInfo>().Where(a => a.WeCharUserId == oOperator.UserId)?.FirstOrDefault();
             if (userInfo == null) throw new BusException("获取用户信息失败!");
-
+            if(!day.HasValue)day=DateTime.Now;
             Expression<Func<F_OrderInfo, F_PublishFood, Base_DepartmentRelation, IF_OrderInfoResultDto>> select = (a, b,c) => new IF_OrderInfoResultDto
             {
                 FoodName = b.FoodName,
@@ -116,7 +116,7 @@ namespace Coldairarrow.Business.ServerFood
                 join c in Service.GetIQueryable<F_UserInfo>() on a.CreatorId equals c.Id
                 join d in Service.GetIQueryable<Base_DepartmentRelation>() on c.FullDepartment equals d.Department into cd
                 from d in cd.DefaultIfEmpty()
-                where a.CreateTime > toDay && a.CreateTime < toDay.AddDays(1) && e.Status!=4
+                where a.CreateTime > day.Value.Date && a.CreateTime < day.Value.Date.AddDays(1) && e.Status!=4
                 select @select.Invoke(a, b,d);
                 
             var where = LinqHelper.True<IF_OrderInfoResultDto>();
@@ -127,7 +127,7 @@ namespace Coldairarrow.Business.ServerFood
             
             if (!oldDepartment.IsNullOrEmpty())
             {
-                where= where.And(a =>
+                where = where.And(a =>
                     a.OldDepartment == oldDepartment);
             }
             else

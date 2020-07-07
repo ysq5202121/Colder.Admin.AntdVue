@@ -9,12 +9,12 @@
   >
     <a-spin :spinning="loading">
       <a-form-model ref="form" :model="entity" :rules="rules" v-bind="layout">
-        <a-form-model-item label="新部门" prop="Department">
+        <a-form-model-item label="部门" prop="Department">
           <a-select v-model="entity.Department" mode="tags">
             <a-select-option v-for="item in DepartmentList" :key="item">{{ item }}</a-select-option>
           </a-select>
         </a-form-model-item>
-        <a-form-model-item label="旧部门" prop="OldDepartment">
+        <a-form-model-item label="对应部门" prop="OldDepartment">
           <a-input v-model="entity.OldDepartment" autocomplete="off" />
         </a-form-model-item>
         <a-form-model-item label="备注" prop="Remark">

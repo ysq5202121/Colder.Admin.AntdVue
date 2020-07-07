@@ -18,9 +18,10 @@
           <a-col :md="4" :sm="24">
             <a-form-item label="查询类别">
               <a-select allowClear v-model="queryParam.condition">
-                <a-select-option key="OrderCode">订单编号</a-select-option>
-                <a-select-option key="CreatorName">创建人姓名</a-select-option>
-                <a-select-option key="UpdateName">修改人时间</a-select-option>
+                <a-select-option key="UserName">用户名</a-select-option>
+                <a-select-option key="OldDepartmentName">部门名称</a-select-option>
+                <a-select-option key="FoodName">菜品名称</a-select-option>
+                <a-select-option key="StatusName">状态</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -78,11 +79,14 @@ import moment, { isMoment } from 'moment'
 const columns = [
   { title: '订单编号', dataIndex: 'OrderCode' },
   { title: '用户', dataIndex: 'UserName', width: 150 },
-  { title: '数量', dataIndex: 'OrderCount', width: 150 },
-  { title: '订单金额', dataIndex: 'Price', width: 150 },
-  { title: '创建人', dataIndex: 'CreatorName', width: 150 },
+  { title: '菜品名称', dataIndex: 'FoodName', width: 150 },
+  { title: '部门名称', dataIndex: 'OldDepartmentName', width: 150 },
+  { title: '状态', dataIndex: 'StatusName', width: 80 },
+  { title: '数量', dataIndex: 'OrderCount', width: 80 },
+  { title: '订单金额', dataIndex: 'Price', width: 80 },
+  { title: '创建人', dataIndex: 'CreatorName', width: 100 },
   { title: '创建时间', dataIndex: 'CreateTime', width: 150 },
-  { title: '修改人', dataIndex: 'UpdateName', width: 150 },
+  { title: '修改人', dataIndex: 'UpdateName', width: 100 },
   { title: '修改时间', dataIndex: 'UpdateTime', width: 150 },
   { title: '操作', dataIndex: 'action', scopedSlots: { customRender: 'action' }, width: 100 }
 ]
@@ -103,7 +107,7 @@ export default {
       data: [],
       pagination: {
         current: 1,
-        pageSize: 10,
+        pageSize: 20,
         showTotal: (total, range) => `总数:${total} 当前:${range[0]}-${range[1]}`
       },
       filters: {},

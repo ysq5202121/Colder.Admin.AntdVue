@@ -152,7 +152,7 @@ namespace Coldairarrow.Util
         {
             if (string.IsNullOrEmpty(url))
                 throw new Exception("请求地址不能为NULL或空！");
-
+            
             string newUrl = url;
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(newUrl);
             request.Method = method.ToUpper();

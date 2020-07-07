@@ -18,8 +18,8 @@
           <a-col :md="4" :sm="24">
             <a-form-item label="查询类别">
               <a-select allowClear v-model="queryParam.condition">
-                <a-select-option key="Department">新部门</a-select-option>
-                <a-select-option key="OldDepartment">旧部门</a-select-option>
+                <a-select-option key="Department">部门</a-select-option>
+                <a-select-option key="OldDepartment">对应部门</a-select-option>
                 <a-select-option key="CreatorName">创建人姓名</a-select-option>
               </a-select>
             </a-form-item>
@@ -66,8 +66,8 @@
 import EditForm from './EditForm'
 
 const columns = [
-  { title: '新部门', dataIndex: 'Department', width: 500 },
-  { title: '旧部门', dataIndex: 'OldDepartment', width: 300 },
+  { title: '部门', dataIndex: 'Department', width: 500 },
+  { title: '对应部门', dataIndex: 'OldDepartment', width: 300 },
   { title: '备注', dataIndex: 'Remark' },
   { title: '创建人', dataIndex: 'CreatorName', width: 100 },
   { title: '创建时间', dataIndex: 'CreateTime', width: 150 },

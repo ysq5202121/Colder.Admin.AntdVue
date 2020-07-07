@@ -15,6 +15,7 @@ namespace Coldairarrow.Business.ServerFood
         Task<byte[]> ExcelToExport(ConditionDTO input);
         Task<byte[]> SumExcelToExport(ConditionDTO input);
         Task<F_Order> GetTheDataAsync(string id);
+        Task RefreshOrderStatus();
         Task AddDataAsync(F_Order data);
         Task UpdateDataAsync(F_Order data);
         Task DeleteDataAsync(List<string> ids);

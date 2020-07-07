@@ -1,4 +1,5 @@
-﻿using Coldairarrow.Entity.ServerFood;
+﻿using System;
+using Coldairarrow.Entity.ServerFood;
 using Coldairarrow.Util;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace Coldairarrow.Business.ServerFood
         Task<List<IF_OrderInfoResultDto>> GetDataListNoPageAsync(ConditionDTO input);
 
         Task<List<IF_OrderInfoResultDto>> GetDataListToMoblieAsync(ConditionDTO input);
-        Task<List<IF_OrderInfoResultDto>> ScanCodeAsyns();
+        Task<List<IF_OrderInfoResultDto>> ScanCodeAsyns(DateTime? day);
 
         Task<F_OrderInfo> GetTheDataAsync(string id);
         Task AddDataAsync(F_OrderInfo data);

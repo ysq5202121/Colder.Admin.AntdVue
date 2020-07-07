@@ -18,6 +18,8 @@ namespace Coldairarrow.Api
             //一周执行一次
             var f_UserInfoBus = app.ApplicationServices.GetService<IF_UserInfoBusiness>();
             RecurringJob.AddOrUpdate(() => f_UserInfoBus.TimedRefreshDepartment(), Cron.Weekly(DayOfWeek.Sunday)); //注意最小单位是分钟
+            var fOrderBusiness = app.ApplicationServices.GetService<IF_OrderBusiness>();
+            RecurringJob.AddOrUpdate(() => fOrderBusiness.RefreshOrderStatus(), Cron.Daily(23)); //注意最小单位是分钟
 
         }
     }

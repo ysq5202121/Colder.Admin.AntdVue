@@ -12,6 +12,8 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Coldairarrow.Entity.Base_Manage;
 using CSRedis;
+using Hangfire;
+using Quartz.Impl.Matchers;
 using StackExchange.Redis;
 
 namespace Coldairarrow.Business.ServerFood
@@ -30,15 +32,24 @@ namespace Coldairarrow.Business.ServerFood
 
         public async Task<PageResult<IF_OrderResultDTO>> GetDataListAsync(PageInput<ConditionDTO> input)
         {
-            Expression<Func<F_Order, F_UserInfo, IF_OrderResultDTO >> select = (a, b) => new IF_OrderResultDTO
+            Expression<Func<F_Order, F_UserInfo,Base_DepartmentRelation,F_PublishFood,Base_Dictionary, IF_OrderResultDTO >> select = (a, b,c,d,f) => new IF_OrderResultDTO
             {
-                UserName = b.UserName
+                UserName = b.UserName,
+                OldDepartmentName = c.OldDepartment,
+                FoodName =d.FoodName,
+                StatusName = f.DicDisplayValue
             };
             select = select.BuildExtendSelectExpre();
             var q = from a in GetIQueryable().AsExpandable()
+                join e in Service.GetIQueryable<F_OrderInfo>() on a.OrderCode equals e.OrderCode
+                join f in  Service.GetIQueryable<F_PublishFood>() on e.PublishFoodId equals  f.Id
                 join b in Service.GetIQueryable<F_UserInfo>() on a.UserInfoId equals b.Id into ab
                 from b in ab.DefaultIfEmpty()
-                select @select.Invoke(a, b);
+                join c  in  Service.GetIQueryable<Base_DepartmentRelation>() on b.FullDepartment equals  c.Department into bc
+                from c in bc.DefaultIfEmpty()
+                join g  in Service.GetIQueryable<Base_Dictionary>() on  new { Status = a.Status.ToString(), OrderStatus = "OrderStatus" } equals new { Status = g.DicValue, OrderStatus = g.DicKey} into ag
+                from h in ag.DefaultIfEmpty()
+                select @select.Invoke(a, b,c,f,h);
             var where = LinqHelper.True<IF_OrderResultDTO>();
             var search = input.Search;
 
@@ -185,16 +196,17 @@ namespace Coldairarrow.Business.ServerFood
                     select a.TakeFoodCode).FirstOrDefault();
                 if (string.IsNullOrEmpty(takeFoodCode))
                 {
-                    string maxTakeFoodCode = Service.GetIQueryable<F_Order>()
+                    var maxTakeFoodCodeList = Service.GetIQueryable<F_Order>()
                         .Where(a => a.CreateTime > DateTime.Now.Date && a.CreateTime < DateTime.Now.Date.AddDays(1))
-                        .Max(a => a.TakeFoodCode);
-                    if (string.IsNullOrEmpty(maxTakeFoodCode))
+                        .Select(a => a.TakeFoodCode).ToList();
+                    if (maxTakeFoodCodeList.Count>0)
                     {
-                        takeFoodCode = "1";
+                        takeFoodCode = (maxTakeFoodCodeList.Max(a => a.ToInt()) + 1).ToString();
+                        
                     }
                     else
                     {
-                        takeFoodCode = (maxTakeFoodCode.ToInt() + 1).ToString();
+                        takeFoodCode = "1";
                     }
                 }
 
@@ -302,7 +314,7 @@ namespace Coldairarrow.Business.ServerFood
             }
             //增加按照部门排序
             var orderResultList = q.Where(where).OrderBy(a => a.OldDepartmentName).ToList();
-            DataTable dt = orderResultList.GroupBy(a => new { DepartmentName=a.OldDepartmentName??a.DepartmentName, a.FoodName}).
+            DataTable dt = orderResultList.OrderBy(a=>a.TakeFoodCode.ToInt()).GroupBy(a => new { DepartmentName=a.OldDepartmentName??a.DepartmentName, a.FoodName}).
             Select(a => new
             {
                 TakeFoodCode = "A"+a.FirstOrDefault().TakeFoodCode,
@@ -366,10 +378,10 @@ namespace Coldairarrow.Business.ServerFood
             //增加按照部门排序
             DataTable dt = q.Where(where).OrderBy(a => a.OldDepartmentName).Select(a=>new
             {
-                UserName=a.UserName,
+                OldDepartmentName = a.OldDepartmentName,
+                UserName =a.UserName,
                 SupplierName=a.SupplierName,
                 FoodName=a.FoodName,
-                OldDepartmentName=a.OldDepartmentName,
                 OrderCount=a.OrderCount,
                 Price=a.Price,
                 OrderCode=a.OrderCode,
@@ -385,7 +397,7 @@ namespace Coldairarrow.Business.ServerFood
             if (dt.Columns.Contains("DepartmentName"))
                 dt.Columns["DepartmentName"].ColumnName = "部门名称";
             if (dt.Columns.Contains("OldDepartmentName"))
-                dt.Columns["OldDepartmentName"].ColumnName = "旧部门";
+                dt.Columns["OldDepartmentName"].ColumnName = "部门名称";
             if (dt.Columns.Contains("OrderCount"))
                 dt.Columns["OrderCount"].ColumnName = "数量";
             if (dt.Columns.Contains("Price"))
@@ -434,6 +446,26 @@ namespace Coldairarrow.Business.ServerFood
 
             });
          return result > 0;
+        }
+
+        [JobDisplayName("自动刷新订单状态 每日23点执行一次")]
+        public async Task RefreshOrderStatus()
+        {
+           //var orderInfoList=  await GetIQueryable().Where(a => a.CreateTime < DateTime.Now.Date.AddDays(1) && a.Status==1).ToListAsync();
+           //orderInfoList.ForEach(a =>
+           //{
+           //    a.Status = 3;
+           //    a.UpdateTime=DateTime.Now;
+           //    a.UpdateName = "Job";
+           //    a.UpdateId = "Job";
+           //});
+          await UpdateWhereAsync(a => a.CreateTime < DateTime.Now.Date.AddDays(1) && a.Status == 1, a =>
+           {
+               a.Status = 3;
+               a.UpdateTime = DateTime.Now;
+               a.UpdateName = "Job";
+               a.UpdateId = "Job";
+           });
         }
 
         public async Task<F_Order> GetTheDataAsync(string id)
