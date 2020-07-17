@@ -42,7 +42,7 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         }
         [HttpPost]
         [NoCheckJWT]
-        [CheckJWTClient]
+        [CheckJWTClient(AppId = (int)EnumWeChatAppType.Food)]
         public async Task<List<IF_OrderInfoResultDto>> GetDataListToMoblie(ConditionDTO input)
         {
             return await _f_OrderInfoBus.GetDataListToMoblieAsync(input);
@@ -50,7 +50,7 @@ namespace Coldairarrow.Api.Controllers.ServerFood
 
         [HttpPost]
         [NoCheckJWT]
-        [CheckJWTClient]
+        [CheckJWTClient(AppId =(int)EnumWeChatAppType.Food)]
         public async Task<List<IF_OrderInfoResultDto>> ScanCode(DateTime? day)
         {
             return await _f_OrderInfoBus.ScanCodeAsyns(day);

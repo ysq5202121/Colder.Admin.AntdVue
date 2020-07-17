@@ -187,7 +187,8 @@ namespace Coldairarrow.Business.ServerFood
             JWTPayload jWTPayload = new JWTPayload
             {
                 UserId = userId,
-                Expire = DateTime.Now.AddDays(30)
+                Expire = DateTime.Now.AddDays(30),
+                AppId = (int)EnumWeChatAppType.Food
             };
             string tk = JWTHelper.GetToken(jWTPayload.ToJson(), JWTHelper.JWTClient);
             return tk;

@@ -14,6 +14,7 @@
 </template>
 
 <script>
+import WeChatHelper from '@/utils/helper/WeChatHelper'
 export default {
   mounted() {
     this.code = this.$route.query.code
@@ -31,11 +32,11 @@ export default {
   },
   methods: {
     closeDiag(action, done) {
-      this.$http.get('/Wechat/WeChatAuth/Login?code=' + this.code).then(resJson => {
+      this.$http.get('/Wechat/WeChatAuth/Login?code=' + this.code + '&Id=' + this.$route.query.Id).then(resJson => {
         if (resJson.Success) {
           localStorage.setItem('jwtToken', resJson.Data)
           done()
-          this.$router.push({ path: '/ClientFood/Order' })
+          this.$router.push({ path: WeChatHelper.GetGoToUrl(this.$route.query.Id) })
         } else {
           this.$notify(resJson.Msg)
           done(false)
@@ -49,7 +50,6 @@ export default {
           if (!resJson.Data) {
             this.closeDiag('', a => {})
           } else {
-            console.log(111)
             this.loading = false
             this.show = true
           }

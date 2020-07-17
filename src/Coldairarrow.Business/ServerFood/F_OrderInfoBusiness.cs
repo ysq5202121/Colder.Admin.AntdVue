@@ -116,7 +116,7 @@ namespace Coldairarrow.Business.ServerFood
                 join c in Service.GetIQueryable<F_UserInfo>() on a.CreatorId equals c.Id
                 join d in Service.GetIQueryable<Base_DepartmentRelation>() on c.FullDepartment equals d.Department into cd
                 from d in cd.DefaultIfEmpty()
-                where a.CreateTime > day.Value.Date && a.CreateTime < day.Value.Date.AddDays(1) && e.Status!=4
+                where a.CreateTime >= day.Value.Date && a.CreateTime < day.Value.Date.AddDays(1) && e.Status!=4
                 select @select.Invoke(a, b,d);
                 
             var where = LinqHelper.True<IF_OrderInfoResultDto>();

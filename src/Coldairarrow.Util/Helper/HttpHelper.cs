@@ -94,6 +94,19 @@ namespace Coldairarrow.Util
         }
 
         /// <summary>
+        /// 发起POST请求
+        /// 注：若使用证书,推荐使用X509Certificate2的pkcs12证书
+        /// </summary>
+        /// <param name="url">地址</param>
+        /// <param name="body">请求体</param>
+        /// <param name="headers">请求头</param>
+        /// <param name="cerFile">证书</param>
+        /// <returns></returns>
+        public static string PostData(string url, string body, Dictionary<string, string> headers = null, X509Certificate cerFile = null)
+        {
+            return RequestData("POST", url, body, "application/json", headers, cerFile);
+        }
+        /// <summary>
         /// 请求数据
         /// 注：若使用证书,推荐使用X509Certificate2的pkcs12证书
         /// </summary>

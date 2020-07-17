@@ -1,4 +1,5 @@
-﻿using Coldairarrow.Entity.ServerFood;
+﻿using System;
+using Coldairarrow.Entity.ServerFood;
 using Coldairarrow.Util;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace Coldairarrow.Business.ServerFood
     {
         Task<PageResult<F_FoodInfoResultDto>> GetDataListAsync(PageInput<ConditionDTO> input);
         Task<F_FoodInfo> GetTheDataAsync(string id);
-        Task PublishFoodDataAsync(List<string> ids);
+        Task PublishFoodDataAsync(List<string> ids, DateTime? dt);
         Task AddDataAsync(F_FoodInfo data);
         Task UpdateDataAsync(F_FoodInfo data);
         Task DeleteDataAsync(List<string> ids);

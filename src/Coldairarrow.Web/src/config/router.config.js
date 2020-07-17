@@ -1,5 +1,6 @@
 // eslint-disable-next-line
 import { UserLayout, PageView } from '@/layouts'
+import WeChatHelper from '@/utils/helper/WeChatHelper'
 
 /**
  * 基础路由,修改基础路由信息
@@ -77,7 +78,7 @@ export const constantRouterMap = [
     beforeEnter: (to, from, next) => {
       // 路由导航拦截 modify by ysq 2020-04-29
       if (localStorage.getItem('jwtToken')) {
-        next({ path: '/ClientFood/Order' })
+        next({ path: WeChatHelper.GetGoToUrl(to.query.Id) })
       } else {
         next()
       }
@@ -90,7 +91,7 @@ export const constantRouterMap = [
     beforeEnter: (to, from, next) => {
       // 路由导航拦截 modify by ysq 2020-04-29
       if (localStorage.getItem('jwtToken')) {
-        next({ path: '/ClientFood/Order' })
+        next({ path: WeChatHelper.GetGoToUrl(to.query.Id) })
       } else {
         next()
       }
@@ -115,6 +116,21 @@ export const constantRouterMap = [
     path: '/ClientRoom/AppointmentMeetingRoom',
     name: 'AppointmentMeetingRoom',
     component: () => import('@/views/ClientRoom/AppointmentMeetingRoom')
+  },
+  {
+    path: '/ClientReport/ClientReportView',
+    name: 'ClientReportView',
+    component: () => import('@/views/ClientReport/ClientReportView')
+  },
+  {
+    path: '/ClientReport/ClientReportView2',
+    name: 'ClientReportView2',
+    component: () => import('@/views/ClientReport/ClientReportView2')
+  },
+  {
+    path: '/ClientReport/ReportNoAuth',
+    name: 'ReportNoAuth',
+    component: () => import('@/views/ClientReport/ReportNoAuth')
   },
   {
     path: '/404',

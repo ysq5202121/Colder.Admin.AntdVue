@@ -35,7 +35,38 @@ namespace Coldairarrow.Util.ApiHelper.WeChat
            logger = _logger;
        }
 
-        /// <summary>
+       public static string GetCode()
+       {
+           try
+           {
+
+               Dictionary<string, object> dic = new Dictionary<string, object>
+               {
+                   {"appid", autoInfoList.FirstOrDefault(a => a.AppId == (int) EnumWeChatAppType.Food)?.CorpId},
+                   {"redirect_uri", autoInfoList.FirstOrDefault(a => a.AppId == (int)EnumWeChatAppType.Food)?.Url},
+                   {"response_type", "code"},
+                   {"scope", "snsapi_base"},
+                   {"state", "STATE#wechat_redirect"},
+               };
+               string resultJson = HttpHelper.GetData(GetCodeUrl, dic);
+               WeChatTokenReuslt token = resultJson.ToObject<WeChatTokenReuslt>();
+               if (token.errcode != "0")
+               {
+                   LogHelper.WriteLog_LocalTxt(resultJson);
+                   logger?.LogWarning(resultJson);
+                   return null;
+               }
+
+               return token.access_token;
+           }
+           catch (Exception e)
+           {
+               LogHelper.WriteLog_LocalTxt(e.Message);
+               return null;
+           }
+       }
+
+       /// <summary>
         /// 获取token
         /// </summary>
         /// <returns></returns>

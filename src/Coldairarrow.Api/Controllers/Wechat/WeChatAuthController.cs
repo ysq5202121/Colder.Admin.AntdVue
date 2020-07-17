@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Coldairarrow.Business.ServerFood;
+using Coldairarrow.IBusiness.WeChat;
 using Coldairarrow.Util;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,24 +13,24 @@ namespace Coldairarrow.Api.Controllers.Wechat
     [Route("/Wechat/[controller]/[action]")]
     public class WeChatAuthController : BaseApiController
     {
-        IF_UserInfoBusiness _f_UserInfoBus { get; }
-        public WeChatAuthController(IF_UserInfoBusiness f_UserInfoBus)
+        IWeChatAuthBusiness _weChatAuthBus { get; }
+        public WeChatAuthController(IWeChatAuthBusiness _fWeChatAuth)
         {
-            _f_UserInfoBus = f_UserInfoBus;
+            _weChatAuthBus = _fWeChatAuth;
         }
         [HttpGet]
         [NoCheckJWT]
-        public async Task<string> Login(string code)
+        public async Task<string> Login(string code,int id)
         { 
-            return  await _f_UserInfoBus.Login(code);
+            return  await _weChatAuthBus.Login(code, id);
         }
 
-        [HttpGet]
-        [NoCheckJWT]
-        public async Task<bool> CheckLogin(string code)
-        {
-            return await _f_UserInfoBus.CheckLogin(code);
-        }
+        //[HttpGet]
+        //[NoCheckJWT]
+        //public async Task<bool> CheckLogin(string code)
+        //{
+        //    return await _weChatAuthBus.CheckLogin(code);
+        //}
 
 
     }

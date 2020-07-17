@@ -50,7 +50,7 @@ namespace Coldairarrow.Business.ServerFood
             if (!search.PublishFoodTime.IsNullOrEmpty())
             {
                 where=where.And(a =>
-                    a.PublishDate > search.PublishFoodTime.ToDateTime().Date && a.PublishDate < search.PublishFoodTime.ToDateTime().Date.AddDays(1));
+                    a.PublishDate >= search.PublishFoodTime.ToDateTime().Date && a.PublishDate < search.PublishFoodTime.ToDateTime().Date.AddDays(1));
             }
             return await q.Where(where).GetPageResultAsync(input);
         }
@@ -76,7 +76,7 @@ namespace Coldairarrow.Business.ServerFood
             var where = LinqHelper.True<F_PublishFoodResultDto>();
             var toDay = DateTime.Now.Date;
             
-            where=where.And(a => a.PublishDate > toDay && a.PublishDate < toDay.AddDays(1));
+            where=where.And(a => a.PublishDate >= toDay && a.PublishDate < toDay.AddDays(1));
             var userInfo = Service.GetIQueryable<F_UserInfo>().Where(a => a.WeCharUserId == operators.UserId)?.FirstOrDefault();
             if (userInfo == null) throw new BusException("获取用户信息失败!");
             if (!string.IsNullOrEmpty(operators.WeChatProperty.ShopInfoId))

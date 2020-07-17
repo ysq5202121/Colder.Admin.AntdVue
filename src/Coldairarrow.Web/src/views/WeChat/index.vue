@@ -11,12 +11,15 @@ export default {
       defaultSettings.weChatAppId +
       '&redirect_uri=' +
       defaultSettings.WeChatUrl +
-      '/WeChat/Authorize?appid=1&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect'
+      '/WeChat/Authorize?Id=' +
+      this.$route.query.Id +
+      '&response_type=code&scope=snsapi_base&state=STATE#wechat_redirect'
   },
   data: function() {
     return {
       greeting: 'Hello'
     }
-  }
+  },
+  methods: {}
 }
 </script>

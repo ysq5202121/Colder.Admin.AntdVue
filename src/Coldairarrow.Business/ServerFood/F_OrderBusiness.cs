@@ -163,7 +163,7 @@ namespace Coldairarrow.Business.ServerFood
                 {
                     var toDay = DateTime.Now.Date;
                     var taDayOrderNum = Service.GetIQueryable<F_Order>().Count(a =>
-                        a.UserInfoId == userInfo.Id && a.CreateTime > toDay && a.CreateTime < toDay.AddDays(1) &&
+                        a.UserInfoId == userInfo.Id && a.CreateTime >= toDay && a.CreateTime < toDay.AddDays(1) &&
                         a.Status != 4);
                     if (taDayOrderNum >= fShopInfoSet.UserOrderNum)
                         throw new BusException("今天已下单" + taDayOrderNum + "个,不能再下单");
@@ -190,14 +190,14 @@ namespace Coldairarrow.Business.ServerFood
                     join c in Service.GetIQueryable<Base_DepartmentRelation>() on b.FullDepartment equals c.Department
                         into bc
                     from c in bc.DefaultIfEmpty()
-                    where a.CreateTime > DateTime.Now.Date && a.CreateTime < DateTime.Now.Date.AddDays(1) &&
+                    where a.CreateTime >= DateTime.Now.Date && a.CreateTime < DateTime.Now.Date.AddDays(1) &&
                           c.OldDepartment == userInfo.OldDepartment
                           && a.TakeFoodCode != null
                     select a.TakeFoodCode).FirstOrDefault();
                 if (string.IsNullOrEmpty(takeFoodCode))
                 {
                     var maxTakeFoodCodeList = Service.GetIQueryable<F_Order>()
-                        .Where(a => a.CreateTime > DateTime.Now.Date && a.CreateTime < DateTime.Now.Date.AddDays(1))
+                        .Where(a => a.CreateTime >= DateTime.Now.Date && a.CreateTime < DateTime.Now.Date.AddDays(1))
                         .Select(a => a.TakeFoodCode).ToList();
                     if (maxTakeFoodCodeList.Count>0)
                     {
@@ -256,7 +256,7 @@ namespace Coldairarrow.Business.ServerFood
                     join c in Service.GetIQueryable<Base_DepartmentRelation>() on b.FullDepartment equals c.Department
                         into bc
                     from c in bc.DefaultIfEmpty()
-                    where a.CreateTime > DateTime.Now.Date && a.CreateTime < DateTime.Now.Date.AddDays(1) && c.OldDepartment == userInfo.OldDepartment
+                    where a.CreateTime >= DateTime.Now.Date && a.CreateTime < DateTime.Now.Date.AddDays(1) && c.OldDepartment == userInfo.OldDepartment
                     orderby Guid.NewGuid()
                     select b.UserName).FirstOrDefault();
 
@@ -266,7 +266,7 @@ namespace Coldairarrow.Business.ServerFood
                     join c in Service.GetIQueryable<Base_DepartmentRelation>() on b.FullDepartment equals c.Department
                         into bc
                     from c in bc.DefaultIfEmpty()
-                    where a.CreateTime > DateTime.Now.Date && a.CreateTime < DateTime.Now.Date.AddDays(1) &&
+                    where a.CreateTime >= DateTime.Now.Date && a.CreateTime < DateTime.Now.Date.AddDays(1) &&
                           c.OldDepartment == userInfo.OldDepartment
                     select a).ToList();
                 orderList.ForEach(a => { a.TakeFoodName = RandMan; });
@@ -308,7 +308,7 @@ namespace Coldairarrow.Business.ServerFood
             {
 
                 where = where.And(a =>
-                    a.CreateTime > input.Keyword.ToDateTime().Date && a.CreateTime <
+                    a.CreateTime >= input.Keyword.ToDateTime().Date && a.CreateTime <
                                                                    input.Keyword.ToDateTime().Date.AddDays(1)
                                                                    && a.Status != 4);
             }
@@ -372,7 +372,7 @@ namespace Coldairarrow.Business.ServerFood
             {
 
                 where = where.And(a =>
-                    a.CreateTime > input.Keyword.ToDateTime().Date && a.CreateTime < input.Keyword.ToDateTime().Date.AddDays(1)
+                    a.CreateTime >= input.Keyword.ToDateTime().Date && a.CreateTime < input.Keyword.ToDateTime().Date.AddDays(1)
                                                               && a.Status != 4);
             }
             //增加按照部门排序

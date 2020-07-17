@@ -34,7 +34,7 @@ namespace Coldairarrow.Api.Controllers.ServerFood
 
         [HttpPost]
         [NoCheckJWT]
-        [CheckJWTClient]
+        [CheckJWTClient(AppId = (int)EnumWeChatAppType.Food)]
         public async Task<List<F_ShopInfo>> GetDataListToMoblie()
         {
             return await _f_ShopInfoBus.GetDataListToMoblieAsync();

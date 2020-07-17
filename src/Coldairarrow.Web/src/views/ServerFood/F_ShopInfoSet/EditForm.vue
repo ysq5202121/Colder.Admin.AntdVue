@@ -75,7 +75,7 @@
         <a-form-model-item prop="IsRandomSendReceiveMsg">
           <span slot="label">
             随机发送领餐信息
-            <a-tooltip title="如果开启则设置的领餐信息无效">
+            <a-tooltip title="如果开启则设置的领餐提醒信息无效，将按照随机规则">
               <a-icon type="question-circle-o" />
             </a-tooltip>
           </span>

@@ -80,13 +80,15 @@ namespace Coldairarrow.Business.ServerFood
             await DeleteAsync(ids);
         }
 
-        public async Task PublishFoodDataAsync(List<string> ids)
+        public async Task PublishFoodDataAsync(List<string> ids,DateTime? dt)
         {
-           var tempQuery =Service.GetIQueryable<F_PublishFood>().Where(a => ids.Contains(a.FoodInfoId) && a.PublishDate > DateTime.Now.Date &&   a.PublishDate< DateTime.Now.Date.AddDays(1))
+            if (!dt.HasValue)
+                dt = DateTime.Now;
+            var tempQuery =Service.GetIQueryable<F_PublishFood>().Where(a => ids.Contains(a.FoodInfoId) && a.PublishDate >= dt.Value.Date &&   a.PublishDate< dt.Value.Date.AddDays(1))
                 .ToList();
             if (tempQuery.Count > 0)
             {
-                throw new BusException("["+string.Join(",", tempQuery.Select(a => a.FoodName)) +"]菜品当日已经发布过,请重新选择!");
+                throw new BusException("["+string.Join(",", tempQuery.Select(a => a.FoodName)) +"]菜品"+dt.Value.ToString("yyyy-MM-dd")+"已经发布过,请重新选择!");
             }
             var query = GetIQueryable().Where(a => ids.Contains(a.Id)).ToList();
             if(query.Count==0) throw new BusException("数据异常!");
@@ -94,7 +96,7 @@ namespace Coldairarrow.Business.ServerFood
             string shopInfoId = query?.FirstOrDefault()?.ShopInfoId;
             var shopInfo = Service.GetIQueryable<F_ShopInfoSet>().FirstOrDefault(a => a.ShopInfoId == shopInfoId);
             var toDayFoodsCount = Service.GetIQueryable<F_PublishFood>().Count(a =>
-                a.PublishDate > DateTime.Now.Date && a.PublishDate < DateTime.Now.Date.AddDays(1) && a.ShopInfoId== shopInfoId);
+                a.PublishDate >= dt.Value.Date && a.PublishDate < dt.Value.Date.AddDays(1) && a.ShopInfoId== shopInfoId);
             List<F_PublishFood> publishFoodList = new List<F_PublishFood>();
             query.ForEach(a =>
             {
@@ -111,7 +113,7 @@ namespace Coldairarrow.Business.ServerFood
                     FoodDesc =a.FoodDesc,
                     FoodName = a.FoodName,
                     ImgUrl = a.ImgUrl,
-                    PublishDate = DateTime.Now,
+                    PublishDate = dt.Value,
                     FoodInfoId = a.Id,
                     Limit = a.Limit.HasValue ? a.Limit:1
 
@@ -123,9 +125,9 @@ namespace Coldairarrow.Business.ServerFood
             if (shopInfo!=null && !string.IsNullOrEmpty(shopInfo.OrderBeginRemind) && shopInfo.OrderBeginDate.HasValue && toDayFoodsCount<=0)
             {
                 //发送开始点餐信息
-                var beginTimeSpan = shopInfo.OrderBeginDate.Value.TimeOfDay - DateTime.Now.TimeOfDay;
+                var beginTimeSpan = GetNowDay(shopInfo.OrderBeginDate.Value, dt.Value) - DateTime.Now;
                 //如果当前时间已经过了点餐时间不在发送
-                if (shopInfo.OrderBeginEnd.HasValue && DateTime.Now.TimeOfDay < shopInfo.OrderBeginEnd.Value.TimeOfDay)
+                if (shopInfo.OrderBeginEnd.HasValue && DateTime.Now < GetNowDay(shopInfo.OrderBeginEnd.Value, dt.Value))
                 {
                     //添加发送消息
                     BackgroundJob.Schedule(() => PublishFoodSendToWeChat(shopInfoId, shopInfo.OrderBeginRemind,0),
@@ -136,9 +138,9 @@ namespace Coldairarrow.Business.ServerFood
             if (shopInfo != null && !string.IsNullOrEmpty(shopInfo.OrderEndRemind) && shopInfo.OrderBeginEnd.HasValue && toDayFoodsCount <= 0)
             {
                 //发送结束点餐信息,提前5分钟
-                var endTimeSpan = shopInfo.OrderBeginEnd.Value.AddMinutes(-5).TimeOfDay - DateTime.Now.TimeOfDay;
+                var endTimeSpan = GetNowDay(shopInfo.OrderBeginEnd.Value.AddMinutes(-5), dt.Value) - DateTime.Now;
                 //如果当前时间已经过了点餐时间不发送
-                if (DateTime.Now.TimeOfDay < shopInfo.OrderBeginEnd.Value.TimeOfDay)
+                if (DateTime.Now < GetNowDay(shopInfo.OrderBeginEnd.Value, dt.Value))
                 {
                     //添加发送消息
                     BackgroundJob.Schedule(() => PublishFoodSendToWeChat(shopInfoId, shopInfo.OrderEndRemind,0),
@@ -149,9 +151,9 @@ namespace Coldairarrow.Business.ServerFood
             if (shopInfo != null && !string.IsNullOrEmpty(shopInfo.OrderReceiveRemind) && shopInfo.OrderReceiveDate.HasValue && toDayFoodsCount <= 0)
             {
                 //发送领取餐品信息
-                var endTimeSpan = shopInfo.OrderReceiveDate.Value.TimeOfDay - DateTime.Now.TimeOfDay;
+                var endTimeSpan = GetNowDay(shopInfo.OrderReceiveDate.Value, dt.Value) - DateTime.Now;
                 //如果当前时间已经过了领取时间不发送
-                if (DateTime.Now.TimeOfDay < shopInfo.OrderReceiveDate.Value.TimeOfDay)
+                if (DateTime.Now < GetNowDay(shopInfo.OrderReceiveDate.Value, dt.Value))
                 {
                     //添加发送消息
                     BackgroundJob.Schedule(() => PublishFoodSendToWeChat(shopInfoId, shopInfo.OrderReceiveRemind, shopInfo.IsRandomSendReceiveMsg?2:1),
@@ -159,6 +161,27 @@ namespace Coldairarrow.Business.ServerFood
                 }
             }
             await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// 获取发布日期的发送时间
+        /// 只修改日期,不修改时间
+        /// </summary>
+        /// <param name="dt">发送时间</param>
+        /// <param name="dtLast">发布日期</param>
+        /// <returns></returns>
+        public DateTime GetNowDay(DateTime dt,DateTime dtLast)
+        {
+            var y = dtLast.Year - dt.Year;
+            if (y != 0)
+                dt=dt.AddYears(y);
+            var m = dtLast.Month - dt.Month;
+            if (m != 0)
+                dt=dt.AddMonths(m);
+            var d = dtLast.Day - dt.Day;
+            if (d != 0)
+                dt=dt.AddDays(d);
+            return dt;
         }
 
         /// <summary>
@@ -201,7 +224,7 @@ namespace Coldairarrow.Business.ServerFood
                     join b in Service.GetIQueryable<F_OrderInfo>() on a.OrderCode equals b.OrderCode
                     join c in Service.GetIQueryable<F_PublishFood>() on b.PublishFoodId equals c.Id
                     join d in Service.GetIQueryable<F_UserInfo>() on a.UserInfoId equals d.Id
-                    where c.ShopInfoId == shopId && a.CreateTime > DateTime.Now.Date &&
+                    where c.ShopInfoId == shopId && a.CreateTime >= DateTime.Now.Date &&
                           a.CreateTime < DateTime.Now.Date.AddDays(1) && a.Status != 4
                     select d.WeCharUserId;
                 userList = q.ToList();
@@ -232,7 +255,7 @@ namespace Coldairarrow.Business.ServerFood
                     join e in Service.GetIQueryable<Base_DepartmentRelation>() on d.FullDepartment equals e.Department
                         into de
                     from e in de.DefaultIfEmpty()
-                    where c.ShopInfoId == shopId && a.CreateTime > DateTime.Now.Date &&
+                    where c.ShopInfoId == shopId && a.CreateTime >= DateTime.Now.Date &&
                           a.CreateTime < DateTime.Now.Date.AddDays(1) && a.Status != 4
                     select new
                     {

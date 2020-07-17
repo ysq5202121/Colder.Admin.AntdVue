@@ -6,5 +6,6 @@ namespace Coldairarrow.Util
     {
         public string UserId { get; set; }
         public DateTime Expire { get; set; }
+        public int AppId { get; set; }
     }
 }

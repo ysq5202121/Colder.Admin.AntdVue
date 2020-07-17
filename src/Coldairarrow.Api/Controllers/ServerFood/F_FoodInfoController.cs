@@ -1,4 +1,5 @@
-﻿using Coldairarrow.Business.ServerFood;
+﻿using System;
+using Coldairarrow.Business.ServerFood;
 using Coldairarrow.Entity.ServerFood;
 using Coldairarrow.Util;
 using Microsoft.AspNetCore.Mvc;
@@ -56,16 +57,16 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         }
 
         [HttpPost]
+        [ApiPermission("F_FoodInfo.Delete")]
         public async Task DeleteData(List<string> ids)
         {
             await _f_FoodInfoBus.DeleteDataAsync(ids);
         }
 
         [HttpPost]
-        [ApiPermission("F_FoodInfo.Delete")]
-        public async Task PublishFoodData(List<string> ids)
+        public async Task PublishFoodData(List<string> ids, DateTime? dt)
         {
-            await _f_FoodInfoBus.PublishFoodDataAsync(ids);
+            await _f_FoodInfoBus.PublishFoodDataAsync(ids,dt);
         }
 
         #endregion

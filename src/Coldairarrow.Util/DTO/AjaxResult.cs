@@ -16,6 +16,11 @@
         public int ErrorCode { get; set; }
 
         /// <summary>
+        /// AppId
+        /// </summary>
+        public int AppId { get; set; }
+
+        /// <summary>
         /// 返回消息
         /// </summary>
         public string Msg { get; set; }

@@ -57,6 +57,7 @@ namespace Coldairarrow.Api.Controllers.Wechat
         [HttpGet("{id}", Name = "Get")]
         public string Get(int id)
         {
+            WeChatOperation.GetCode();
             return "value";
         }
 

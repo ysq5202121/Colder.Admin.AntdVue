@@ -134,5 +134,17 @@ namespace Coldairarrow.Api
 
             return JsonContent(res.ToJson());
         }
+        public ContentResult Error(string msg, int errorCode,int appID)
+        {
+            AjaxResult res = new AjaxResult
+            {
+                Success = false,
+                Msg = msg,
+                ErrorCode = errorCode,
+                AppId = appID
+            };
+
+            return JsonContent(res.ToJson());
+        }
     }
 }

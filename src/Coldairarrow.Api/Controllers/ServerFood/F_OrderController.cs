@@ -37,7 +37,7 @@ namespace Coldairarrow.Api.Controllers.ServerFood
 
         [HttpPost]
         [NoCheckJWT]
-        [CheckJWTClient]
+        [CheckJWTClient(AppId = (int)EnumWeChatAppType.Food)]
         public async Task<List<IF_OrderResultDTO>> GetDataListToMoblie()
         {
             return await _f_OrderBus.GetDataListToMoblieAsync();
@@ -80,7 +80,7 @@ namespace Coldairarrow.Api.Controllers.ServerFood
 
         [HttpPost]
         [NoCheckJWT]
-        [CheckJWTClient]
+        [CheckJWTClient(AppId = (int)EnumWeChatAppType.Food)]
         public async Task PlaceOrderAsync(List<IF_OrderInputDTO> data) 
         {
             await _f_OrderBus.PlaceOrderAsync(data);
@@ -95,7 +95,7 @@ namespace Coldairarrow.Api.Controllers.ServerFood
 
         [HttpGet]
         [NoCheckJWT]
-        [CheckJWTClient]
+        [CheckJWTClient(AppId = (int)EnumWeChatAppType.Food)]
         public async Task<bool> CancelOrder(string orderCode)
         {
            return await _f_OrderBus.CancelOrderAsync(orderCode);

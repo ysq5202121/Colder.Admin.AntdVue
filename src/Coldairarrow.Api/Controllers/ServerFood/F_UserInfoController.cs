@@ -36,7 +36,7 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         }
         [HttpPost]
         [NoCheckJWT]
-        [CheckJWTClient]
+        [CheckJWTClient(AppId = (int)EnumWeChatAppType.Food)]
         public async Task<F_UserInfo> GetUserInfoToMoblie()
         {
 
@@ -44,7 +44,7 @@ namespace Coldairarrow.Api.Controllers.ServerFood
         }
         [HttpPost]
         [NoCheckJWT]
-        [CheckJWTClient]
+        [CheckJWTClient(AppId = (int)EnumWeChatAppType.Food)]
         public async Task UpdateShopName(F_UserInfo data)
         {
              await _f_UserInfoBus.UpdateShopNameAsync(data);

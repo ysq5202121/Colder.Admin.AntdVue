@@ -31,7 +31,8 @@ namespace Coldairarrow.Util
     public enum EnumWeChatAppType
     {
         Food=1,
-        Room=2
+        Room=2,
+        Report=3
     }
     public class WeChatUserIdInfo : WeChatEntity
     {

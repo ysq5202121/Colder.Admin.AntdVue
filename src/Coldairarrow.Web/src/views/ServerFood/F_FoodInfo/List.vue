@@ -2,6 +2,12 @@
   <a-card :bordered="false">
     <div class="table-operator">
       <a-button type="primary" icon="plus" @click="hanldleAdd()">新建</a-button>
+      <a-date-picker
+        placeholder="请选择订单日期"
+        v-model="toDay"
+        :defaultValue="defaultToDay"
+        valueFormat="YYYY-MM-DD"
+      />&nbsp;
       <a-button
         type="primary"
         icon="notification"
@@ -88,6 +94,7 @@
 
 <script>
 import EditForm from './EditForm'
+import moment, { isMoment } from 'moment'
 
 const columns = [
   { title: '门店名称', dataIndex: 'ShopName', width: 150 },
@@ -126,7 +133,9 @@ export default {
       queryParam: {},
       selectedRowKeys: [],
       previewVisible: false,
-      previewImage: ''
+      previewImage: '',
+      defaultToDay: moment(new Date()),
+      toDay: moment(new Date())
     }
   },
   methods: {
@@ -192,11 +201,19 @@ export default {
     },
     handlePublish(ids) {
       var thisObj = this
+      console.log(this.toDay)
+      if (this.toDay === null) {
+        this.toDay = moment(new Date())
+      }
+      if (!moment.isMoment(this.toDay)) {
+        this.toDay = moment(this.toDay)
+      }
+      var PublishDate = this.toDay
       this.$confirm({
         title: '确定发布吗?',
         onOk() {
           return new Promise((resolve, reject) => {
-            thisObj.$http.post('/ServerFood/F_FoodInfo/PublishFoodData', ids).then(resJson => {
+            thisObj.$http.post('/ServerFood/F_FoodInfo/PublishFoodData?dt=' + PublishDate, ids).then(resJson => {
               resolve()
 
               if (resJson.Success) {
